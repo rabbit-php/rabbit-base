@@ -89,19 +89,4 @@ class App
             }
         }
     }
-
-    public static function autoload($className)
-    {
-        if (strpos($className, '\\') !== false) {
-            $classFile = static::getAlias('@' . str_replace('\\', '/', $className) . '.php', false);
-            if ($classFile === false || !is_file($classFile)) {
-                return;
-            }
-        } else {
-            return;
-        }
-        include $classFile;
-    }
 }
-
-spl_autoload_register([App::class, 'autoload'], true, true);
