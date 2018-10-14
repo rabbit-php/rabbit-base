@@ -6,10 +6,10 @@
  * Time: 13:36
  */
 
-namespace rabbit\framework\core;
+namespace rabbit\core;
 
 
-use rabbit\framework\helper\CoroHelper;
+use rabbit\helper\CoroHelper;
 
 class Context
 {

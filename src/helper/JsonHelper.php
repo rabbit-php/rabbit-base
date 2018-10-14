@@ -6,10 +6,10 @@
  * Time: 18:01
  */
 
-namespace rabbit\framework\helper;
+namespace rabbit\helper;
 
 
-use rabbit\framework\contract\Arrayable;
+use rabbit\contract\Arrayable;
 
 class JsonHelper
 {

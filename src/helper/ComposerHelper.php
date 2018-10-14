@@ -6,7 +6,7 @@
  * Time: 22:26
  */
 
-namespace rabbit\framework\helper;
+namespace rabbit\helper;
 
 
 use Composer\Autoload\ClassLoader;

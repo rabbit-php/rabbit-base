@@ -6,7 +6,7 @@
  * Time: 13:42
  */
 
-namespace rabbit\framework\contract;
+namespace rabbit\contract;
 
 
 interface Arrayable

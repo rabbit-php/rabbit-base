@@ -10,7 +10,7 @@ namespace rabbit\framework;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use rabbit\framework\core\ObjectFactory;
+use rabbit\core\ObjectFactory;
 use swoole_server;
 
 class App

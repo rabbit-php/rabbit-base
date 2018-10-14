@@ -6,13 +6,13 @@
  * Time: 13:47
  */
 
-namespace rabbit\framework\core;
+namespace rabbit\core;
 
 use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
-use rabbit\framework\helper\ArrayHelper;
-use rabbit\framework\helper\ComposerHelper;
+use rabbit\helper\ArrayHelper;
+use rabbit\helper\ComposerHelper;
 use function DI\create;
 
 class ObjectFactory

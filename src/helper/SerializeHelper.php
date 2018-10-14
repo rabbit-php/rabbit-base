@@ -1,6 +1,6 @@
 <?php
 
-namespace rabbit\framework\helper;
+namespace rabbit\helper;
 
 class SerializeHelper
 {

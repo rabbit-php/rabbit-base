@@ -6,8 +6,11 @@
  * Time: 11:56
  */
 
-namespace rabbit\framework\contract;
+namespace rabbit\contract;
 
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 interface DispatcherInterface
 {
@@ -16,5 +19,5 @@ interface DispatcherInterface
      *
      * @param array ...$params dispatcher params
      */
-    public function dispatch(...$params);
+    public function dispatch(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
 }
