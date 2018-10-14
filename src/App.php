@@ -8,23 +8,49 @@
 
 namespace rabbit\framework;
 
-use swoole_http_server;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use rabbit\framework\core\ObjectFactory;
+use swoole_server;
 
 class App
 {
-    public static $aliases = ['@rabbit' => __DIR__ . '/..'];
-
-    /**
-     * @var array
-     */
-    public static $classMap = [];
+    private static $aliases = ['@rabbit' => __DIR__ . '/..'];
 
     /**
      * @var swoole_server
      */
-    public static $server;
+    private static $_server;
 
-    public static function getAlias($alias, $throwException = true)
+    private static $_logger;
+
+    public static function getLogger(): LoggerInterface
+    {
+        if (self::$_logger instanceof LoggerInterface) {
+            return self::$_logger;
+        }
+        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
+            self::$_logger = ObjectFactory::get(NullLogger::class);
+        }
+        return self::$_logger;
+    }
+
+    public static function setLogger(LoggerInterface $logger)
+    {
+        self::$_logger = $logger;
+    }
+
+    public static function setServer(\Swoole\Server $server)
+    {
+        self::$_server = $server;
+    }
+
+    public static function getServer(): ?\Swoole\Server
+    {
+        return self::$_server;
+    }
+
+    public static function getAlias($alias, $throwException = true): ?string
     {
         if (strncmp($alias, '@', 1)) {
             // not an alias
@@ -50,7 +76,7 @@ class App
             throw new \InvalidArgumentException("Invalid path alias: $alias");
         }
 
-        return false;
+        return null;
     }
 
     public static function setAlias($alias, $path)

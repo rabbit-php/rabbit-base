@@ -10,10 +10,10 @@ namespace rabbit\framework\core;
 
 use DI\Container;
 use DI\ContainerBuilder;
-use function DI\create;
 use DI\Definition\Helper\DefinitionHelper;
 use rabbit\framework\helper\ArrayHelper;
 use rabbit\framework\helper\ComposerHelper;
+use function DI\create;
 
 class ObjectFactory
 {
@@ -39,9 +39,16 @@ class ObjectFactory
         ComposerHelper::getLoader();
     }
 
-    public static function get(string $name)
+    public static function get(string $name, bool $throwException = true)
     {
-        return self::$container->get($name);
+        try {
+            return self::$container->get($name);
+        } catch (\Exception $e) {
+            if ($throwException) {
+                throw $e;
+            }
+            return null;
+        }
     }
 
     public static function set(array $definitions = [])
