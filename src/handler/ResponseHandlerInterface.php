@@ -6,7 +6,7 @@
  * Time: 16:08
  */
 
-namespace rabbit\framework\handler;
+namespace rabbit\handler;
 
 
 interface ResponseHandlerInterface

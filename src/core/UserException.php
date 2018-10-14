@@ -6,7 +6,7 @@
  * Time: 19:29
  */
 
-namespace rabbit\framework\core;
+namespace rabbit\core;
 
 
 class UserException extends Exception

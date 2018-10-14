@@ -6,7 +6,7 @@
  * Time: 10:30
  */
 
-namespace rabbit\framework;
+namespace rabbit;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;

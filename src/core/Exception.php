@@ -6,7 +6,7 @@
  * Time: 19:28
  */
 
-namespace rabbit\framework\core;
+namespace rabbit\core;
 
 
 class Exception extends \Exception

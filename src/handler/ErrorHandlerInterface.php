@@ -6,7 +6,7 @@
  * Time: 15:45
  */
 
-namespace rabbit\framework\handler;
+namespace rabbit\handler;
 
 
 interface ErrorHandlerInterface
