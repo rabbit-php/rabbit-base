@@ -11,6 +11,8 @@ namespace rabbit\framework\core;
 use DI\Container;
 use DI\ContainerBuilder;
 use function DI\create;
+use DI\Definition\Helper\DefinitionHelper;
+use rabbit\framework\helper\ArrayHelper;
 use rabbit\framework\helper\ComposerHelper;
 
 class ObjectFactory
@@ -50,10 +52,14 @@ class ObjectFactory
     public static function createObject($type, array $params = [], bool $singleTon = true)
     {
         if (is_string($type)) {
-            return $singleTon ? static::$container->get($type) : static::$container->make($type, $params);
+            $obj = static::$container->make($type, $params);
+            if ($singleTon) {
+                static::$container->set($type, $obj);
+            }
         } elseif (is_array($type) && isset($type['class'])) {
             $class = $type['class'];
             unset($type['class']);
+            $params = ArrayHelper::merge($type, $params);
             return $singleTon ? static::$container->get($class) : static::$container->make($class, $params);
         } elseif (is_callable($type, true)) {
             return static::$container->call($type, $params);
@@ -64,7 +70,7 @@ class ObjectFactory
         throw new \InvalidArgumentException('Unsupported configuration type: ' . gettype($type));
     }
 
-    private static function makeDefinitions(array $definitions = [])
+    private static function makeDefinitions(array $definitions = [], bool $refresh = true)
     {
         foreach ($definitions as $name => $value) {
             if (is_array($value) && isset($value['class'])) {
@@ -77,15 +83,26 @@ class ObjectFactory
                         $auto = $v['auto'];
                         unset($v['auto']);
                     }
-                    if (is_array($v) && isset($v['class']) && $auto) {
-                        self::makeDefinitions($v);
-                        ($definitions[$name])->property($property, self::$container->get($v['class']));
+                    if (is_array($v) && isset($v['class'])) {
+                        if ($auto) {
+                            $define = self::makeDefinitions([$property => $v], false);
+                            ($definitions[$name])->property($property, $define[$property]);
+                        } else {
+                            ($definitions[$name])->property($property, $v);
+                        }
+                    } elseif ($v instanceof DefinitionHelper) {
+                        ($definitions[$name])->property($property, $v->getDefinition($v->className));
+                    } elseif (is_string($v) && strpos($v, '\\') !== false) {
+                        ($definitions[$name])->property($property, self::$container->get($v));
                     } else {
                         ($definitions[$name])->property($property, $v);
                     }
                 }
             }
-            self::$container->set($name, $definitions[$name]);
+            if ($refresh) {
+                self::$container->set($name, $definitions[$name]);
+            }
         }
+        return $definitions;
     }
 }
