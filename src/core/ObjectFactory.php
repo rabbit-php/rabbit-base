@@ -97,8 +97,17 @@ class ObjectFactory
                         } else {
                             ($definitions[$name])->property($property, $v);
                         }
+                    } elseif (is_array($v)) {
+                        foreach ($v as $index => $def) {
+                            if ($def instanceof DefinitionHelper) {
+                                $v[$index] = $def->getDefinition('');
+                            } elseif (is_string($v) && strpos($v, '\\') !== false) {
+                                ($definitions[$name])->property($property, self::$container->get($v));
+                            }
+                        }
+                        ($definitions[$name])->property($property, $v);
                     } elseif ($v instanceof DefinitionHelper) {
-                        ($definitions[$name])->property($property, $v->getDefinition($v->className));
+                        ($definitions[$name])->property($property, $v->getDefinition(''));
                     } elseif (is_string($v) && strpos($v, '\\') !== false) {
                         ($definitions[$name])->property($property, self::$container->get($v));
                     } else {

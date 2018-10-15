@@ -11,5 +11,5 @@ namespace rabbit\handler;
 
 interface ErrorHandlerInterface
 {
-    public function handle(ErrorHandlerInterface $handler);
+    public function handle(\Throwable $throw);
 }
