@@ -2,19 +2,20 @@
 
 namespace rabbit\helpers;
 
+/**
+ * Class StringHelper
+ * @package rabbit\helpers
+ */
 class StringHelper
 {
     /**
-     * Safely casts a float to string independent of the current locale.
-     *
-     * The decimal separator will always be `.`.
-     * @param float|int $number a floating point number or integer.
-     * @return string the string representation of the number.
+     * @param $number
+     * @return mixed
      */
-    public static function floatToString($number)
+    public static function floatToString($number): string
     {
         // . and , are the only decimal separators known in ICU data,
         // so its safe to call str_replace here
-        return str_replace(',', '.', (string) $number);
+        return str_replace(',', '.', (string)$number);
     }
 }

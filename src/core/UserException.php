@@ -8,7 +8,10 @@
 
 namespace rabbit\core;
 
-
+/**
+ * Class UserException
+ * @package rabbit\core
+ */
 class UserException extends Exception
 {
 }

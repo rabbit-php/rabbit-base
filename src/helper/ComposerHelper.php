@@ -11,6 +11,10 @@ namespace rabbit\helper;
 
 use Composer\Autoload\ClassLoader;
 
+/**
+ * Class ComposerHelper
+ * @package rabbit\helper
+ */
 class ComposerHelper
 {
     /**

@@ -13,8 +13,15 @@ use Psr\Log\NullLogger;
 use rabbit\core\ObjectFactory;
 use swoole_server;
 
+/**
+ * Class App
+ * @package rabbit
+ */
 class App
 {
+    /**
+     * @var array
+     */
     private static $aliases = ['@rabbit' => __DIR__ . '/..'];
 
     /**
@@ -22,8 +29,15 @@ class App
      */
     private static $_server;
 
+    /**
+     * @var LoggerInterface
+     */
     private static $_logger;
 
+    /**
+     * @return LoggerInterface
+     * @throws \Exception
+     */
     public static function getLogger(): LoggerInterface
     {
         if (self::$_logger instanceof LoggerInterface) {
@@ -35,21 +49,35 @@ class App
         return self::$_logger;
     }
 
-    public static function setLogger(LoggerInterface $logger)
+    /**
+     * @param LoggerInterface $logger
+     */
+    public static function setLogger(LoggerInterface $logger):void
     {
         self::$_logger = $logger;
     }
 
-    public static function setServer(\Swoole\Server $server)
+    /**
+     * @param \Swoole\Server $server
+     */
+    public static function setServer(\Swoole\Server $server):void
     {
         self::$_server = $server;
     }
 
+    /**
+     * @return null|\Swoole\Server
+     */
     public static function getServer(): ?\Swoole\Server
     {
         return self::$_server;
     }
 
+    /**
+     * @param $alias
+     * @param bool $throwException
+     * @return null|string
+     */
     public static function getAlias($alias, $throwException = true): ?string
     {
         if (strncmp($alias, '@', 1)) {
@@ -79,7 +107,11 @@ class App
         return null;
     }
 
-    public static function setAlias($alias, $path)
+    /**
+     * @param $alias
+     * @param $path
+     */
+    public static function setAlias($alias, $path):void
     {
         if (strncmp($alias, '@', 1)) {
             $alias = '@' . $alias;

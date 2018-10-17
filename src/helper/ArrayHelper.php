@@ -4,9 +4,19 @@ namespace rabbit\helper;
 
 use rabbit\contract\Arrayable;
 
+/**
+ * Class ArrayHelper
+ * @package rabbit\helper
+ */
 class ArrayHelper
 {
-    public static function toArray($object, $properties = [], $recursive = true)
+    /**
+     * @param $object
+     * @param array $properties
+     * @param bool $recursive
+     * @return array
+     */
+    public static function toArray($object, $properties = [], $recursive = true): array
     {
         if (is_array($object)) {
             if ($recursive) {
@@ -49,7 +59,12 @@ class ArrayHelper
         return [$object];
     }
 
-    public static function merge($a, $b)
+    /**
+     * @param $a
+     * @param $b
+     * @return array
+     */
+    public static function merge($a, $b): array
     {
         $args = func_get_args();
         $res = array_shift($args);
@@ -72,6 +87,12 @@ class ArrayHelper
         return $res;
     }
 
+    /**
+     * @param $array
+     * @param $key
+     * @param null $default
+     * @return mixed|null
+     */
     public static function getValue($array, $key, $default = null)
     {
         if ($key instanceof \Closure) {
@@ -106,7 +127,12 @@ class ArrayHelper
         return $default;
     }
 
-    public static function setValue(&$array, $path, $value)
+    /**
+     * @param $array
+     * @param $path
+     * @param $value
+     */
+    public static function setValue(&$array, $path, $value): void
     {
         if ($path === null) {
             $array = $value;
@@ -129,19 +155,30 @@ class ArrayHelper
         $array[array_shift($keys)] = $value;
     }
 
-    public static function remove(&$array, $key, $default = null)
+    /**
+     * @param $array
+     * @param $key
+     * @param null $default
+     * @return bool
+     */
+    public static function remove(&$array, $key, $default = null): bool
     {
         if (is_array($array) && (isset($array[$key]) || array_key_exists($key, $array))) {
             $value = $array[$key];
             unset($array[$key]);
 
-            return $value;
+            return true;
         }
 
-        return $default;
+        return false;
     }
 
-    public static function removeValue(&$array, $value)
+    /**
+     * @param $array
+     * @param $value
+     * @return array
+     */
+    public static function removeValue(&$array, $value): array
     {
         $result = [];
         if (is_array($array)) {
@@ -156,7 +193,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function index($array, $key, $groups = [])
+    /**
+     * @param $array
+     * @param $key
+     * @param array $groups
+     * @return array
+     */
+    public static function index($array, $key, $groups = []): array
     {
         $result = [];
         $groups = (array)$groups;
@@ -191,7 +234,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function getColumn($array, $name, $keepKeys = true)
+    /**
+     * @param $array
+     * @param $name
+     * @param bool $keepKeys
+     * @return array
+     */
+    public static function getColumn($array, $name, $keepKeys = true): array
     {
         $result = [];
         if ($keepKeys) {
@@ -207,7 +256,14 @@ class ArrayHelper
         return $result;
     }
 
-    public static function map($array, $from, $to, $group = null)
+    /**
+     * @param $array
+     * @param $from
+     * @param $to
+     * @param null $group
+     * @return array
+     */
+    public static function map($array, $from, $to, $group = null): array
     {
         $result = [];
         foreach ($array as $element) {
@@ -223,7 +279,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function keyExists($key, $array, $caseSensitive = true)
+    /**
+     * @param $key
+     * @param $array
+     * @param bool $caseSensitive
+     * @return bool
+     */
+    public static function keyExists($key, $array, $caseSensitive = true): bool
     {
         if ($caseSensitive) {
             // Function `isset` checks key faster but skips `null`, `array_key_exists` handles this case
@@ -240,7 +302,13 @@ class ArrayHelper
         return false;
     }
 
-    public static function multisort(&$array, $key, $direction = SORT_ASC, $sortFlag = SORT_REGULAR)
+    /**
+     * @param $array
+     * @param $key
+     * @param int $direction
+     * @param int $sortFlag
+     */
+    public static function multisort(&$array, $key, $direction = SORT_ASC, $sortFlag = SORT_REGULAR): void
     {
         $keys = is_array($key) ? $key : [$key];
         if (empty($keys) || empty($array)) {
@@ -275,7 +343,12 @@ class ArrayHelper
         call_user_func_array('array_multisort', $args);
     }
 
-    public static function isAssociative($array, $allStrings = true)
+    /**
+     * @param $array
+     * @param bool $allStrings
+     * @return bool
+     */
+    public static function isAssociative($array, $allStrings = true): bool
     {
         if (!is_array($array) || empty($array)) {
             return false;
@@ -300,7 +373,12 @@ class ArrayHelper
         return false;
     }
 
-    public static function isIndexed($array, $consecutive = false)
+    /**
+     * @param $array
+     * @param bool $consecutive
+     * @return bool
+     */
+    public static function isIndexed($array, $consecutive = false): bool
     {
         if (!is_array($array)) {
             return false;
@@ -323,7 +401,13 @@ class ArrayHelper
         return true;
     }
 
-    public static function isIn($needle, $haystack, $strict = false)
+    /**
+     * @param $needle
+     * @param $haystack
+     * @param bool $strict
+     * @return bool
+     */
+    public static function isIn($needle, $haystack, $strict = false): bool
     {
         if ($haystack instanceof \Traversable) {
             foreach ($haystack as $value) {
@@ -340,12 +424,22 @@ class ArrayHelper
         return false;
     }
 
-    public static function isTraversable($var)
+    /**
+     * @param $var
+     * @return bool
+     */
+    public static function isTraversable($var): bool
     {
         return is_array($var) || $var instanceof \Traversable;
     }
 
-    public static function isSubset($needles, $haystack, $strict = false)
+    /**
+     * @param $needles
+     * @param $haystack
+     * @param bool $strict
+     * @return bool
+     */
+    public static function isSubset($needles, $haystack, $strict = false): bool
     {
         if (is_array($needles) || $needles instanceof \Traversable) {
             foreach ($needles as $needle) {
@@ -360,7 +454,12 @@ class ArrayHelper
         throw new \InvalidArgumentException('Argument $needles must be an array or implement Traversable');
     }
 
-    public static function filter($array, $filters)
+    /**
+     * @param $array
+     * @param $filters
+     * @return array
+     */
+    public static function filter($array, $filters): array
     {
         $result = [];
         $forbiddenVars = [];
@@ -404,7 +503,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function getValueByList(array $array, array $keys, $default = null)
+    /**
+     * @param array $array
+     * @param array $keys
+     * @param null $default
+     * @return array|null
+     */
+    public static function getValueByList(array $array, array $keys, $default = null): ?array
     {
         if (!is_array($array) || !is_array($keys)) {
             return null;
@@ -426,7 +531,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function getValueByArray(array $array, array $keys, $default = null)
+    /**
+     * @param array $array
+     * @param array $keys
+     * @param null $default
+     * @return array|null
+     */
+    public static function getValueByArray(array $array, array $keys, $default = null): ?array
     {
         if (!is_array($array) || !is_array($keys)) {
             return null;
@@ -448,7 +559,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function sum(array $array, $key, $group)
+    /**
+     * @param array $array
+     * @param $key
+     * @param $group
+     * @return array|null
+     */
+    public static function sum(array $array, $key, $group): ?array
     {
         if (!is_array($array) || !$key || !$group) {
             return null;

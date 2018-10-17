@@ -10,6 +10,10 @@
 
 namespace rabbit\helper;
 
+/**
+ * Class XmlHelper
+ * @package rabbit\helper
+ */
 class XmlHelper
 {
     /**

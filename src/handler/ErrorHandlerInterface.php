@@ -8,8 +8,17 @@
 
 namespace rabbit\handler;
 
+use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Interface ErrorHandlerInterface
+ * @package rabbit\handler
+ */
 interface ErrorHandlerInterface
 {
-    public function handle(\Throwable $throw);
+    /**
+     * @param \Throwable $throw
+     * @return mixed
+     */
+    public function handle(\Throwable $throw): ResponseInterface;
 }

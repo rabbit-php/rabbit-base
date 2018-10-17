@@ -8,7 +8,10 @@
 
 namespace rabbit\contract;
 
-
+/**
+ * Interface Arrayable
+ * @package rabbit\contract
+ */
 interface Arrayable
 {
     /**

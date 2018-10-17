@@ -11,22 +11,39 @@ namespace rabbit\core;
 
 use rabbit\helper\CoroHelper;
 
+/**
+ * Class Context
+ * @package rabbit\core
+ */
 class Context
 {
+    /**
+     * @var array
+     */
     private static $context = [];
 
+    /**
+     * @return array|null
+     */
     public static function getAll(): ?array
     {
         return self::$context[CoroHelper::getId()];
     }
 
-    public static function setAll($config = [])
+    /**
+     * @param array $config
+     */
+    public static function setAll($config = []): void
     {
         foreach ($config as $name => $value) {
             self::set($name, $value);
         }
     }
 
+    /**
+     * @param string $name
+     * @return null
+     */
     public static function get(string $name)
     {
         $id = CoroHelper::getId();
@@ -39,17 +56,28 @@ class Context
         return null;
     }
 
-    public static function set(string $name, $value)
+    /**
+     * @param string $name
+     * @param $value
+     */
+    public static function set(string $name, $value): void
     {
         self::$context[CoroHelper::getId()][$name] = $value;
     }
 
-    public static function has($name): bool
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function has(string $name): bool
     {
-        return isset(self::$context[CoroHelper::getId()][$name]) || isset(self::$context[0][$name]);
+        return isset(self::$context[CoroHelper::getId()][$name]);
     }
 
-    public static function release()
+    /**
+     *
+     */
+    public static function release(): void
     {
         unset(self::$context[CoroHelper::getId()]);
     }

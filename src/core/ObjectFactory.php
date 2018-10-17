@@ -15,6 +15,10 @@ use rabbit\helper\ArrayHelper;
 use rabbit\helper\ComposerHelper;
 use function DI\create;
 
+/**
+ * Class ObjectFactory
+ * @package rabbit\core
+ */
 class ObjectFactory
 {
     /**
@@ -23,22 +27,51 @@ class ObjectFactory
     private static $container;
 
     /**
-     * @var
+     * @var array
      */
-    public static $definitions;
+    private static $definitions = [];
 
+    /**
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
     public static function init()
     {
         self::$container = (new ContainerBuilder())->build();
         self::makeDefinitions(self::$definitions);
     }
 
+    /**
+     * @param array $definitions
+     */
+    public static function setDefinitions(array $definitions): void
+    {
+        self::$definitions = $definitions;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getDefiinitions(): array
+    {
+        return self::$definitions;
+    }
+
+    /**
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
     public static function reload(): void
     {
         self::init();
-        ComposerHelper::getLoader();
     }
 
+    /**
+     * @param string $name
+     * @param bool $throwException
+     * @return mixed|null
+     * @throws \Exception
+     */
     public static function get(string $name, bool $throwException = true)
     {
         try {
@@ -51,11 +84,24 @@ class ObjectFactory
         }
     }
 
+    /**
+     * @param array $definitions
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
     public static function set(array $definitions = [])
     {
         self::makeDefinitions($definitions);
     }
 
+    /**
+     * @param $type
+     * @param array $params
+     * @param bool $singleTon
+     * @return mixed
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
     public static function createObject($type, array $params = [], bool $singleTon = true)
     {
         if (is_string($type)) {
@@ -77,6 +123,13 @@ class ObjectFactory
         throw new \InvalidArgumentException('Unsupported configuration type: ' . gettype($type));
     }
 
+    /**
+     * @param array $definitions
+     * @param bool $refresh
+     * @return array
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
     private static function makeDefinitions(array $definitions = [], bool $refresh = true)
     {
         foreach ($definitions as $name => $value) {

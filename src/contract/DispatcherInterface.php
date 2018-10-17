@@ -12,12 +12,16 @@ namespace rabbit\contract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Interface DispatcherInterface
+ * @package rabbit\contract
+ */
 interface DispatcherInterface
 {
     /**
-     * Dispatch
-     *
-     * @param array ...$params dispatcher params
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
      */
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
 }
