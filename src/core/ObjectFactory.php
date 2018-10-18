@@ -12,7 +12,6 @@ use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
 use rabbit\helper\ArrayHelper;
-use rabbit\helper\ComposerHelper;
 use function DI\create;
 
 /**
@@ -105,15 +104,14 @@ class ObjectFactory
     public static function createObject($type, array $params = [], bool $singleTon = true)
     {
         if (is_string($type)) {
-            $obj = static::$container->make($type, $params);
-            if ($singleTon) {
-                static::$container->set($type, $obj);
-            }
+            return self::setObj($type, $params, $singleTon);
         } elseif (is_array($type) && isset($type['class'])) {
             $class = $type['class'];
             unset($type['class']);
             $params = ArrayHelper::merge($type, $params);
-            return $singleTon ? static::$container->get($class) : static::$container->make($class, $params);
+            return self::setObj($class, $params, $singleTon);
+        } elseif ($type instanceof DefinitionHelper) {
+            return $type->getDefinition('');
         } elseif (is_callable($type, true)) {
             return static::$container->call($type, $params);
         } elseif (is_array($type)) {
@@ -121,6 +119,28 @@ class ObjectFactory
         }
 
         throw new \InvalidArgumentException('Unsupported configuration type: ' . gettype($type));
+    }
+
+    /**
+     * @param string $class
+     * @param array $params
+     * @param bool $singleTon
+     * @return mixed
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
+    private static function setObj(string $class, array $params = [], bool $singleTon)
+    {
+        if ($singleTon) {
+            $obj = static::$container->get($class);
+            foreach ($params as $key => $value) {
+                $obj->$key = $value;
+            }
+            static::$container->set($class, $obj);
+        } else {
+            $obj = static::$container->make($class, $params);
+        }
+        return $obj;
     }
 
     /**
