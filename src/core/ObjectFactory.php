@@ -175,7 +175,7 @@ class ObjectFactory
                             if ($def instanceof DefinitionHelper) {
                                 $v[$index] = $def->getDefinition('');
                             } elseif (is_string($v) && strpos($v, '\\') !== false) {
-                                ($definitions[$name])->property($property, self::$container->get($v));
+                                $v[$index] = self::$container->get($v);
                             }
                         }
                         ($definitions[$name])->property($property, $v);
