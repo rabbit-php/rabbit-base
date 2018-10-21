@@ -71,7 +71,7 @@ class ObjectFactory
      * @return mixed|null
      * @throws \Exception
      */
-    public static function get(string $name, bool $throwException = true)
+    public static function get(string $name, $default = null, bool $throwException = true)
     {
         try {
             return self::$container->get($name);
@@ -79,7 +79,7 @@ class ObjectFactory
             if ($throwException) {
                 throw $e;
             }
-            return null;
+            return $default;
         }
     }
 
