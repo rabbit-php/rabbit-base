@@ -75,8 +75,8 @@ class ObjectFactory
     {
         try {
             return self::$container->get($name);
-        } catch (\Exception $e) {
-            if ($throwException) {
+        } catch (\Throwable $e) {
+            if ($throwException && $default === null) {
                 throw $e;
             }
             return $default;
