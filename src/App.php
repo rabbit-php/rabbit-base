@@ -9,6 +9,7 @@
 namespace rabbit;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use rabbit\core\ObjectFactory;
 use swoole_server;
@@ -43,7 +44,7 @@ class App
         if (self::$_logger instanceof LoggerInterface) {
             return self::$_logger;
         }
-        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
+        if ((self::$_logger = ObjectFactory::get('logger', null, false)) === null) {
             self::$_logger = ObjectFactory::get(NullLogger::class);
         }
         return self::$_logger;
@@ -52,7 +53,7 @@ class App
     /**
      * @param LoggerInterface $logger
      */
-    public static function setLogger(LoggerInterface $logger):void
+    public static function setLogger(LoggerInterface $logger): void
     {
         self::$_logger = $logger;
     }
@@ -60,7 +61,7 @@ class App
     /**
      * @param \Swoole\Server $server
      */
-    public static function setServer(\Swoole\Server $server):void
+    public static function setServer(\Swoole\Server $server): void
     {
         self::$_server = $server;
     }
@@ -68,9 +69,12 @@ class App
     /**
      * @return null|\Swoole\Server
      */
-    public static function getServer(): ?\Swoole\Server
+    public static function getServer(): \Swoole\Server
     {
-        return self::$_server;
+        if (self::$_server) {
+            return self::$_server;
+        }
+        return new \Swoole\Server('0.0.0.0');
     }
 
     /**
@@ -111,7 +115,7 @@ class App
      * @param $alias
      * @param $path
      */
-    public static function setAlias($alias, $path):void
+    public static function setAlias($alias, $path): void
     {
         if (strncmp($alias, '@', 1)) {
             $alias = '@' . $alias;
@@ -147,4 +151,85 @@ class App
             }
         }
     }
+
+    /**
+     * @param string $log
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function debug(string $log, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::DEBUG, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function emergency($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::EMERGENCY, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function alert($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::ALERT, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function critical($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::CRITICAL, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function error($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::ERROR, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function warning($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::WARNING, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function notice($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::NOTICE, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
+    /**
+     * @param $message
+     * @param string|null $module
+     * @throws \Exception
+     */
+    public function info($message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::INFO, $log, ['module' => $module ?? ObjectFactory::get('appName')]);
+    }
+
 }
