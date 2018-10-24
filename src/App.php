@@ -157,7 +157,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function debug(string $message, string $module = null): void
+    public static function debug(string $message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -167,7 +167,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function emergency($message, string $module = null): void
+    public static function emergency($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::EMERGENCY, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -177,7 +177,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function alert($message, string $module = null): void
+    public static function alert($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::ALERT, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -187,7 +187,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function critical($message, string $module = null): void
+    public static function critical($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::CRITICAL, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -197,7 +197,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function error($message, string $module = null): void
+    public static function error($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::ERROR, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -207,7 +207,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function warning($message, string $module = null): void
+    public static function warning($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::WARNING, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -217,7 +217,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function notice($message, string $module = null): void
+    public static function notice($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::NOTICE, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
@@ -227,7 +227,7 @@ class App
      * @param string|null $module
      * @throws \Exception
      */
-    public function info($message, string $module = null): void
+    public static function info($message, string $module = null): void
     {
         static::getLogger()->log(LogLevel::INFO, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
     }
