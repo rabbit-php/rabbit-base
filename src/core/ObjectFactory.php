@@ -34,10 +34,15 @@ class ObjectFactory
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public static function init()
+    public static function init(bool $auto = true)
     {
         self::$container = (new ContainerBuilder())->build();
         self::makeDefinitions(self::$definitions);
+        if ($auto) {
+            foreach (self::$definitions as $name => $definition) {
+                self::$container->get($name);
+            }
+        }
     }
 
     /**

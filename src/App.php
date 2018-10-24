@@ -11,6 +11,7 @@ namespace rabbit;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
+use rabbit\core\BaseObject;
 use rabbit\core\ObjectFactory;
 use swoole_server;
 
@@ -34,6 +35,9 @@ class App
      * @var LoggerInterface
      */
     private static $_logger;
+
+    /** @var BaseObject */
+    private static $_object;
 
     /**
      * @return LoggerInterface
@@ -69,12 +73,21 @@ class App
     /**
      * @return null|\Swoole\Server
      */
-    public static function getServer(): \Swoole\Server
+    public static function getServer(): ?\Swoole\Server
     {
-        if (self::$_server) {
-            return self::$_server;
+        return self::$_server;
+    }
+
+    /**
+     * @return BaseObject
+     */
+    public static function getApp(): BaseObject
+    {
+        if (self::$_object) {
+            return self::$_object;
         }
-        return new \Swoole\Server('0.0.0.0');
+        self::$_object = new BaseObject();
+        return self::$_object;
     }
 
     /**
