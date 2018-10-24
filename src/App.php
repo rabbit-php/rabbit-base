@@ -48,7 +48,7 @@ class App
         if (self::$_logger instanceof LoggerInterface) {
             return self::$_logger;
         }
-        if ((self::$_logger = ObjectFactory::get('logger', null, false)) === null) {
+        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
             self::$_logger = ObjectFactory::get(NullLogger::class);
         }
         return self::$_logger;
