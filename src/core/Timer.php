@@ -28,7 +28,7 @@ class Timer
      *
      * @return int
      */
-    public function addAfterTimer(string $name, int $time, callable $callback, array $params = [])
+    public function addAfterTimer(string $name, int $time, callable $callback, array $params = []): int
     {
         array_unshift($params, $name, $callback);
         $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
@@ -46,7 +46,7 @@ class Timer
      *
      * @return int
      */
-    public function addTickTimer(string $name, int $time, callable $callback, array $params = [])
+    public function addTickTimer(string $name, int $time, callable $callback, array $params = []): int
     {
         array_unshift($params, $name, $callback);
 
@@ -64,7 +64,7 @@ class Timer
      *
      * @return bool
      */
-    public function clearTimerByName(string $name)
+    public function clearTimerByName(string $name): bool
     {
         if (!isset($this->timers[$name])) {
             return true;
@@ -82,7 +82,7 @@ class Timer
      *
      * @param array $params 参数传递
      */
-    public function timerCallback($params)
+    public function timerCallback(int $timer_id, array $params = null): void
     {
         if (count($params) < 2) {
             return;
@@ -95,6 +95,8 @@ class Timer
         if (is_array($callback)) {
             list($class, $method) = $callback;
             $class->$method(...$callbackParams);
+        } elseif ($callback instanceof \Closure) {
+            call_user_func($callback, $callbackParams);
         } else {
             $callback(...$callbackParams);
         }
