@@ -13,10 +13,31 @@ class Timer
      */
     const TIMER_PREFIX = "timer";
 
+    const TYPE_AFTER = 'after';
+    const TYPE_TICKET = 'tick';
+
     /**
      * @var array 所有定时器
      */
     private $timers = [];
+
+    /**
+     * @return array
+     */
+    public function getTimers(): array
+    {
+        return $this->timers;
+    }
+
+    /**
+     * @param string $name
+     * @param null $default
+     * @return array
+     */
+    public function getTimer(string $name, $default = null): array
+    {
+        return isset($this->timers[$name]) ? $this->timers[$name] : $default;
+    }
 
     /**
      * 添加一个定时器，只执行一次
@@ -30,9 +51,9 @@ class Timer
      */
     public function addAfterTimer(string $name, int $time, callable $callback, array $params = []): int
     {
-        array_unshift($params, $name, $callback);
+        array_unshift($params, $name, self::TYPE_AFTER, $callback);
         $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
-        $this->timers[$name][$tid] = $tid;
+        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
         return $tid;
     }
 
@@ -48,11 +69,11 @@ class Timer
      */
     public function addTickTimer(string $name, int $time, callable $callback, array $params = []): int
     {
-        array_unshift($params, $name, $callback);
+        array_unshift($params, $name, self::TYPE_TICKET, $callback);
 
         $tid = \Swoole\Timer::tick($time, [$this, 'timerCallback'], $params);
 
-        $this->timers[$name][$tid] = $tid;
+        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
 
         return $tid;
     }
@@ -88,7 +109,14 @@ class Timer
             return;
         }
         $name = array_shift($params);
+        $type = array_shift($params);
         $callback = array_shift($params);
+
+        if (isset($this->timers[$name])) {
+            $this->timers[$name]['count']++;
+        } else {
+            $this->timers[$name] = ['name' => $name, 'tid' => $timer_id, 'type' => $type, 'count' => 0];
+        }
 
         $callbackParams = array_values($params);
 
