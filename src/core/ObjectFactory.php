@@ -109,12 +109,12 @@ class ObjectFactory
     public static function createObject($type, array $params = [], bool $singleTon = true)
     {
         if (is_string($type)) {
-            return self::setObj($type, $params, $singleTon);
+            return self::make($type, $params, $singleTon);
         } elseif (is_array($type) && isset($type['class'])) {
             $class = $type['class'];
             unset($type['class']);
             $params = ArrayHelper::merge($type, $params);
-            return self::setObj($class, $params, $singleTon);
+            return self::make($class, $params, $singleTon);
         } elseif ($type instanceof DefinitionHelper) {
             return $type->getDefinition('');
         } elseif (is_callable($type, true)) {
@@ -134,14 +134,15 @@ class ObjectFactory
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    private static function setObj(string $class, array $params = [], bool $singleTon)
+    private static function make(string $class, array $params = [], bool $singleTon)
     {
         if ($singleTon) {
-            $obj = static::$container->get($class);
-            foreach ($params as $key => $value) {
-                $obj->$key = $value;
+            if (static::$container->has($class)) {
+                return static::$container->get($class);
             }
+            $obj = static::$container->make($class, $params);
             static::$container->set($class, $obj);
+            return $obj;
         } else {
             $obj = static::$container->make($class, $params);
         }
