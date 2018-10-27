@@ -23,7 +23,7 @@ class ObjectFactory
     /**
      * @var Container
      */
-    private static $container;
+    public static $container;
 
     /**
      * @var array
@@ -116,7 +116,7 @@ class ObjectFactory
             $params = ArrayHelper::merge($type, $params);
             return self::make($class, $params, $singleTon);
         } elseif ($type instanceof DefinitionHelper) {
-            return $type->getDefinition('');
+            return static::$container->get($type->getDefinition('')->getName());
         } elseif (is_callable($type, true)) {
             return static::$container->call($type, $params);
         } elseif (is_array($type)) {
@@ -137,7 +137,7 @@ class ObjectFactory
     private static function make(string $class, array $params = [], bool $singleTon)
     {
         if ($singleTon) {
-            if (static::$container->has($class)) {
+            if (in_array($class, static::$container->getKnownEntryNames())) {
                 return static::$container->get($class);
             }
             $obj = static::$container->make($class, $params);
