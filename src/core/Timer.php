@@ -112,12 +112,6 @@ class Timer
         $type = array_shift($params);
         $callback = array_shift($params);
 
-        if (isset($this->timers[$name])) {
-            $this->timers[$name]['count']++;
-        } else {
-            $this->timers[$name] = ['name' => $name, 'tid' => $timer_id, 'type' => $type, 'count' => 0];
-        }
-
         $callbackParams = array_values($params);
 
         if (is_array($callback)) {
