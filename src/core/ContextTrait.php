@@ -69,6 +69,14 @@ trait ContextTrait
     }
 
     /**
+     * @param string $name
+     */
+    public static function delete(string $name): void
+    {
+        unset(self::$context[CoroHelper::getId()][$name]);
+    }
+
+    /**
      *
      */
     public static function release(): void
