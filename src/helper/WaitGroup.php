@@ -22,25 +22,33 @@ class WaitGroup
     /** @var \Swoole\Coroutine\Channel */
     private $channel;
 
+    /**
+     * CoroGroup constructor.
+     */
     public function __construct()
     {
         $this->channel = new Channel;
     }
 
-    public function add(): void
+    /**
+     * @param callable $callback
+     */
+    public function add(callable $callback): self
     {
         $this->count++;
+        go(function () use ($callback) {
+            call_user_func($callback);
+            $this->channel->push(true);
+        });
     }
 
-    public function done(): void
-    {
-        $this->channel->push(true);
-    }
-
-    public function wait():void
+    /**
+     * @param float $timeout
+     */
+    public function wait(float $timeout = 0): void
     {
         for ($i = 0; $i < $this->count; $i++) {
-            $this->channel->pop();
+            $this->channel->pop($timeout);
         }
     }
 }
