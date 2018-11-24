@@ -2,6 +2,8 @@
 
 namespace rabbit\helper;
 
+use rabbit\App;
+
 /**
  * Class CoroHelper
  * @package rabbit\helper
@@ -43,5 +45,20 @@ class CoroHelper
     public static function createCsp(int $total): CSP
     {
         return new CSP($total);
+    }
+
+    /**
+     * @param \Closure $function
+     * @throws \Exception
+     */
+    public static function go(\Closure $function)
+    {
+        try {
+            go(function () use ($function) {
+                $function();
+            });
+        } catch (\Throwable $throwable) {
+            App::error($throwable->getMessage());
+        }
     }
 }
