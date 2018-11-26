@@ -99,6 +99,17 @@ class Timer
     }
 
     /**
+     * @return bool
+     */
+    public function clearTimers(): bool
+    {
+        foreach ($this->timers as $name => $timerData) {
+            \Swoole\Timer::clear($timerData['tid']);
+        }
+        return true;
+    }
+
+    /**
      * 定时器回调函数
      *
      * @param array $params 参数传递
