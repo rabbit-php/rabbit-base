@@ -19,7 +19,7 @@ class BaseObject
      */
     public function __get($name)
     {
-        $this->$name;
+        return $this->$name;
     }
 
     /**
