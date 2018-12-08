@@ -8,7 +8,7 @@
 
 namespace rabbit\helper;
 
-use Swoole\Coroutine\Chanel;
+use Swoole\Coroutine\Channel;
 
 /**
  * Class WaitGroup
@@ -31,24 +31,37 @@ class WaitGroup
     }
 
     /**
+     * @return WaitGroup
+     */
+    public function create(): self
+    {
+        $this->channel = new Channel;
+        return $this;
+    }
+
+    /**
      * @param callable $callback
      */
-    public function add(callable $callback): self
+    public function add(string $name, callable $callback): self
     {
         $this->count++;
-        go(function () use ($callback) {
-            call_user_func($callback);
-            $this->channel->push(true);
+        CoroHelper::go(function () use ($name, $callback) {
+            $result = call_user_func($callback);
+            $this->channel->push([$name, $result]);
         });
+        return $this;
     }
 
     /**
      * @param float $timeout
      */
-    public function wait(float $timeout = 0): void
+    public function wait(float $timeout = 0): array
     {
-        for ($i = 0; $i < $this->count; $i++) {
-            $this->channel->pop($timeout);
+        $res = [];
+        for ($i = 0; $i < $this->count++; $i++) {
+            list($name, $result) = $this->channel->pop($timeout);
+            $res[$name] = $result;
         }
+        return $res;
     }
 }

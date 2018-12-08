@@ -39,15 +39,6 @@ class CoroHelper
     }
 
     /**
-     * @param int $total
-     * @return CSP
-     */
-    public static function createCsp(int $total): CSP
-    {
-        return new CSP($total);
-    }
-
-    /**
      * @param \Closure $function
      * @throws \Exception
      */
