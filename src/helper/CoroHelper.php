@@ -3,6 +3,9 @@
 namespace rabbit\helper;
 
 use rabbit\App;
+use rabbit\contract\DeferInterface;
+use rabbit\core\Context;
+use rabbit\core\ObjectFactory;
 
 /**
  * Class CoroHelper
@@ -51,5 +54,15 @@ class CoroHelper
         } catch (\Throwable $throwable) {
             App::error($throwable->getMessage());
         }
+    }
+
+    /**
+     * @param callable $function
+     */
+    public static function addDefer(callable $function): void
+    {
+        defer(function () use ($function) {
+            call_user_func($function);
+        });
     }
 }
