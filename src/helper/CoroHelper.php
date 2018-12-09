@@ -4,8 +4,6 @@ namespace rabbit\helper;
 
 use rabbit\App;
 use rabbit\contract\DeferInterface;
-use rabbit\core\Context;
-use rabbit\core\ObjectFactory;
 
 /**
  * Class CoroHelper
