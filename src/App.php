@@ -172,7 +172,7 @@ class App
      */
     public static function debug(string $message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -182,7 +182,7 @@ class App
      */
     public static function emergency($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::EMERGENCY, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::EMERGENCY, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -192,7 +192,7 @@ class App
      */
     public static function alert($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::ALERT, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::ALERT, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -202,7 +202,7 @@ class App
      */
     public static function critical($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::CRITICAL, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::CRITICAL, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -212,7 +212,7 @@ class App
      */
     public static function error($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::ERROR, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::ERROR, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -222,7 +222,7 @@ class App
      */
     public static function warning($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::WARNING, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::WARNING, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -232,7 +232,7 @@ class App
      */
     public static function notice($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::NOTICE, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::NOTICE, $message, ['module' => $module ?? 'system']);
     }
 
     /**
@@ -242,7 +242,7 @@ class App
      */
     public static function info($message, string $module = null): void
     {
-        static::getLogger()->log(LogLevel::INFO, $message, ['module' => $module ?? ObjectFactory::get('appName')]);
+        static::getLogger()->log(LogLevel::INFO, $message, ['module' => $module ?? 'system']);
     }
 
 }
