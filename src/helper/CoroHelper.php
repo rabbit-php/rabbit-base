@@ -43,14 +43,15 @@ class CoroHelper
      * @param \Closure $function
      * @throws \Exception
      */
-    public static function go(\Closure $function)
+    public static function go(\Closure $function): int
     {
         try {
-            go(function () use ($function) {
+            return go(function () use ($function) {
                 $function();
             });
         } catch (\Throwable $throwable) {
             App::error($throwable->getMessage());
+            return 0;
         }
     }
 

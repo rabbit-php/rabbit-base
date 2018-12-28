@@ -2,11 +2,13 @@
 
 namespace rabbit\core;
 
+use rabbit\helper\CoroHelper;
+
 /**
- * Class Timer
+ * Class TimerCo
  * @package rabbit\core
  */
-class Timer
+class TimerCo
 {
     /**
      * 日志统计前缀
@@ -40,41 +42,42 @@ class Timer
     }
 
     /**
-     * 添加一个定时器，只执行一次
-     *
-     * @param string $name 名称
-     * @param int $time 毫秒
-     * @param callable $callback 回调函数
-     * @param array $params 参数
-     *
+     * @param string $name
+     * @param float $time
+     * @param callable $callback
+     * @param array $params
      * @return int
      */
-    public function addAfterTimer(string $name, int $time, callable $callback, array $params = []): int
+    public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
-        $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
-        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
+        $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
+        $tid = go(function () use ($time, $params) {
+            CoroHelper::sleep($time / 1000);
+            $this->timerCallback($params);
+        });
+        $this->timers[$name]['tid'] = $tid;
         return $tid;
     }
 
     /**
-     * 添加一个定时器，每隔时间执行
-     *
-     * @param string $name 名称
-     * @param int $time 毫秒
-     * @param callable $callback 回调函数
-     * @param    array $params 参数
-     *
+     * @param string $name
+     * @param float $time
+     * @param callable $callback
+     * @param array $params
      * @return int
      */
-    public function addTickTimer(string $name, int $time, callable $callback, array $params = []): int
+    public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
-        array_unshift($params, $name ?? uniqid(), self::TYPE_TICKET, $callback);
-
-        $tid = \Swoole\Timer::tick($time, [$this, 'timerCallback'], $params);
-
-        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
-
+        array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
+        $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
+        $tid = go(function () use ($name, $time, $params) {
+            while (isset($this->timers[$name])) {
+                $this->timerCallback($params);
+                CoroHelper::sleep($time / 1000);
+            }
+        });
+        $this->timers[$name]['tid'] = $tid;
         return $tid;
     }
 
@@ -90,9 +93,7 @@ class Timer
         if (!isset($this->timers[$name])) {
             return true;
         }
-        \Swoole\Timer::clear($this->timers[$name]['tid']);
         unset($this->timers[$name]);
-
         return true;
     }
 
@@ -101,9 +102,7 @@ class Timer
      */
     public function clearTimers(): bool
     {
-        foreach ($this->timers as $name => $timerData) {
-            \Swoole\Timer::clear($timerData['tid']);
-        }
+        $this->timers = [];
         return true;
     }
 
@@ -112,7 +111,7 @@ class Timer
      *
      * @param array $params 参数传递
      */
-    public function timerCallback(int $timer_id, array $params = null): void
+    public function timerCallback(array $params): void
     {
         if (count($params) < 2) {
             return;
