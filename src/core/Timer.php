@@ -2,54 +2,22 @@
 
 namespace rabbit\core;
 
+use rabbit\contract\AbstractTimer;
+
 /**
  * Class Timer
  * @package rabbit\core
  */
-class Timer
+class Timer extends AbstractTimer
 {
     /**
-     * 日志统计前缀
-     */
-    const TIMER_PREFIX = "timer";
-
-    const TYPE_AFTER = 'after';
-    const TYPE_TICKET = 'tick';
-
-    /**
-     * @var array 所有定时器
-     */
-    private $timers = [];
-
-    /**
-     * @return array
-     */
-    public function getTimers(): array
-    {
-        return $this->timers;
-    }
-
-    /**
      * @param string $name
-     * @param null $default
-     * @return array
-     */
-    public function getTimer(string $name, $default = null): array
-    {
-        return isset($this->timers[$name]) ? $this->timers[$name] : $default;
-    }
-
-    /**
-     * 添加一个定时器，只执行一次
-     *
-     * @param string $name 名称
-     * @param int $time 毫秒
-     * @param callable $callback 回调函数
-     * @param array $params 参数
-     *
+     * @param float $time
+     * @param callable $callback
+     * @param array $params
      * @return int
      */
-    public function addAfterTimer(string $name, int $time, callable $callback, array $params = []): int
+    public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
@@ -58,16 +26,13 @@ class Timer
     }
 
     /**
-     * 添加一个定时器，每隔时间执行
-     *
-     * @param string $name 名称
-     * @param int $time 毫秒
-     * @param callable $callback 回调函数
-     * @param    array $params 参数
-     *
+     * @param string $name
+     * @param float $time
+     * @param callable $callback
+     * @param array $params
      * @return int
      */
-    public function addTickTimer(string $name, int $time, callable $callback, array $params = []): int
+    public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         array_unshift($params, $name ?? uniqid(), self::TYPE_TICKET, $callback);
 
@@ -108,28 +73,11 @@ class Timer
     }
 
     /**
-     * 定时器回调函数
-     *
-     * @param array $params 参数传递
+     * @param int $timer_id
+     * @param array|null $params
      */
     public function timerCallback(int $timer_id, array $params = null): void
     {
-        if (count($params) < 2) {
-            return;
-        }
-        $name = array_shift($params);
-        $type = array_shift($params);
-        $callback = array_shift($params);
-
-        $callbackParams = array_values($params);
-
-        if (is_array($callback)) {
-            list($class, $method) = $callback;
-            $class->$method(...$callbackParams);
-        } elseif ($callback instanceof \Closure) {
-            call_user_func($callback, $callbackParams);
-        } else {
-            $callback(...$callbackParams);
-        }
+        $this->run($params);
     }
 }

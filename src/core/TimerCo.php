@@ -2,45 +2,15 @@
 
 namespace rabbit\core;
 
+use rabbit\contract\AbstractTimer;
 use rabbit\helper\CoroHelper;
 
 /**
  * Class TimerCo
  * @package rabbit\core
  */
-class TimerCo
+class TimerCo extends AbstractTimer
 {
-    /**
-     * 日志统计前缀
-     */
-    const TIMER_PREFIX = "timer";
-
-    const TYPE_AFTER = 'after';
-    const TYPE_TICKET = 'tick';
-
-    /**
-     * @var array 所有定时器
-     */
-    private $timers = [];
-
-    /**
-     * @return array
-     */
-    public function getTimers(): array
-    {
-        return $this->timers;
-    }
-
-    /**
-     * @param string $name
-     * @param null $default
-     * @return array
-     */
-    public function getTimer(string $name, $default = null): array
-    {
-        return isset($this->timers[$name]) ? $this->timers[$name] : $default;
-    }
-
     /**
      * @param string $name
      * @param float $time
@@ -113,22 +83,6 @@ class TimerCo
      */
     public function timerCallback(array $params): void
     {
-        if (count($params) < 2) {
-            return;
-        }
-        $name = array_shift($params);
-        $type = array_shift($params);
-        $callback = array_shift($params);
-
-        $callbackParams = array_values($params);
-
-        if (is_array($callback)) {
-            list($class, $method) = $callback;
-            $class->$method(...$callbackParams);
-        } elseif ($callback instanceof \Closure) {
-            call_user_func($callback, $callbackParams);
-        } else {
-            $callback(...$callbackParams);
-        }
+        $this->run($params);
     }
 }
