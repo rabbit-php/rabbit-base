@@ -17,5 +17,8 @@
         "psr-4": {
             "rabbit\\": "src/"
         }
-    }
+    },
+    "files": [
+        "src/functions.php"
+    ]
 }
