@@ -1,24 +1,24 @@
 {
-    "name": "rabbit/framework",
-    "description": "rabbit framework",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "albert",
-            "email": "63851587@qq.com"
-        }
-    ],
-    "require": {
-        "php": ">=7.1.0",
-        "php-di/php-di": "^6.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "rabbit\\": "src/"
-        }
+  "name": "rabbit/framework",
+  "description": "rabbit framework",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "albert",
+      "email": "63851587@qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "php-di/php-di": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "rabbit\\": "src/"
     },
     "files": [
-        "src/functions.php"
+      "src/functions.php"
     ]
+  }
 }
