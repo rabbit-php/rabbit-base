@@ -19,6 +19,10 @@ class BaseObject
      */
     public function __get($name)
     {
+        $getter = 'get' . $name;
+        if (method_exists($this, $getter)) {
+            return $this->$getter();
+        }
         return $this->$name;
     }
 
@@ -28,6 +32,11 @@ class BaseObject
      */
     public function __set($name, $value)
     {
+        $setter = 'set' . $name;
+        if (method_exists($this, $setter)) {
+            $this->$setter($value);
+            return;
+        }
         $this->$name = $value;
     }
 }
