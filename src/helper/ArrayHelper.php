@@ -159,18 +159,18 @@ class ArrayHelper
      * @param $array
      * @param $key
      * @param null $default
-     * @return bool
+     * @return mixed|null
      */
-    public static function remove(&$array, $key, $default = null): bool
+    public static function remove(&$array, $key, $default = null)
     {
         if (is_array($array) && (isset($array[$key]) || array_key_exists($key, $array))) {
             $value = $array[$key];
             unset($array[$key]);
 
-            return true;
+            return $value;
         }
 
-        return false;
+        return $default;
     }
 
     /**
