@@ -140,10 +140,10 @@ class ObjectFactory
             if (in_array($class, static::$container->getKnownEntryNames())) {
                 return static::$container->get($class);
             }
-            $obj = static::$container->make($class);
+            $obj = static::$container->make($class, $params);
             static::$container->set($class, $obj);
         } else {
-            $obj = static::$container->make($class);
+            $obj = static::$container->make($class, $params);
         }
         return self::configure($obj, $params);
     }

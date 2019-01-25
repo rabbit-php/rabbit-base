@@ -581,4 +581,12 @@ class ArrayHelper
         return $result;
     }
 
+    /**
+     * @param $object
+     * @return array|null
+     */
+    public static function getObjectVars($object): ?array
+    {
+        return get_object_vars($object);
+    }
 }
