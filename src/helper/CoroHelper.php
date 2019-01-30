@@ -43,7 +43,7 @@ class CoroHelper
      * @param \Closure $function
      * @throws \Exception
      */
-    public static function go(\Closure $function, \Closure $defer = null): int
+    public static function go(\Closure $function, ?\Closure $defer = null): int
     {
         try {
             return go(function () use ($function, $defer) {
