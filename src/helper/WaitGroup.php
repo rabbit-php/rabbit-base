@@ -45,10 +45,18 @@ class WaitGroup
     public function add(string $name, callable $callback, ?callable $defer = null, ...$params): self
     {
         $this->count++;
-        CoroHelper::go(function () use ($name, $callback, $params) {
-            $result = call_user_func_array($callback, $params);
-            $this->channel->push([$name, $result]);
-        },$defer);
+        go(function () use ($name, $callback, $defer, $params) {
+            if (is_callable($defer)) {
+                $defer();
+            }
+            try {
+                $result = call_user_func_array($callback, $params);
+            } catch (\Throwable $throwable) {
+                $result = null;
+            } finally {
+                $this->channel->push([$name, $result]);
+            }
+        });
         return $this;
     }
 
