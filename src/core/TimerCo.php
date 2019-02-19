@@ -20,6 +20,7 @@ class TimerCo extends AbstractTimer
      */
     public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
+        $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = go(function () use ($time, $params) {
@@ -39,6 +40,7 @@ class TimerCo extends AbstractTimer
      */
     public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
+        $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = go(function () use ($name, $time, $params) {

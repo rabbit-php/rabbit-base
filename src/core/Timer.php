@@ -19,6 +19,7 @@ class Timer extends AbstractTimer
      */
     public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
+        $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
         $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
@@ -34,6 +35,7 @@ class Timer extends AbstractTimer
      */
     public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
+        $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_TICKET, $callback);
 
         $tid = \Swoole\Timer::tick($time, [$this, 'timerCallback'], $params);
