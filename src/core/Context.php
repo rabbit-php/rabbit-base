@@ -16,8 +16,4 @@ namespace rabbit\core;
 class Context
 {
     use ContextTrait;
-    /**
-     * @var array
-     */
-    private static $context = [];
 }

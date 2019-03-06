@@ -21,7 +21,7 @@ trait ContextTrait
      */
     public static function getAll(): ?array
     {
-        return self::$context[CoroHelper::getId()];
+        return \Co::getContext();
     }
 
     /**
@@ -40,12 +40,11 @@ trait ContextTrait
      */
     public static function get(string $name)
     {
-        $id = CoroHelper::getId();
-        if (isset(self::$context[$id][$name])) {
-            if (is_array(self::$context[$id][$name]) && isset(self::$context[$id][$name]['class'])) {
-                self::$context[$id][$name] = ObjectFactory::createObject(self::$context[$id][$name], [], false);
+        if (isset(\Co::getContext()[$name])) {
+            if (is_array(\Co::getContext()[$name]) && isset(\Co::getContext()[$name]['class'])) {
+                \Co::getContext()[$name] = ObjectFactory::createObject(\Co::getContext()[$name], [], false);
             }
-            return self::$context[$id][$name];
+            return \Co::getContext()[$name];
         }
         return null;
     }
@@ -56,7 +55,7 @@ trait ContextTrait
      */
     public static function set(string $name, $value): void
     {
-        self::$context[CoroHelper::getId()][$name] = $value;
+        \Co::getContext()[$name] = $value;
     }
 
     /**
@@ -65,7 +64,7 @@ trait ContextTrait
      */
     public static function has(string $name): bool
     {
-        return isset(self::$context[CoroHelper::getId()][$name]);
+        return isset(\Co::getContext()[$name]);
     }
 
     /**
@@ -73,14 +72,6 @@ trait ContextTrait
      */
     public static function delete(string $name): void
     {
-        unset(self::$context[CoroHelper::getId()][$name]);
-    }
-
-    /**
-     *
-     */
-    public static function release(): void
-    {
-        unset(self::$context[CoroHelper::getId()]);
+        unset(\Co::getContext()[$name]);
     }
 }
