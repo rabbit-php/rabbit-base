@@ -9,6 +9,71 @@ namespace rabbit\helper;
 class StringHelper
 {
     /**
+     * @param string $string
+     * @return int
+     */
+    public static function byteLength(string $string): int
+    {
+        return mb_strlen($string, '8bit');
+    }
+
+    /**
+     * @param string $string
+     * @param int $start
+     * @param int|null $length
+     * @return bool|string
+     */
+    public static function byteSubstr(string $string, int $start, int $length = null): string
+    {
+        return mb_substr($string, $start, $length === null ? mb_strlen($string, '8bit') : $length, '8bit');
+    }
+
+    /**
+     * @param string $pattern
+     * @param string $string
+     * @param array $options
+     * @return bool
+     */
+    public static function matchWildcard(string $pattern, string $string, array $options = []): bool
+    {
+        if ($pattern === '*' && empty($options['filePath'])) {
+            return true;
+        }
+
+        $replacements = [
+            '\\\\\\\\' => '\\\\',
+            '\\\\\\*' => '[*]',
+            '\\\\\\?' => '[?]',
+            '\*' => '.*',
+            '\?' => '.',
+            '\[\!' => '[^',
+            '\[' => '[',
+            '\]' => ']',
+            '\-' => '-',
+        ];
+
+        if (isset($options['escape']) && !$options['escape']) {
+            unset($replacements['\\\\\\\\']);
+            unset($replacements['\\\\\\*']);
+            unset($replacements['\\\\\\?']);
+        }
+
+        if (!empty($options['filePath'])) {
+            $replacements['\*'] = '[^/\\\\]*';
+            $replacements['\?'] = '[^/\\\\]';
+        }
+
+        $pattern = strtr(preg_quote($pattern, '#'), $replacements);
+        $pattern = '#^' . $pattern . '$#us';
+
+        if (isset($options['caseSensitive']) && !$options['caseSensitive']) {
+            $pattern .= 'i';
+        }
+
+        return preg_match($pattern, $string) === 1;
+    }
+
+    /**
      * @param $number
      * @return mixed
      */
