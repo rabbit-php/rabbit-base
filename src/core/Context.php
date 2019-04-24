@@ -15,12 +15,10 @@ namespace rabbit\core;
  */
 class Context
 {
-    protected static $key = 'system';
-
     /**
      * @return array|null
      */
-    public static function getAll(): ?array
+    public static function getAll(string $key = 'system'): ?array
     {
         return \Co::getContext();
     }
@@ -28,10 +26,10 @@ class Context
     /**
      * @param array $config
      */
-    public static function setAll($config = []): void
+    public static function setAll($config = [], string $key = 'system'): void
     {
         foreach ($config as $name => $value) {
-            self::set($name, $value);
+            self::set($name, $value, $key);
         }
     }
 
@@ -39,14 +37,14 @@ class Context
      * @param string $name
      * @return null
      */
-    public static function get(string $name)
+    public static function get(string $name, string $key = 'system')
     {
         $context = \Co::getContext();
-        if (isset($context[self::$key][$name])) {
-            if (is_array($context[self::$key][$name]) && isset($context[self::$key][$name]['class'])) {
-                $context[self::$key][$name] = ObjectFactory::createObject($context[self::$key][$name], [], false);
+        if (isset($context[$key][$name])) {
+            if (is_array($context[$key][$name]) && isset($context[$key][$name]['class'])) {
+                $context[$key][$name] = ObjectFactory::createObject($context[$key][$name], [], false);
             }
-            return $context[self::$key][$name];
+            return $context[$key][$name];
         }
         return null;
     }
@@ -55,25 +53,25 @@ class Context
      * @param string $name
      * @param $value
      */
-    public static function set(string $name, $value): void
+    public static function set(string $name, $value, string $key = 'system'): void
     {
-        \Co::getContext()[self::$key][$name] = $value;
+        \Co::getContext()[$key][$name] = $value;
     }
 
     /**
      * @param string $name
      * @return bool
      */
-    public static function has(string $name): bool
+    public static function has(string $name, string $key = 'system'): bool
     {
-        return isset(\Co::getContext()[self::$key][$name]);
+        return isset(\Co::getContext()[$key][$name]);
     }
 
     /**
      * @param string $name
      */
-    public static function delete(string $name): void
+    public static function delete(string $name, string $key = 'system'): void
     {
-        unset(\Co::getContext()[self::$key][$name]);
+        unset(\Co::getContext()[$key][$name]);
     }
 }

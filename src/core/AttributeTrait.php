@@ -36,21 +36,23 @@ trait AttributeTrait
 
     /**
      * @param array $attributes
-     * @return UserInterface|void
+     * @return AttributeTrait
      */
     public function withAttributes(array $attributes): self
     {
         $this->attributes = $attributes;
+        return $this;
     }
 
     /**
      * @param string $name
      * @param $value
-     * @return User
+     * @return AttributeTrait
      */
     public function withAttribute(string $name, $value): self
     {
         $this->attributes[$name] = $value;
+        return $this;
     }
 
     /**
