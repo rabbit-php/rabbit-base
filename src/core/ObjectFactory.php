@@ -23,7 +23,7 @@ class ObjectFactory
     /**
      * @var Container
      */
-    public static $container;
+    private static $container;
 
     /**
      * @var array
@@ -31,12 +31,24 @@ class ObjectFactory
     private static $definitions = [];
 
     /**
+     * @return Container
+     */
+    public static function getContainer(): Container
+    {
+        if (self::$container) {
+            return self::$container;
+        }
+        self::$container = (new ContainerBuilder())->build();
+        return self::$container;
+    }
+
+    /**
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
     public static function init(bool $auto = true)
     {
-        self::$container = (new ContainerBuilder())->build();
+        self::getContainer();
         self::makeDefinitions(self::$definitions);
         if ($auto) {
             foreach (self::$definitions as $name => $definition) {
