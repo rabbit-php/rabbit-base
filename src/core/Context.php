@@ -11,82 +11,79 @@ namespace rabbit\core;
 
 /**
  * Class Context
- * @method get(string $name)
- * @method void set(string $name)
- * @method ?\Co\Context getAll()
- * @method void setAll(array $config = [])
- * @method bool has(string $name)
- * @method void delete(string $name)
  * @package rabbit\core
  */
 class Context
 {
-    use ContextTrait;
-    
-    /** @var \Co\Context */
-    protected $context;
-
-    public function __construct()
-    {
-        $this->context = new \Co\Context();
-    }
-
     /**
      * @return array|null
      */
-    public function getAllContext(): ?\Co\Context
+    public static function getAll(string $key = null): ?array
     {
-        return $this->context;
+        return $key !== null ? \Co::getContext()[$key] : \Co::getContext();
     }
 
     /**
      * @param array $config
      */
-    public function setAllContext(array $config = []): void
+    public static function setAll($config = [], string $key = null): void
     {
         foreach ($config as $name => $value) {
-            $this->setContext($name, $value, $key);
+            self::set($name, $value, $key);
         }
     }
 
     /**
      * @param string $name
-     * @return null
+     * @param string|null $key
+     * @return mixed
      */
-    public function getContext(string $name)
+    public static function get(string $name, string $key = null)
     {
-        if (isset($this->context[$name])) {
-            if (is_array($this->context[$name]) && isset($this->context[$name]['class'])) {
-                $this->context[$name] = ObjectFactory::createObject($this->context[$name], [], false);
+        if ($key !== null) {
+            if (!isset(\Co::getContext()[$key])) {
+                return null;
+            } else {
+                return isset(\Co::getContext()[$key][$name]) ? \Co::getContext()[$key][$name] : null;
             }
-            return $this->context[$name];
         }
-        return null;
+        return isset(\Co::getContext()[$name]) ? \Co::getContext()[$name] : null;
     }
 
     /**
      * @param string $name
      * @param $value
      */
-    public function setContext(string $name, $value): void
+    public static function set(string $name, $value, string $key = null): void
     {
-        $this->context[$name] = $value;
+        if ($key !== null) {
+            \Co::getContext()[$key][$name] = $value;
+        } else {
+            \Co::getContext()[$name] = $value;
+        }
     }
 
     /**
      * @param string $name
      * @return bool
      */
-    public function hasContext(string $name): bool
+    public static function has(string $name, string $key = null): bool
     {
-        return isset($this->context[$name]);
+        if ($key !== null) {
+            return isset(\Co::getContext()[$key]) && isset(\Co::getContext()[$key][$name]);
+        }
+        return isset(\Co::getContext()[$name]);
     }
 
     /**
      * @param string $name
      */
-    public function deleteContext(string $name): void
+    public static function delete(string $name, string $key = null): void
     {
-        unset($this->context[$name]);
+        if ($key !== null && isset(\Co::getContext()[$key]) && isset(\Co::getContext()[$key][$name])) {
+            unset(\Co::getContext()[$key][$name]);
+        } elseif (isset(\Co::getContext()[$name])) {
+            unset(\Co::getContext()[$name]);
+        }
     }
 }
