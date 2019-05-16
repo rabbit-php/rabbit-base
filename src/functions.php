@@ -6,6 +6,8 @@
  * Time: 15:21
  */
 
+defined('BREAKS') or define('BREAKS', PHP_SAPI === 'cli' ? PHP_EOL : '</br>');
+
 if (!function_exists('getDI')) {
     function getDI(string $name, bool $throwException = true, $default = null)
     {
