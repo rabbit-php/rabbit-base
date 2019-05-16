@@ -15,21 +15,44 @@ namespace rabbit\core;
  */
 class Context
 {
+    /** @var self */
+    private static $instance;
+
+    protected $context;
+
+    public function __construct()
+    {
+        $this->context = new \Co\Context();
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        $name .= 'Context';
+        if (!self::$instance) {
+            self::$instance = new static();
+        }
+        return self::$instance->$name(...$arguments);
+    }
+
     /**
      * @return array|null
      */
-    public static function getAll(string $key = 'system'): ?array
+    public function getAllContext(): ?\Co\Context
     {
-        return \Co::getContext();
+        return $this->context;
     }
 
     /**
      * @param array $config
      */
-    public static function setAll($config = [], string $key = 'system'): void
+    public function setAllContext($config = []): void
     {
         foreach ($config as $name => $value) {
-            self::set($name, $value, $key);
+            $this->setContext($name, $value, $key);
         }
     }
 
@@ -37,14 +60,13 @@ class Context
      * @param string $name
      * @return null
      */
-    public static function get(string $name, string $key = 'system')
+    public function getContext(string $name)
     {
-        $context = \Co::getContext();
-        if (isset($context[$key][$name])) {
-            if (is_array($context[$key][$name]) && isset($context[$key][$name]['class'])) {
-                $context[$key][$name] = ObjectFactory::createObject($context[$key][$name], [], false);
+        if (isset($this->context[$name])) {
+            if (is_array($this->context[$name]) && isset($this->context[$name]['class'])) {
+                $this->context[$name] = ObjectFactory::createObject($this->context[$name], [], false);
             }
-            return $context[$key][$name];
+            return $this->context[$name];
         }
         return null;
     }
@@ -53,25 +75,25 @@ class Context
      * @param string $name
      * @param $value
      */
-    public static function set(string $name, $value, string $key = 'system'): void
+    public function setContext(string $name, $value): void
     {
-        \Co::getContext()[$key][$name] = $value;
+        $this->context[$name] = $value;
     }
 
     /**
      * @param string $name
      * @return bool
      */
-    public static function has(string $name, string $key = 'system'): bool
+    public function hasContext(string $name): bool
     {
-        return isset(\Co::getContext()[$key][$name]);
+        return isset($this->context[$name]);
     }
 
     /**
      * @param string $name
      */
-    public static function delete(string $name, string $key = 'system'): void
+    public function deleteContext(string $name): void
     {
-        unset(\Co::getContext()[$key][$name]);
+        unset($this->context[$name]);
     }
 }
