@@ -11,6 +11,12 @@ namespace rabbit\core;
 
 /**
  * Class Context
+ * @method get(string $name)
+ * @method void set(string $name)
+ * @method ?\Co\Context getAll()
+ * @method void setAll(array $config = [])
+ * @method bool has(string $name)
+ * @method void delete(string $name)
  * @package rabbit\core
  */
 class Context
@@ -49,7 +55,7 @@ class Context
     /**
      * @param array $config
      */
-    public function setAllContext($config = []): void
+    public function setAllContext(array $config = []): void
     {
         foreach ($config as $name => $value) {
             $this->setContext($name, $value, $key);
