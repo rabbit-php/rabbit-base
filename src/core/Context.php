@@ -21,27 +21,14 @@ namespace rabbit\core;
  */
 class Context
 {
-    /** @var self */
-    private static $instance;
-
+    use ContextTrait;
+    
+    /** @var \Co\Context */
     protected $context;
 
     public function __construct()
     {
         $this->context = new \Co\Context();
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     */
-    public static function __callStatic($name, $arguments)
-    {
-        $name .= 'Context';
-        if (!self::$instance) {
-            self::$instance = new static();
-        }
-        return self::$instance->$name(...$arguments);
     }
 
     /**
