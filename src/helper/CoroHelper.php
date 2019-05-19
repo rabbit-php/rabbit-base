@@ -24,6 +24,18 @@ class CoroHelper
     }
 
     /**
+     * @return int
+     */
+    public static function getPid(): int
+    {
+        if (PHP_SAPI === 'cli' && is_callable('\Swoole\Coroutine::getuid')) {
+            return \Swoole\Coroutine::getPcid() > 0 ? \Swoole\Coroutine::getPcid() : 0;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
      * @param float $mictime
      */
     public static function sleep(float $mictime): void
