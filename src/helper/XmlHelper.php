@@ -18,18 +18,6 @@ class XmlHelper
     }
 
     /**
-     * @param array $data
-     * @return string
-     */
-    public static function encode(array $data): string
-    {
-        $xml = '<xml>';
-        $xml .= self::arrayToXml($data);
-        $xml .= '</xml>';
-        return $xml;
-    }
-
-    /**
      * @param string $xml
      * @return array
      */
@@ -73,6 +61,18 @@ class XmlHelper
      * @param array $data
      * @return string
      */
+    public static function encode(array $data): string
+    {
+        $xml = '<xml>';
+        $xml .= self::arrayToXml($data);
+        $xml .= '</xml>';
+        return $xml;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
     public static function arrayToXml(array $data): string
     {
         $xml = '';
@@ -96,7 +96,7 @@ class XmlHelper
      * @param string $string
      * @return string
      */
-    protected static function characterDataReplace(string $string):string
+    protected static function characterDataReplace(string $string): string
     {
         return sprintf('<![CDATA[%s]]>', $string);
     }

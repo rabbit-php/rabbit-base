@@ -60,34 +60,6 @@ class ArrayHelper
     }
 
     /**
-     * @param $a
-     * @param $b
-     * @return array
-     */
-    public static function merge($a, $b): array
-    {
-        $args = func_get_args();
-        $res = array_shift($args);
-        while (!empty($args)) {
-            foreach (array_shift($args) as $k => $v) {
-                if (is_int($k)) {
-                    if (array_key_exists($k, $res)) {
-                        $res[] = $v;
-                    } else {
-                        $res[$k] = $v;
-                    }
-                } elseif (is_array($v) && isset($res[$k]) && is_array($res[$k])) {
-                    $res[$k] = self::merge($res[$k], $v);
-                } else {
-                    $res[$k] = $v;
-                }
-            }
-        }
-
-        return $res;
-    }
-
-    /**
      * @param $array
      * @param $key
      * @param null $default
@@ -125,6 +97,34 @@ class ArrayHelper
         }
 
         return $default;
+    }
+
+    /**
+     * @param $a
+     * @param $b
+     * @return array
+     */
+    public static function merge($a, $b): array
+    {
+        $args = func_get_args();
+        $res = array_shift($args);
+        while (!empty($args)) {
+            foreach (array_shift($args) as $k => $v) {
+                if (is_int($k)) {
+                    if (array_key_exists($k, $res)) {
+                        $res[] = $v;
+                    } else {
+                        $res[$k] = $v;
+                    }
+                } elseif (is_array($v) && isset($res[$k]) && is_array($res[$k])) {
+                    $res[$k] = self::merge($res[$k], $v);
+                } else {
+                    $res[$k] = $v;
+                }
+            }
+        }
+
+        return $res;
     }
 
     /**
@@ -236,28 +236,6 @@ class ArrayHelper
 
     /**
      * @param $array
-     * @param $name
-     * @param bool $keepKeys
-     * @return array
-     */
-    public static function getColumn($array, $name, $keepKeys = true): array
-    {
-        $result = [];
-        if ($keepKeys) {
-            foreach ($array as $k => $element) {
-                $result[$k] = static::getValue($element, $name);
-            }
-        } else {
-            foreach ($array as $element) {
-                $result[] = static::getValue($element, $name);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param $array
      * @param $from
      * @param $to
      * @param null $group
@@ -277,29 +255,6 @@ class ArrayHelper
         }
 
         return $result;
-    }
-
-    /**
-     * @param $key
-     * @param $array
-     * @param bool $caseSensitive
-     * @return bool
-     */
-    public static function keyExists($key, $array, $caseSensitive = true): bool
-    {
-        if ($caseSensitive) {
-            // Function `isset` checks key faster but skips `null`, `array_key_exists` handles this case
-            // http://php.net/manual/en/function.array-key-exists.php#107786
-            return isset($array[$key]) || array_key_exists($key, $array);
-        }
-
-        foreach (array_keys($array) as $k) {
-            if (strcasecmp($key, $k) === 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -341,6 +296,28 @@ class ArrayHelper
 
         $args[] = &$array;
         call_user_func_array('array_multisort', $args);
+    }
+
+    /**
+     * @param $array
+     * @param $name
+     * @param bool $keepKeys
+     * @return array
+     */
+    public static function getColumn($array, $name, $keepKeys = true): array
+    {
+        $result = [];
+        if ($keepKeys) {
+            foreach ($array as $k => $element) {
+                $result[$k] = static::getValue($element, $name);
+            }
+        } else {
+            foreach ($array as $element) {
+                $result[] = static::getValue($element, $name);
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -402,29 +379,6 @@ class ArrayHelper
     }
 
     /**
-     * @param $needle
-     * @param $haystack
-     * @param bool $strict
-     * @return bool
-     */
-    public static function isIn($needle, $haystack, $strict = false): bool
-    {
-        if ($haystack instanceof \Traversable) {
-            foreach ($haystack as $value) {
-                if ($needle == $value && (!$strict || $needle === $value)) {
-                    return true;
-                }
-            }
-        } elseif (is_array($haystack)) {
-            return in_array($needle, $haystack, $strict);
-        } else {
-            throw new \InvalidArgumentException('Argument $haystack must be an array or implement Traversable');
-        }
-
-        return false;
-    }
-
-    /**
      * @param $var
      * @return bool
      */
@@ -452,6 +406,29 @@ class ArrayHelper
         }
 
         throw new \InvalidArgumentException('Argument $needles must be an array or implement Traversable');
+    }
+
+    /**
+     * @param $needle
+     * @param $haystack
+     * @param bool $strict
+     * @return bool
+     */
+    public static function isIn($needle, $haystack, $strict = false): bool
+    {
+        if ($haystack instanceof \Traversable) {
+            foreach ($haystack as $value) {
+                if ($needle == $value && (!$strict || $needle === $value)) {
+                    return true;
+                }
+            }
+        } elseif (is_array($haystack)) {
+            return in_array($needle, $haystack, $strict);
+        } else {
+            throw new \InvalidArgumentException('Argument $haystack must be an array or implement Traversable');
+        }
+
+        return false;
     }
 
     /**
@@ -532,27 +509,56 @@ class ArrayHelper
     }
 
     /**
+     * @param $key
+     * @param $array
+     * @param bool $caseSensitive
+     * @return bool
+     */
+    public static function keyExists($key, $array, $caseSensitive = true): bool
+    {
+        if ($caseSensitive) {
+            // Function `isset` checks key faster but skips `null`, `array_key_exists` handles this case
+            // http://php.net/manual/en/function.array-key-exists.php#107786
+            return isset($array[$key]) || array_key_exists($key, $array);
+        }
+
+        foreach (array_keys($array) as $k) {
+            if (strcasecmp($key, $k) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param array $array
      * @param array $keys
+     * @param array|null $newKeys
      * @param null $default
      * @return array|null
      */
-    public static function getValueByArray(array $array, array $keys, $default = null): ?array
-    {
-        if (!is_array($array) || !is_array($keys)) {
-            return null;
+    public static function getValueByArray(
+        array $array,
+        array $keys,
+        array $newKeys = null,
+        array $default = null
+    ): ?array {
+        if ($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) {
+            return $default;
         }
         $result = [];
 
         foreach ($keys as $index => $key) {
+            $newKey = $newKeys ? $newKeys[$index] : (is_array($newKeys) ? $key : $index);
             if (is_array($default)) {
-                $result[$key] = $default[$index];
+                $result[$newKey] = $default[$index];
             } else {
-                $result[$key] = $default;
+                $result[$newKey] = $default;
             }
             foreach ($array as $akey => $value) {
                 if ($akey === $key) {
-                    $result[$key] = $value;
+                    $result[$newKey] = $value;
                 }
             }
         }

@@ -7,6 +7,7 @@
  */
 
 namespace rabbit\exception;
+
 /**
  * Class UnknownMethodException
  * @package rabbit\exception

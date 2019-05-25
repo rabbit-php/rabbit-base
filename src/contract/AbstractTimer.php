@@ -46,30 +46,6 @@ abstract class AbstractTimer
     }
 
     /**
-     * @param array $params
-     */
-    protected function run(array $params)
-    {
-        if (count($params) < 2) {
-            return;
-        }
-        $name = array_shift($params);
-        $type = array_shift($params);
-        $callback = array_shift($params);
-
-        $callbackParams = array_values($params);
-
-        if (is_array($callback)) {
-            list($class, $method) = $callback;
-            $class->$method(...$callbackParams);
-        } elseif ($callback instanceof \Closure) {
-            call_user_func($callback, $callbackParams);
-        } else {
-            $callback(...$callbackParams);
-        }
-    }
-
-    /**
      * @param string $name
      * @param float $time
      * @param callable $callback
@@ -97,4 +73,28 @@ abstract class AbstractTimer
      * @return bool
      */
     abstract public function clearTimers(): bool;
+
+    /**
+     * @param array $params
+     */
+    protected function run(array $params)
+    {
+        if (count($params) < 2) {
+            return;
+        }
+        $name = array_shift($params);
+        $type = array_shift($params);
+        $callback = array_shift($params);
+
+        $callbackParams = array_values($params);
+
+        if (is_array($callback)) {
+            list($class, $method) = $callback;
+            $class->$method(...$callbackParams);
+        } elseif ($callback instanceof \Closure) {
+            call_user_func($callback, $callbackParams);
+        } else {
+            $callback(...$callbackParams);
+        }
+    }
 }

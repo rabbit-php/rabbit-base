@@ -7,6 +7,7 @@
  */
 
 namespace rabbit\helper;
+
 use rabbit\core\Exception;
 use rabbit\core\ObjectFactory;
 use rabbit\core\UserException;

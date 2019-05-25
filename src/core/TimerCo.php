@@ -32,6 +32,32 @@ class TimerCo extends AbstractTimer
     }
 
     /**
+     * 移除一个定时器
+     *
+     * @param string $name 定时器名称
+     *
+     * @return bool
+     */
+    public function clearTimerByName(string $name): bool
+    {
+        if (!isset($this->timers[$name])) {
+            return true;
+        }
+        unset($this->timers[$name]);
+        return true;
+    }
+
+    /**
+     * 定时器回调函数
+     *
+     * @param array $params 参数传递
+     */
+    public function timerCallback(array $params): void
+    {
+        $this->run($params);
+    }
+
+    /**
      * @param string $name
      * @param float $time
      * @param callable $callback
@@ -54,37 +80,11 @@ class TimerCo extends AbstractTimer
     }
 
     /**
-     * 移除一个定时器
-     *
-     * @param string $name 定时器名称
-     *
-     * @return bool
-     */
-    public function clearTimerByName(string $name): bool
-    {
-        if (!isset($this->timers[$name])) {
-            return true;
-        }
-        unset($this->timers[$name]);
-        return true;
-    }
-
-    /**
      * @return bool
      */
     public function clearTimers(): bool
     {
         $this->timers = [];
         return true;
-    }
-
-    /**
-     * 定时器回调函数
-     *
-     * @param array $params 参数传递
-     */
-    public function timerCallback(array $params): void
-    {
-        $this->run($params);
     }
 }

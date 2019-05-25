@@ -35,6 +35,19 @@ class Context
 
     /**
      * @param string $name
+     * @param $value
+     */
+    public static function set(string $name, $value, string $key = null): void
+    {
+        if ($key !== null) {
+            \Co::getContext()[$key][$name] = $value;
+        } else {
+            \Co::getContext()[$name] = $value;
+        }
+    }
+
+    /**
+     * @param string $name
      * @param string|null $key
      * @return mixed
      */
@@ -48,19 +61,6 @@ class Context
             }
         }
         return isset(\Co::getContext()[$name]) ? \Co::getContext()[$name] : null;
-    }
-
-    /**
-     * @param string $name
-     * @param $value
-     */
-    public static function set(string $name, $value, string $key = null): void
-    {
-        if ($key !== null) {
-            \Co::getContext()[$key][$name] = $value;
-        } else {
-            \Co::getContext()[$name] = $value;
-        }
     }
 
     /**

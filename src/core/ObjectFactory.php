@@ -31,33 +31,6 @@ class ObjectFactory
     private static $definitions = [];
 
     /**
-     * @return Container
-     */
-    public static function getContainer(): Container
-    {
-        if (self::$container) {
-            return self::$container;
-        }
-        self::$container = (new ContainerBuilder())->build();
-        return self::$container;
-    }
-
-    /**
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
-     */
-    public static function init(bool $auto = true)
-    {
-        self::getContainer();
-        self::makeDefinitions(self::$definitions);
-        if ($auto) {
-            foreach (self::$definitions as $name => $definition) {
-                self::$container->get($name);
-            }
-        }
-    }
-
-    /**
      * @param array $definitions
      */
     public static function setDefinitions(array $definitions): void
@@ -80,6 +53,85 @@ class ObjectFactory
     public static function reload(): void
     {
         self::init();
+    }
+
+    /**
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
+    public static function init(bool $auto = true)
+    {
+        self::getContainer();
+        self::makeDefinitions(self::$definitions);
+        if ($auto) {
+            foreach (self::$definitions as $name => $definition) {
+                self::$container->get($name);
+            }
+        }
+    }
+
+    /**
+     * @return Container
+     */
+    public static function getContainer(): Container
+    {
+        if (self::$container) {
+            return self::$container;
+        }
+        self::$container = (new ContainerBuilder())->build();
+        return self::$container;
+    }
+
+    /**
+     * @param array $definitions
+     * @param bool $refresh
+     * @return array
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
+    private static function makeDefinitions(array $definitions = [], bool $refresh = true)
+    {
+        foreach ($definitions as $name => $value) {
+            if (is_array($value) && isset($value['class'])) {
+                $class = $value['class'];
+                unset($value['class']);
+                $definitions[$name] = create($class);
+                foreach ($value as $property => $v) {
+                    $auto = true;
+                    if (is_array($v) && isset($v['auto'])) {
+                        $auto = $v['auto'];
+                        unset($v['auto']);
+                    }
+                    if (is_array($v) && isset($v['class'])) {
+                        if ($auto) {
+                            $define = self::makeDefinitions([$property => $v], false);
+                            ($definitions[$name])->property($property, $define[$property]);
+                        } else {
+                            ($definitions[$name])->property($property, $v);
+                        }
+                    } elseif (is_array($v)) {
+                        foreach ($v as $index => $def) {
+                            if ($def instanceof DefinitionHelper) {
+                                $v[$index] = $def->getDefinition('');
+                            } elseif (is_string($v) && strpos($v, '\\') !== false) {
+                                $v[$index] = self::$container->get($v);
+                            }
+                        }
+                        ($definitions[$name])->property($property, $v);
+                    } elseif ($v instanceof DefinitionHelper) {
+                        ($definitions[$name])->property($property, $v->getDefinition(''));
+                    } elseif (is_string($v) && strpos($v, '\\') !== false) {
+                        ($definitions[$name])->property($property, self::$container->get($v));
+                    } else {
+                        ($definitions[$name])->property($property, $v);
+                    }
+                }
+            }
+            if ($refresh) {
+                self::$container->set($name, $definitions[$name]);
+            }
+        }
+        return $definitions;
     }
 
     /**
@@ -158,58 +210,6 @@ class ObjectFactory
             $obj = static::$container->make($class, $params);
         }
         return self::configure($obj, $params);
-    }
-
-    /**
-     * @param array $definitions
-     * @param bool $refresh
-     * @return array
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
-     */
-    private static function makeDefinitions(array $definitions = [], bool $refresh = true)
-    {
-        foreach ($definitions as $name => $value) {
-            if (is_array($value) && isset($value['class'])) {
-                $class = $value['class'];
-                unset($value['class']);
-                $definitions[$name] = create($class);
-                foreach ($value as $property => $v) {
-                    $auto = true;
-                    if (is_array($v) && isset($v['auto'])) {
-                        $auto = $v['auto'];
-                        unset($v['auto']);
-                    }
-                    if (is_array($v) && isset($v['class'])) {
-                        if ($auto) {
-                            $define = self::makeDefinitions([$property => $v], false);
-                            ($definitions[$name])->property($property, $define[$property]);
-                        } else {
-                            ($definitions[$name])->property($property, $v);
-                        }
-                    } elseif (is_array($v)) {
-                        foreach ($v as $index => $def) {
-                            if ($def instanceof DefinitionHelper) {
-                                $v[$index] = $def->getDefinition('');
-                            } elseif (is_string($v) && strpos($v, '\\') !== false) {
-                                $v[$index] = self::$container->get($v);
-                            }
-                        }
-                        ($definitions[$name])->property($property, $v);
-                    } elseif ($v instanceof DefinitionHelper) {
-                        ($definitions[$name])->property($property, $v->getDefinition(''));
-                    } elseif (is_string($v) && strpos($v, '\\') !== false) {
-                        ($definitions[$name])->property($property, self::$container->get($v));
-                    } else {
-                        ($definitions[$name])->property($property, $v);
-                    }
-                }
-            }
-            if ($refresh) {
-                self::$container->set($name, $definitions[$name]);
-            }
-        }
-        return $definitions;
     }
 
     /**

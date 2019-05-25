@@ -57,19 +57,19 @@ trait AttributeTrait
 
     /**
      * @param $name
-     * @param $value
-     */
-    public function __set($name, $value)
-    {
-        $this->attributes[$name] = $value;
-    }
-
-    /**
-     * @param $name
      * @return mixed
      */
     public function __get($name)
     {
         return ArrayHelper::getValue($this->attributes, $name);
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        $this->attributes[$name] = $value;
     }
 }

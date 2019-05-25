@@ -31,37 +31,8 @@ class FileHelper
      * @var string the path (or alias) of a PHP file containing MIME aliases.
      */
     public static $mimeAliasesFile = __DIR__ . '/mimeAliases.php';
-
-
-    /**
-     * @param string $path
-     * @param string $ds
-     * @return string
-     */
-    public static function normalizePath(string $path, string $ds = DIRECTORY_SEPARATOR): string
-    {
-        $path = rtrim(strtr($path, '/\\', $ds . $ds), $ds);
-        if (strpos($ds . $path, "{$ds}.") === false && strpos($path, "{$ds}{$ds}") === false) {
-            return $path;
-        }
-        // the path may contain ".", ".." or double slashes, need to clean them up
-        if (strpos($path, "{$ds}{$ds}") === 0 && $ds == '\\') {
-            $parts = [$ds];
-        } else {
-            $parts = [];
-        }
-        foreach (explode($ds, $path) as $part) {
-            if ($part === '..' && !empty($parts) && end($parts) !== '..') {
-                array_pop($parts);
-            } elseif ($part === '.' || $part === '' && !empty($parts)) {
-                continue;
-            } else {
-                $parts[] = $part;
-            }
-        }
-        $path = implode($ds, $parts);
-        return $path === '' ? '.' : $path;
-    }
+    private static $_mimeTypes = [];
+    private static $_mimeAliases = [];
 
     /**
      * @param string $file
@@ -112,24 +83,6 @@ class FileHelper
     }
 
     /**
-     * @param string $mimeType
-     * @param string|null $magicFile
-     * @return array
-     */
-    public static function getExtensionsByMimeType(string $mimeType, string $magicFile = null): array
-    {
-        $aliases = static::loadMimeAliases(static::$mimeAliasesFile);
-        if (isset($aliases[$mimeType])) {
-            $mimeType = $aliases[$mimeType];
-        }
-
-        $mimeTypes = static::loadMimeTypes($magicFile);
-        return array_keys($mimeTypes, mb_strtolower($mimeType, 'UTF-8'), true);
-    }
-
-    private static $_mimeTypes = [];
-
-    /**
      * @param string|null $magicFile
      * @return array
      */
@@ -145,7 +98,21 @@ class FileHelper
         return self::$_mimeTypes[$magicFile];
     }
 
-    private static $_mimeAliases = [];
+    /**
+     * @param string $mimeType
+     * @param string|null $magicFile
+     * @return array
+     */
+    public static function getExtensionsByMimeType(string $mimeType, string $magicFile = null): array
+    {
+        $aliases = static::loadMimeAliases(static::$mimeAliasesFile);
+        if (isset($aliases[$mimeType])) {
+            $mimeType = $aliases[$mimeType];
+        }
+
+        $mimeTypes = static::loadMimeTypes($magicFile);
+        return array_keys($mimeTypes, mb_strtolower($mimeType, 'UTF-8'), true);
+    }
 
     /**
      * @param string $aliasesFile
@@ -223,6 +190,315 @@ class FileHelper
             }
         }
         closedir($handle);
+    }
+
+    /**
+     * @param string $path
+     * @param string $ds
+     * @return string
+     */
+    public static function normalizePath(string $path, string $ds = DIRECTORY_SEPARATOR): string
+    {
+        $path = rtrim(strtr($path, '/\\', $ds . $ds), $ds);
+        if (strpos($ds . $path, "{$ds}.") === false && strpos($path, "{$ds}{$ds}") === false) {
+            return $path;
+        }
+        // the path may contain ".", ".." or double slashes, need to clean them up
+        if (strpos($path, "{$ds}{$ds}") === 0 && $ds == '\\') {
+            $parts = [$ds];
+        } else {
+            $parts = [];
+        }
+        foreach (explode($ds, $path) as $part) {
+            if ($part === '..' && !empty($parts) && end($parts) !== '..') {
+                array_pop($parts);
+            } elseif ($part === '.' || $part === '' && !empty($parts)) {
+                continue;
+            } else {
+                $parts[] = $part;
+            }
+        }
+        $path = implode($ds, $parts);
+        return $path === '' ? '.' : $path;
+    }
+
+    /**
+     * @param string $path
+     * @param int $mode
+     * @param bool $recursive
+     * @return bool
+     */
+    public static function createDirectory(string $path, int $mode = 0775, bool $recursive = true): bool
+    {
+        if (is_dir($path)) {
+            return true;
+        }
+        $parentDir = dirname($path);
+        // recurse if parent dir does not exist and we are not at the root of the file system.
+        if ($recursive && !is_dir($parentDir) && $parentDir !== $path) {
+            static::createDirectory($parentDir, $mode, true);
+        }
+        try {
+            if (!mkdir($path, $mode)) {
+                return false;
+            }
+        } catch (\Exception $e) {
+            if (!is_dir($path)) {// https://github.com/yiisoft/yii2/issues/9288
+                throw new Exception("Failed to create directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
+            }
+        }
+        try {
+            return chmod($path, $mode);
+        } catch (\Exception $e) {
+            throw new Exception("Failed to change permissions for directory \"$path\": " . $e->getMessage(),
+                $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @param array $options
+     * @return array
+     */
+    protected static function normalizeOptions(array $options): array
+    {
+        if (!array_key_exists('caseSensitive', $options)) {
+            $options['caseSensitive'] = true;
+        }
+        if (isset($options['except'])) {
+            foreach ($options['except'] as $key => $value) {
+                if (is_string($value)) {
+                    $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
+                }
+            }
+        }
+        if (isset($options['only'])) {
+            foreach ($options['only'] as $key => $value) {
+                if (is_string($value)) {
+                    $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * @param string $pattern
+     * @param bool $caseSensitive
+     * @return array
+     */
+    private static function parseExcludePattern(string $pattern, bool $caseSensitive): array
+    {
+        $result = [
+            'pattern' => $pattern,
+            'flags' => 0,
+            'firstWildcard' => false,
+        ];
+
+        if (!$caseSensitive) {
+            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
+        }
+
+        if (!isset($pattern[0])) {
+            return $result;
+        }
+
+        if ($pattern[0] === '!') {
+            $result['flags'] |= self::PATTERN_NEGATIVE;
+            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
+        }
+        if (StringHelper::byteLength($pattern) && StringHelper::byteSubstr($pattern, -1, 1) === '/') {
+            $pattern = StringHelper::byteSubstr($pattern, 0, -1);
+            $result['flags'] |= self::PATTERN_MUSTBEDIR;
+        }
+        if (strpos($pattern, '/') === false) {
+            $result['flags'] |= self::PATTERN_NODIR;
+        }
+        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
+        if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1,
+                StringHelper::byteLength($pattern))) === false) {
+            $result['flags'] |= self::PATTERN_ENDSWITH;
+        }
+        $result['pattern'] = $pattern;
+
+        return $result;
+    }
+
+    /**
+     * @param string $pattern
+     * @return int
+     */
+    private static function firstWildcardInPattern(string $pattern): int
+    {
+        $wildcards = ['*', '?', '[', '\\'];
+        $wildcardSearch = function ($r, $c) use ($pattern) {
+            $p = strpos($pattern, $c);
+
+            return $r === false ? $p : ($p === false ? $r : min($r, $p));
+        };
+
+        return array_reduce($wildcards, $wildcardSearch, false);
+    }
+
+    /**
+     * @param string $path
+     * @param array $options
+     * @return bool
+     */
+    public static function filterPath(string $path, array $options): bool
+    {
+        if (isset($options['filter'])) {
+            $result = call_user_func($options['filter'], $path);
+            if (is_bool($result)) {
+                return $result;
+            }
+        }
+
+        if (empty($options['except']) && empty($options['only'])) {
+            return true;
+        }
+
+        $path = str_replace('\\', '/', $path);
+
+        if (!empty($options['except'])) {
+            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path,
+                    $options['except'])) !== null) {
+                return $except['flags'] & self::PATTERN_NEGATIVE;
+            }
+        }
+
+        if (!empty($options['only']) && !is_dir($path)) {
+            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['only'])) !== null) {
+                // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
+                return true;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $basePath
+     * @param string $path
+     * @param array|null $excludes
+     * @return array|null
+     */
+    private static function lastExcludeMatchingFromList(string $basePath, string $path, ?array $excludes): ?array
+    {
+        foreach (array_reverse($excludes) as $exclude) {
+            if (is_string($exclude)) {
+                $exclude = self::parseExcludePattern($exclude, false);
+            }
+            if (!isset($exclude['pattern']) || !isset($exclude['flags']) || !isset($exclude['firstWildcard'])) {
+                throw new InvalidArgumentException('If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.');
+            }
+            if ($exclude['flags'] & self::PATTERN_MUSTBEDIR && !is_dir($path)) {
+                continue;
+            }
+
+            if ($exclude['flags'] & self::PATTERN_NODIR) {
+                if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'],
+                    $exclude['flags'])) {
+                    return $exclude;
+                }
+                continue;
+            }
+
+            if (self::matchPathname($path, $basePath, $exclude['pattern'], $exclude['firstWildcard'],
+                $exclude['flags'])) {
+                return $exclude;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $baseName
+     * @param string $pattern
+     * @param int $firstWildcard
+     * @param int $flags
+     * @return bool
+     */
+    private static function matchBasename(string $baseName, string $pattern, int $firstWildcard, int $flags): bool
+    {
+        if ($firstWildcard === false) {
+            if ($pattern === $baseName) {
+                return true;
+            }
+        } elseif ($flags & self::PATTERN_ENDSWITH) {
+            /* "*literal" matching against "fooliteral" */
+            $n = StringHelper::byteLength($pattern);
+            if (StringHelper::byteSubstr($pattern, 1, $n) === StringHelper::byteSubstr($baseName, -$n, $n)) {
+                return true;
+            }
+        }
+
+        $matchOptions = [];
+        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
+            $matchOptions['caseSensitive'] = false;
+        }
+
+        return StringHelper::matchWildcard($pattern, $baseName, $matchOptions);
+    }
+
+    /**
+     * @param string $path
+     * @param string $basePath
+     * @param string $pattern
+     * @param int $firstWildcard
+     * @param bool $flags
+     * @return bool
+     */
+    private static function matchPathname(
+        string $path,
+        string $basePath,
+        string $pattern,
+        int $firstWildcard,
+        bool $flags
+    ): bool {
+        // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
+        if (isset($pattern[0]) && $pattern[0] === '/') {
+            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
+            if ($firstWildcard !== false && $firstWildcard !== 0) {
+                $firstWildcard--;
+            }
+        }
+
+        $namelen = StringHelper::byteLength($path) - (empty($basePath) ? 0 : StringHelper::byteLength($basePath) + 1);
+        $name = StringHelper::byteSubstr($path, -$namelen, $namelen);
+
+        if ($firstWildcard !== 0) {
+            if ($firstWildcard === false) {
+                $firstWildcard = StringHelper::byteLength($pattern);
+            }
+            // if the non-wildcard part is longer than the remaining pathname, surely it cannot match.
+            if ($firstWildcard > $namelen) {
+                return false;
+            }
+
+            if (strncmp($pattern, $name, $firstWildcard)) {
+                return false;
+            }
+            $pattern = StringHelper::byteSubstr($pattern, $firstWildcard, StringHelper::byteLength($pattern));
+            $name = StringHelper::byteSubstr($name, $firstWildcard, $namelen);
+
+            // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
+            if (empty($pattern) && empty($name)) {
+                return true;
+            }
+        }
+
+        $matchOptions = [
+            'filePath' => true
+        ];
+        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
+            $matchOptions['caseSensitive'] = false;
+        }
+
+        return StringHelper::matchWildcard($pattern, $name, $matchOptions);
     }
 
     /**
@@ -319,30 +595,14 @@ class FileHelper
 
     /**
      * @param string $dir
-     * @param array $options
-     * @return array
+     * @return string
      */
-    public static function findDirectories(string $dir, array $options = []): array
+    private static function clearDir(string $dir)
     {
-        $dir = self::clearDir($dir);
-        $options = self::setBasePath($dir, $options);
-        $list = [];
-        $handle = self::openDir($dir);
-        while (($file = readdir($handle)) !== false) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-            $path = $dir . DIRECTORY_SEPARATOR . $file;
-            if (is_dir($path) && static::filterPath($path, $options)) {
-                $list[] = $path;
-                if (!isset($options['recursive']) || $options['recursive']) {
-                    $list = array_merge($list, static::findDirectories($path, $options));
-                }
-            }
+        if (!is_dir($dir)) {
+            throw new InvalidArgumentException("The dir argument must be a directory: $dir");
         }
-        closedir($handle);
-
-        return $list;
+        return rtrim($dir, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -376,282 +636,29 @@ class FileHelper
 
     /**
      * @param string $dir
-     * @return string
-     */
-    private static function clearDir(string $dir)
-    {
-        if (!is_dir($dir)) {
-            throw new InvalidArgumentException("The dir argument must be a directory: $dir");
-        }
-        return rtrim($dir, DIRECTORY_SEPARATOR);
-    }
-
-    /**
-     * @param string $path
-     * @param array $options
-     * @return bool
-     */
-    public static function filterPath(string $path, array $options): bool
-    {
-        if (isset($options['filter'])) {
-            $result = call_user_func($options['filter'], $path);
-            if (is_bool($result)) {
-                return $result;
-            }
-        }
-
-        if (empty($options['except']) && empty($options['only'])) {
-            return true;
-        }
-
-        $path = str_replace('\\', '/', $path);
-
-        if (!empty($options['except'])) {
-            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['except'])) !== null) {
-                return $except['flags'] & self::PATTERN_NEGATIVE;
-            }
-        }
-
-        if (!empty($options['only']) && !is_dir($path)) {
-            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path, $options['only'])) !== null) {
-                // don't check PATTERN_NEGATIVE since those entries are not prefixed with !
-                return true;
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $path
-     * @param int $mode
-     * @param bool $recursive
-     * @return bool
-     */
-    public static function createDirectory(string $path, int $mode = 0775, bool $recursive = true): bool
-    {
-        if (is_dir($path)) {
-            return true;
-        }
-        $parentDir = dirname($path);
-        // recurse if parent dir does not exist and we are not at the root of the file system.
-        if ($recursive && !is_dir($parentDir) && $parentDir !== $path) {
-            static::createDirectory($parentDir, $mode, true);
-        }
-        try {
-            if (!mkdir($path, $mode)) {
-                return false;
-            }
-        } catch (\Exception $e) {
-            if (!is_dir($path)) {// https://github.com/yiisoft/yii2/issues/9288
-                throw new Exception("Failed to create directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
-            }
-        }
-        try {
-            return chmod($path, $mode);
-        } catch (\Exception $e) {
-            throw new Exception("Failed to change permissions for directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * @param string $baseName
-     * @param string $pattern
-     * @param int $firstWildcard
-     * @param int $flags
-     * @return bool
-     */
-    private static function matchBasename(string $baseName, string $pattern, int $firstWildcard, int $flags): bool
-    {
-        if ($firstWildcard === false) {
-            if ($pattern === $baseName) {
-                return true;
-            }
-        } elseif ($flags & self::PATTERN_ENDSWITH) {
-            /* "*literal" matching against "fooliteral" */
-            $n = StringHelper::byteLength($pattern);
-            if (StringHelper::byteSubstr($pattern, 1, $n) === StringHelper::byteSubstr($baseName, -$n, $n)) {
-                return true;
-            }
-        }
-
-        $matchOptions = [];
-        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $matchOptions['caseSensitive'] = false;
-        }
-
-        return StringHelper::matchWildcard($pattern, $baseName, $matchOptions);
-    }
-
-    /**
-     * @param string $path
-     * @param string $basePath
-     * @param string $pattern
-     * @param int $firstWildcard
-     * @param bool $flags
-     * @return bool
-     */
-    private static function matchPathname(string $path, string $basePath, string $pattern, int $firstWildcard, bool $flags): bool
-    {
-        // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
-        if (isset($pattern[0]) && $pattern[0] === '/') {
-            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
-            if ($firstWildcard !== false && $firstWildcard !== 0) {
-                $firstWildcard--;
-            }
-        }
-
-        $namelen = StringHelper::byteLength($path) - (empty($basePath) ? 0 : StringHelper::byteLength($basePath) + 1);
-        $name = StringHelper::byteSubstr($path, -$namelen, $namelen);
-
-        if ($firstWildcard !== 0) {
-            if ($firstWildcard === false) {
-                $firstWildcard = StringHelper::byteLength($pattern);
-            }
-            // if the non-wildcard part is longer than the remaining pathname, surely it cannot match.
-            if ($firstWildcard > $namelen) {
-                return false;
-            }
-
-            if (strncmp($pattern, $name, $firstWildcard)) {
-                return false;
-            }
-            $pattern = StringHelper::byteSubstr($pattern, $firstWildcard, StringHelper::byteLength($pattern));
-            $name = StringHelper::byteSubstr($name, $firstWildcard, $namelen);
-
-            // If the whole pattern did not have a wildcard, then our prefix match is all we need; we do not need to call fnmatch at all.
-            if (empty($pattern) && empty($name)) {
-                return true;
-            }
-        }
-
-        $matchOptions = [
-            'filePath' => true
-        ];
-        if ($flags & self::PATTERN_CASE_INSENSITIVE) {
-            $matchOptions['caseSensitive'] = false;
-        }
-
-        return StringHelper::matchWildcard($pattern, $name, $matchOptions);
-    }
-
-    /**
-     * @param string $basePath
-     * @param string $path
-     * @param array|null $excludes
-     * @return array|null
-     */
-    private static function lastExcludeMatchingFromList(string $basePath, string $path, ?array $excludes): ?array
-    {
-        foreach (array_reverse($excludes) as $exclude) {
-            if (is_string($exclude)) {
-                $exclude = self::parseExcludePattern($exclude, false);
-            }
-            if (!isset($exclude['pattern']) || !isset($exclude['flags']) || !isset($exclude['firstWildcard'])) {
-                throw new InvalidArgumentException('If exclude/include pattern is an array it must contain the pattern, flags and firstWildcard keys.');
-            }
-            if ($exclude['flags'] & self::PATTERN_MUSTBEDIR && !is_dir($path)) {
-                continue;
-            }
-
-            if ($exclude['flags'] & self::PATTERN_NODIR) {
-                if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                    return $exclude;
-                }
-                continue;
-            }
-
-            if (self::matchPathname($path, $basePath, $exclude['pattern'], $exclude['firstWildcard'], $exclude['flags'])) {
-                return $exclude;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $pattern
-     * @param bool $caseSensitive
-     * @return array
-     */
-    private static function parseExcludePattern(string $pattern, bool $caseSensitive): array
-    {
-        $result = [
-            'pattern' => $pattern,
-            'flags' => 0,
-            'firstWildcard' => false,
-        ];
-
-        if (!$caseSensitive) {
-            $result['flags'] |= self::PATTERN_CASE_INSENSITIVE;
-        }
-
-        if (!isset($pattern[0])) {
-            return $result;
-        }
-
-        if ($pattern[0] === '!') {
-            $result['flags'] |= self::PATTERN_NEGATIVE;
-            $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
-        }
-        if (StringHelper::byteLength($pattern) && StringHelper::byteSubstr($pattern, -1, 1) === '/') {
-            $pattern = StringHelper::byteSubstr($pattern, 0, -1);
-            $result['flags'] |= self::PATTERN_MUSTBEDIR;
-        }
-        if (strpos($pattern, '/') === false) {
-            $result['flags'] |= self::PATTERN_NODIR;
-        }
-        $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
-        if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern))) === false) {
-            $result['flags'] |= self::PATTERN_ENDSWITH;
-        }
-        $result['pattern'] = $pattern;
-
-        return $result;
-    }
-
-    /**
-     * @param string $pattern
-     * @return int
-     */
-    private static function firstWildcardInPattern(string $pattern): int
-    {
-        $wildcards = ['*', '?', '[', '\\'];
-        $wildcardSearch = function ($r, $c) use ($pattern) {
-            $p = strpos($pattern, $c);
-
-            return $r === false ? $p : ($p === false ? $r : min($r, $p));
-        };
-
-        return array_reduce($wildcards, $wildcardSearch, false);
-    }
-
-    /**
      * @param array $options
      * @return array
      */
-    protected static function normalizeOptions(array $options): array
+    public static function findDirectories(string $dir, array $options = []): array
     {
-        if (!array_key_exists('caseSensitive', $options)) {
-            $options['caseSensitive'] = true;
-        }
-        if (isset($options['except'])) {
-            foreach ($options['except'] as $key => $value) {
-                if (is_string($value)) {
-                    $options['except'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
+        $dir = self::clearDir($dir);
+        $options = self::setBasePath($dir, $options);
+        $list = [];
+        $handle = self::openDir($dir);
+        while (($file = readdir($handle)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($path) && static::filterPath($path, $options)) {
+                $list[] = $path;
+                if (!isset($options['recursive']) || $options['recursive']) {
+                    $list = array_merge($list, static::findDirectories($path, $options));
                 }
             }
         }
-        if (isset($options['only'])) {
-            foreach ($options['only'] as $key => $value) {
-                if (is_string($value)) {
-                    $options['only'][$key] = self::parseExcludePattern($value, $options['caseSensitive']);
-                }
-            }
-        }
+        closedir($handle);
 
-        return $options;
+        return $list;
     }
 }

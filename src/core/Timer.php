@@ -27,6 +27,24 @@ class Timer extends AbstractTimer
     }
 
     /**
+     * 移除一个定时器
+     *
+     * @param string $name 定时器名称
+     *
+     * @return bool
+     */
+    public function clearTimerByName(string $name): bool
+    {
+        if (!isset($this->timers[$name])) {
+            return true;
+        }
+        \Swoole\Timer::clear($this->timers[$name]['tid']);
+        unset($this->timers[$name]);
+
+        return true;
+    }
+
+    /**
      * @param string $name
      * @param float $time
      * @param callable $callback
@@ -43,24 +61,6 @@ class Timer extends AbstractTimer
         $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
 
         return $tid;
-    }
-
-    /**
-     * 移除一个定时器
-     *
-     * @param string $name 定时器名称
-     *
-     * @return bool
-     */
-    public function clearTimerByName(string $name): bool
-    {
-        if (!isset($this->timers[$name])) {
-            return true;
-        }
-        \Swoole\Timer::clear($this->timers[$name]['tid']);
-        unset($this->timers[$name]);
-
-        return true;
     }
 
     /**

@@ -40,26 +40,11 @@ class App
     private static $_object;
 
     /**
-     * @return LoggerInterface
-     * @throws \Exception
+     * @return null|\Swoole\Server
      */
-    public static function getLogger(): LoggerInterface
+    public static function getServer(): ?\Swoole\Server
     {
-        if (self::$_logger instanceof LoggerInterface) {
-            return self::$_logger;
-        }
-        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
-            self::$_logger = ObjectFactory::get(NullLogger::class);
-        }
-        return self::$_logger;
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public static function setLogger(LoggerInterface $logger): void
-    {
-        self::$_logger = $logger;
+        return self::$_server;
     }
 
     /**
@@ -68,14 +53,6 @@ class App
     public static function setServer(\Swoole\Server $server): void
     {
         self::$_server = $server;
-    }
-
-    /**
-     * @return null|\Swoole\Server
-     */
-    public static function getServer(): ?\Swoole\Server
-    {
-        return self::$_server;
     }
 
     /**
@@ -88,40 +65,6 @@ class App
         }
         self::$_object = new BaseObject();
         return self::$_object;
-    }
-
-    /**
-     * @param $alias
-     * @param bool $throwException
-     * @return null|string
-     */
-    public static function getAlias($alias, $throwException = true): ?string
-    {
-        if (strncmp($alias, '@', 1)) {
-            // not an alias
-            return $alias;
-        }
-
-        $pos = strpos($alias, '/');
-        $root = $pos === false ? $alias : substr($alias, 0, $pos);
-
-        if (isset(static::$aliases[$root])) {
-            if (is_string(static::$aliases[$root])) {
-                return $pos === false ? static::$aliases[$root] : static::$aliases[$root] . substr($alias, $pos);
-            }
-
-            foreach (static::$aliases[$root] as $name => $path) {
-                if (strpos($alias . '/', $name . '/') === 0) {
-                    return $path . substr($alias, strlen($name));
-                }
-            }
-        }
-
-        if ($throwException) {
-            throw new \InvalidArgumentException("Invalid path alias: $alias");
-        }
-
-        return null;
     }
 
     /**
@@ -166,6 +109,40 @@ class App
     }
 
     /**
+     * @param $alias
+     * @param bool $throwException
+     * @return null|string
+     */
+    public static function getAlias($alias, $throwException = true): ?string
+    {
+        if (strncmp($alias, '@', 1)) {
+            // not an alias
+            return $alias;
+        }
+
+        $pos = strpos($alias, '/');
+        $root = $pos === false ? $alias : substr($alias, 0, $pos);
+
+        if (isset(static::$aliases[$root])) {
+            if (is_string(static::$aliases[$root])) {
+                return $pos === false ? static::$aliases[$root] : static::$aliases[$root] . substr($alias, $pos);
+            }
+
+            foreach (static::$aliases[$root] as $name => $path) {
+                if (strpos($alias . '/', $name . '/') === 0) {
+                    return $path . substr($alias, strlen($name));
+                }
+            }
+        }
+
+        if ($throwException) {
+            throw new \InvalidArgumentException("Invalid path alias: $alias");
+        }
+
+        return null;
+    }
+
+    /**
      * @param string $message
      * @param string|null $module
      * @throws \Exception
@@ -175,6 +152,29 @@ class App
         if (getDI('debug', false, false)) {
             static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
         }
+    }
+
+    /**
+     * @return LoggerInterface
+     * @throws \Exception
+     */
+    public static function getLogger(): LoggerInterface
+    {
+        if (self::$_logger instanceof LoggerInterface) {
+            return self::$_logger;
+        }
+        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
+            self::$_logger = ObjectFactory::get(NullLogger::class);
+        }
+        return self::$_logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public static function setLogger(LoggerInterface $logger): void
+    {
+        self::$_logger = $logger;
     }
 
     /**
