@@ -14,3 +14,10 @@ if (!function_exists('getDI')) {
         return \rabbit\core\ObjectFactory::get($name, $throwException, $default);
     }
 }
+
+if (!function_exists('rgo')) {
+    function rgo(\Closure $function, ?\Closure $defer = null)
+    {
+        return \rabbit\helper\CoroHelper::go($function, $defer);
+    }
+}
