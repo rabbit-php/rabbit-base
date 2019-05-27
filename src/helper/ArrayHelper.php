@@ -483,27 +483,55 @@ class ArrayHelper
     /**
      * @param array $array
      * @param array $keys
+     * @param array|null $newKeys
      * @param null $default
      * @return array|null
      */
-    public static function getValueByList(array $array, array $keys, $default = null): ?array
-    {
-        if (!is_array($array) || !is_array($keys)) {
-            return null;
+    public static function getValueByArray(
+        array $array,
+        array $keys,
+        array $newKeys = null,
+        array $default = null
+    ): ?array {
+        if ($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) {
+            return $default;
         }
         $result = [];
 
         foreach ($keys as $index => $key) {
+            $newKey = $newKeys ? $newKeys[$index] : (is_array($newKeys) ? $key : $index);
             if (is_array($default)) {
-                $result[$key] = $default[$index];
+                $result[$newKey] = isset($default[$key]) ? $default[$key] : null;
             } else {
-                $result[$key] = $default;
+                $result[$newKey] = $default;
             }
-            foreach ($array as $value) {
-                if (static::keyExists($key, $value, false)) {
-                    $result[$key][] = $value[$key];
+            foreach ($array as $akey => $value) {
+                if ($akey === $key) {
+                    $result[$newKey] = $value;
                 }
             }
+        }
+        return $result;
+    }
+
+    /**
+     * @param array $array
+     * @param array $keys
+     * @param null $default
+     * @return array|null
+     */
+    public static function getValueByList(
+        array $array,
+        array $keys,
+        array $newKeys = null,
+        array $default = null
+    ): ?array {
+        if (!is_array($array) || !is_array($keys) || !static::isIndexed($array)) {
+            return null;
+        }
+        $result = [];
+        foreach ($array as $index => $value) {
+            $result[$index] = ArrayHelper::getValueByArray($array, $keys, $newKeys, $default);
         }
         return $result;
     }
@@ -529,40 +557,6 @@ class ArrayHelper
         }
 
         return false;
-    }
-
-    /**
-     * @param array $array
-     * @param array $keys
-     * @param array|null $newKeys
-     * @param null $default
-     * @return array|null
-     */
-    public static function getValueByArray(
-        array $array,
-        array $keys,
-        array $newKeys = null,
-        array $default = null
-    ): ?array {
-        if ($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) {
-            return $default;
-        }
-        $result = [];
-
-        foreach ($keys as $index => $key) {
-            $newKey = $newKeys ? $newKeys[$index] : (is_array($newKeys) ? $key : $index);
-            if (is_array($default)) {
-                $result[$newKey] = $default[$index];
-            } else {
-                $result[$newKey] = $default;
-            }
-            foreach ($array as $akey => $value) {
-                if ($akey === $key) {
-                    $result[$newKey] = $value;
-                }
-            }
-        }
-        return $result;
     }
 
     /**
