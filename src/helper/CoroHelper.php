@@ -44,7 +44,7 @@ class CoroHelper
     }
 
     /**
-     * @return CoroGroup
+     * @return WaitGroup
      */
     public static function createGroup(): WaitGroup
     {
@@ -53,6 +53,8 @@ class CoroHelper
 
     /**
      * @param \Closure $function
+     * @param \Closure|null $defer
+     * @return int
      * @throws \Exception
      */
     public static function go(\Closure $function, ?\Closure $defer = null): int

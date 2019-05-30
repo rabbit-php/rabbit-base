@@ -16,8 +16,15 @@ if (!function_exists('getDI')) {
 }
 
 if (!function_exists('rgo')) {
-    function rgo(\Closure $function, ?\Closure $defer = null)
+    function rgo(\Closure $function, ?\Closure $defer = null): int
     {
         return \rabbit\helper\CoroHelper::go($function, $defer);
+    }
+}
+
+if (!function_exists('waitGroup')) {
+    function waitGroup(): \rabbit\helper\WaitGroup
+    {
+        return \rabbit\helper\CoroHelper::createGroup();
     }
 }

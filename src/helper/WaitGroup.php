@@ -40,7 +40,11 @@ class WaitGroup
     }
 
     /**
+     * @param string $name
      * @param callable $callback
+     * @param callable|null $defer
+     * @param mixed ...$params
+     * @return WaitGroup
      */
     public function add(string $name, callable $callback, ?callable $defer = null, ...$params): self
     {
@@ -62,6 +66,7 @@ class WaitGroup
 
     /**
      * @param float $timeout
+     * @return array
      */
     public function wait(float $timeout = 0): array
     {
