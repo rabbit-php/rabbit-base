@@ -59,17 +59,17 @@ class CoroHelper
      */
     public static function go(\Closure $function, ?\Closure $defer = null): int
     {
-        try {
-            return go(function () use ($function, $defer) {
+        return go(function () use ($function, $defer) {
+            try {
                 if (is_callable($defer)) {
                     $defer();
                 }
                 $function();
-            });
-        } catch (\Throwable $throwable) {
-            App::error($throwable->getMessage());
-            return 0;
-        }
+            } catch (\Throwable $throwable) {
+                App::error($throwable->getMessage());
+                return 0;
+            }
+        });
     }
 
     /**
