@@ -149,9 +149,7 @@ class App
      */
     public static function debug(string $message, string $module = null): void
     {
-        if (getDI('debug', false, false)) {
-            static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
-        }
+        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
     }
 
     /**
