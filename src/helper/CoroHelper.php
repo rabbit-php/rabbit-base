@@ -2,7 +2,6 @@
 
 namespace rabbit\helper;
 
-use rabbit\App;
 use rabbit\contract\DeferInterface;
 
 /**
@@ -66,7 +65,7 @@ class CoroHelper
                 }
                 $function();
             } catch (\Throwable $throwable) {
-                App::error($throwable->getMessage());
+                print_r(ExceptionHelper::convertExceptionToArray($throwable));
                 return 0;
             }
         });

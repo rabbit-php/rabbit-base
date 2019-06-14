@@ -56,7 +56,7 @@ class WaitGroup
             try {
                 $result = call_user_func_array($callback, $params);
             } catch (\Throwable $throwable) {
-                $result = null;
+                $result = $throwable;
             } finally {
                 $this->channel->push([$name, $result]);
             }

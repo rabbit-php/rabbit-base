@@ -11,7 +11,6 @@ namespace rabbit\core;
 use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
-use rabbit\helper\ArrayHelper;
 use function DI\create;
 
 /**
@@ -177,7 +176,7 @@ class ObjectFactory
         } elseif (is_array($type) && isset($type['class'])) {
             $class = $type['class'];
             unset($type['class']);
-            $params = ArrayHelper::merge($type, $params);
+            $params = array_merge($type, $params);
             return self::make($class, $params, $singleTon);
         } elseif ($type instanceof DefinitionHelper) {
             return static::$container->get($type->getDefinition('')->getName());
@@ -209,7 +208,8 @@ class ObjectFactory
         } else {
             $obj = static::$container->make($class, $params);
         }
-        return self::configure($obj, $params);
+        self::configure($obj, $params);
+        return $obj;
     }
 
     /**
@@ -222,13 +222,11 @@ class ObjectFactory
         foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
-                \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
+                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
                 $object->$action = $arguments;
             }
         }
-
-        return $object;
     }
 }
