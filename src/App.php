@@ -13,7 +13,7 @@ use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use rabbit\core\BaseObject;
 use rabbit\core\ObjectFactory;
-use swoole_server;
+use Swoole\Server;
 
 /**
  * Class App
@@ -27,7 +27,7 @@ class App
     private static $aliases = ['@rabbit' => __DIR__ . '/..'];
 
     /**
-     * @var swoole_server
+     * @var \Swoole\Server
      */
     private static $_server;
 
