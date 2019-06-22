@@ -3,11 +3,13 @@
 
 namespace rabbit\contract;
 
+use rabbit\App;
+
 /**
  * Interface TaskInterface
  * @package rabbit\contract
  */
-interface TaskInterface
+abstract class AbstractTask
 {
     /**
      * @param int $task_id
@@ -15,12 +17,15 @@ interface TaskInterface
      * @param $data
      * @return mixed
      */
-    public function handle(int $task_id, int $from_id, $data);
+    abstract public function handle(int $task_id, int $from_id, $data);
 
     /**
      * @param array $tasks
      * @param float $timeout
      * @return array
      */
-    public function task(array $tasks, float $timeout = 0.5): array;
+    public static function task(array $tasks, float $timeout = 0.5): array
+    {
+        return App::getServer()->taskCo($tasks, $timeout);
+    }
 }
