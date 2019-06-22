@@ -623,9 +623,9 @@ class FileHelper
 
     /**
      * @param string $dir
-     * @return resource
+     * @return false|resource
      */
-    private static function openDir(string $dir): resource
+    private static function openDir(string $dir)
     {
         $handle = opendir($dir);
         if ($handle === false) {
