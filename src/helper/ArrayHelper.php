@@ -16,7 +16,7 @@ class ArrayHelper
      * @param bool $recursive
      * @return array
      */
-    public static function toArray($object, $properties = [], $recursive = true): array
+    public static function toArray($object, array $properties = [], bool $recursive = true): array
     {
         if (is_array($object)) {
             if ($recursive) {
@@ -65,7 +65,7 @@ class ArrayHelper
      * @param null $default
      * @return mixed|null
      */
-    public static function getValue($array, $key, $default = null)
+    public static function getValue(array $array, $key, $default = null)
     {
         if ($key instanceof \Closure) {
             return $key($array, $default);
@@ -132,7 +132,7 @@ class ArrayHelper
      * @param $path
      * @param $value
      */
-    public static function setValue(&$array, $path, $value): void
+    public static function setValue(array &$array, $path, $value): void
     {
         if ($path === null) {
             $array = $value;
@@ -161,7 +161,7 @@ class ArrayHelper
      * @param null $default
      * @return mixed|null
      */
-    public static function remove(&$array, $key, $default = null)
+    public static function remove(array &$array, string $key, $default = null)
     {
         if (is_array($array) && (isset($array[$key]) || array_key_exists($key, $array))) {
             $value = $array[$key];
@@ -174,11 +174,24 @@ class ArrayHelper
     }
 
     /**
+     * @param array $array
+     * @param array $keys
+     * @param null $default
+     */
+    public static function removeKeys(array &$array, array $keys, $default = null): void
+    {
+        $result = [];
+        foreach ($keys as $index => $key) {
+            $result[$key] = self::remove($array, $keys, is_array($default) ? $default[$index] : $default);
+        }
+    }
+
+    /**
      * @param $array
      * @param $value
      * @return array
      */
-    public static function removeValue(&$array, $value): array
+    public static function removeValue(array &$array, $value): array
     {
         $result = [];
         if (is_array($array)) {
@@ -199,7 +212,7 @@ class ArrayHelper
      * @param array $groups
      * @return array
      */
-    public static function index($array, $key, $groups = []): array
+    public static function index(array $array, $key, $groups = []): array
     {
         $result = [];
         $groups = (array)$groups;
@@ -241,7 +254,7 @@ class ArrayHelper
      * @param null $group
      * @return array
      */
-    public static function map($array, $from, $to, $group = null): array
+    public static function map(array $array, $from, $to, $group = null): array
     {
         $result = [];
         foreach ($array as $element) {
@@ -263,7 +276,7 @@ class ArrayHelper
      * @param int $direction
      * @param int $sortFlag
      */
-    public static function multisort(&$array, $key, $direction = SORT_ASC, $sortFlag = SORT_REGULAR): void
+    public static function multisort(array &$array, $key, $direction = SORT_ASC, $sortFlag = SORT_REGULAR): void
     {
         $keys = is_array($key) ? $key : [$key];
         if (empty($keys) || empty($array)) {
@@ -304,7 +317,7 @@ class ArrayHelper
      * @param bool $keepKeys
      * @return array
      */
-    public static function getColumn($array, $name, $keepKeys = true): array
+    public static function getColumn(array $array, $name, $keepKeys = true): array
     {
         $result = [];
         if ($keepKeys) {
@@ -325,7 +338,7 @@ class ArrayHelper
      * @param bool $allStrings
      * @return bool
      */
-    public static function isAssociative($array, $allStrings = true): bool
+    public static function isAssociative(array $array, $allStrings = true): bool
     {
         if (!is_array($array) || empty($array)) {
             return false;
@@ -355,7 +368,7 @@ class ArrayHelper
      * @param bool $consecutive
      * @return bool
      */
-    public static function isIndexed($array, $consecutive = false): bool
+    public static function isIndexed(array $array, $consecutive = false): bool
     {
         if (!is_array($array)) {
             return false;
@@ -436,7 +449,7 @@ class ArrayHelper
      * @param $filters
      * @return array
      */
-    public static function filter($array, $filters): array
+    public static function filter(array $array, array $filters): array
     {
         $result = [];
         $forbiddenVars = [];
@@ -542,7 +555,7 @@ class ArrayHelper
      * @param bool $caseSensitive
      * @return bool
      */
-    public static function keyExists($key, $array, $caseSensitive = true): bool
+    public static function keyExists(string $key, array $array, $caseSensitive = true): bool
     {
         if ($caseSensitive) {
             // Function `isset` checks key faster but skips `null`, `array_key_exists` handles this case
@@ -565,7 +578,7 @@ class ArrayHelper
      * @param $group
      * @return array|null
      */
-    public static function sum(array $array, $key, $group): ?array
+    public static function sum(array $array, string $key, $group): ?array
     {
         if (!is_array($array) || !$key || !$group) {
             return null;
