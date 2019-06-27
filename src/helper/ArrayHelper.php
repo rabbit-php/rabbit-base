@@ -506,7 +506,8 @@ class ArrayHelper
         array $newKeys = null,
         array $default = null
     ): ?array {
-        if ($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) {
+        if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
+            (is_array($default) && self::isIndexed($default) && count($keys) !== count($default))) {
             return $default;
         }
         $result = [];
@@ -514,7 +515,7 @@ class ArrayHelper
         foreach ($keys as $index => $key) {
             $newKey = $newKeys ? $newKeys[$index] : (is_array($newKeys) ? $key : $index);
             if (is_array($default)) {
-                $result[$newKey] = isset($default[$key]) ? $default[$key] : null;
+                $result[$newKey] = isset($default[$key]) ? $default[$key] : (isset($default[$index]) ? $default[$index] : null);
             } else {
                 $result[$newKey] = $default;
             }
