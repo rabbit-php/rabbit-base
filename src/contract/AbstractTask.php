@@ -26,6 +26,7 @@ abstract class AbstractTask
      */
     public static function task(array $tasks, float $timeout = 0.5): array
     {
-        return App::getServer()->taskCo($tasks, $timeout);
+        $result = App::getServer()->taskCo($tasks, $timeout);
+        return is_array($result) ? $result : [$result];
     }
 }
