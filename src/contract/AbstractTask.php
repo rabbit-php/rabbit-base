@@ -20,6 +20,13 @@ abstract class AbstractTask
     abstract public function handle(int $task_id, int $from_id, $data);
 
     /**
+     * @param \Swoole\Server $serv
+     * @param int $task_id
+     * @param string $data
+     */
+    abstract public function finish(\Swoole\Server $serv, int $task_id, string $data): void;
+
+    /**
      * @param array $tasks
      * @param float $timeout
      * @return array
