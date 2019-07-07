@@ -80,4 +80,22 @@ class CoroHelper
             call_user_func($function);
         });
     }
+
+    /**
+     * @param \Closure $function
+     * @param \Closure|null $defer
+     */
+    public static function run(\Closure $function, ?\Closure $defer = null)
+    {
+        \Co::run(function () use ($function, $defer) {
+            try {
+                if (is_callable($defer)) {
+                    $defer();
+                }
+                $function();
+            } catch (\Throwable $throwable) {
+                print_r(ExceptionHelper::convertExceptionToArray($throwable));
+            }
+        });
+    }
 }
