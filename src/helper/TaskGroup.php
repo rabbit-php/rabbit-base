@@ -23,6 +23,14 @@ class TaskGroup
     }
 
     /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    /**
      * @return WaitGroup
      */
     public function create(): self
