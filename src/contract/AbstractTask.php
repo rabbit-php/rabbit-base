@@ -66,4 +66,23 @@ abstract class AbstractTask
         $this->taskList[] = $task;
         return $this;
     }
+
+    /**
+     * @param $data
+     */
+    public function task($data, int $dst_worker_id = -1, \Closure $function = null)
+    {
+        return $function ? App::getServer()->task($data, $dst_worker_id, $function) : App::getServer()->task($data,
+            $dst_worker_id);
+    }
+
+    /**
+     * @param $data
+     * @param float $timeout
+     * @param int $dstWorkerId
+     */
+    public function taskwait($data, float $timeout = 0.5, int $dstWorkerId = -1)
+    {
+        return App::getServer()->taskwait($data, $timeout, $dstWorkerId);
+    }
 }
