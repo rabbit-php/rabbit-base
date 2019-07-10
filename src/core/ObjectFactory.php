@@ -49,15 +49,6 @@ class ObjectFactory
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public static function reload(): void
-    {
-        self::init();
-    }
-
-    /**
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
-     */
     public static function init(bool $auto = true)
     {
         self::getContainer();
@@ -168,6 +159,15 @@ class ObjectFactory
     public static function has(string $name): bool
     {
         return self::$container->has($name);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function hasDef(string $name): bool
+    {
+        return isset(self::$definitions[$name]);
     }
 
     /**

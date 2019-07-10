@@ -70,3 +70,14 @@ if (!function_exists('hasDI')) {
         return \rabbit\core\ObjectFactory::has($key);
     }
 }
+
+if (!function_exists('hasDef')) {
+    /**
+     * @param string $key
+     * @return bool
+     */
+    function hasDef(string $key): bool
+    {
+        return \rabbit\core\ObjectFactory::hasDef($key);
+    }
+}
