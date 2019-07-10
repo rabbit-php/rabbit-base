@@ -13,13 +13,24 @@ class TaskGroup
 
     /** @var \Swoole\Coroutine\Channel */
     private $channel;
+    /** @var string */
+    private $name;
 
     /**
      * CoroGroup constructor.
      */
-    public function __construct()
+    public function __construct(string $name = null)
     {
         $this->channel = new Channel;
+        $this->name = $name ?? uniqid();
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**

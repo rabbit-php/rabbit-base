@@ -53,15 +53,25 @@ abstract class AbstractTaskGroup
                 App::getServer()->task(...$task);
                 $taskGroup->add();
             }
-            App::info('Task start file count=' . $taskGroup->getCount(), $this->logKey);
+            App::info("Task {$taskGroup->getName()} start file count=" . $taskGroup->getCount(), $this->logKey);
             $result = $taskGroup->wait($timeout);
+            $tmpSuccess = 0;
+            $tmpFaild = [];
             foreach ($result as $res) {
-                $success += $res['success'];
-                $failed = array_merge($failed, $res['failed']);
+                $tmpSuccess += $res['success'];
+                $tmpFaild = array_merge($tmpFaild, $res['failed']);
             }
+            $tmpFaildCount = count($tmpFaild);
+            $success += $tmpSuccess;
+            $failed = array_merge($failed, $tmpFaild);
+            $tmpFaild = implode(' & ', $tmpFaild);
+            App::info("Task finish {$taskGroup->getName()} success=$tmpSuccess failed=$tmpFaildCount files=$tmpFaild",
+                $this->logKey);
         }
+        $failedCount = count($failed);
         $failed = implode(' & ', $failed);
-        App::info('Task finish! success=' . $success . ' failed=' . (empty($failed) ? 0 : $failed), $this->logKey);
+        App::info("All Task finish {$this->taskName} success=$success failed=$failedCount files=$failed",
+            $this->logKey);
     }
 
     /**
@@ -78,7 +88,7 @@ abstract class AbstractTaskGroup
                 return $this;
             }
         }
-        $this->taskList[] = [$task, $dst_worker_id];
+        $this->taskList[][] = [$task, $dst_worker_id];
         return $this;
     }
 }

@@ -162,6 +162,15 @@ class ObjectFactory
     }
 
     /**
+     * @param string $name
+     * @return bool
+     */
+    public static function has(string $name): bool
+    {
+        return self::$container->has($name);
+    }
+
+    /**
      * @param $type
      * @param array $params
      * @param bool $singleTon

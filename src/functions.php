@@ -59,3 +59,14 @@ if (!function_exists('env')) {
         return $default;
     }
 }
+
+if (!function_exists('hasDI')) {
+    /**
+     * @param string $key
+     * @return bool
+     */
+    function hasDI(string $key): bool
+    {
+        return \rabbit\core\ObjectFactory::has($key);
+    }
+}
