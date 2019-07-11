@@ -22,9 +22,10 @@ abstract class AbstractTaskGroup
      * AbstractTask constructor.
      * @param array $taskList
      */
-    public function __construct(string $name = null)
+    public function __construct(int $group, string $name = null)
     {
         $this->taskName = $name ?? uniqid();
+        $this->group = $group;
     }
 
     /**
@@ -76,14 +77,13 @@ abstract class AbstractTaskGroup
 
     /**
      * @param $task
-     * @param int $group
-     * @return AbstractTask
+     * @param int $dst_worker_id
+     * @return AbstractTaskGroup
      */
-    public function addGroup($task, int $dst_worker_id = -1, int $group = 0): self
+    public function addGroup($task, int $dst_worker_id = -1): self
     {
-        $this->group = $group;
-        if ($group > 0) {
-            if (!empty($this->taskList) && count($this->taskList[count($this->taskList) - 1]) < $group) {
+        if ($this->group > 0) {
+            if (!empty($this->taskList) && count($this->taskList[count($this->taskList) - 1]) < $this->group) {
                 $this->taskList[count($this->taskList) - 1][] = [$task, $dst_worker_id];
                 return $this;
             }
