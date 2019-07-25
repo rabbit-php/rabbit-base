@@ -228,13 +228,24 @@ class ObjectFactory
      */
     public static function configure($object, iterable $config)
     {
+        static $conParams = [];
+        $class = get_class($object);
+        if (!isset($conParams[$class])) {
+            $obj = (new \ReflectionClass($class))->getConstructor();
+            if ($obj !== null) {
+                foreach ($obj->getParameters() as $parameter) {
+                    $conParams[$class][] = $parameter->getName();
+                }
+            }
+        }
+
         foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
                 call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
-                $object->$action = $arguments;
+                (!isset($conParams[$class]) || !in_array($action, $conParams[$class])) && $object->$action = $arguments;
             }
         }
     }

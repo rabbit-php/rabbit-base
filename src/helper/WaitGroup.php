@@ -70,12 +70,15 @@ class WaitGroup
      */
     public function wait(float $timeout = 0): array
     {
-        $res = [];
-        for ($i = 0; $i < $this->count; $i++) {
-            list($name, $result) = $this->channel->pop($timeout);
-            $res[$name] = $result;
+        try {
+            $res = [];
+            for ($i = 0; $i < $this->count; $i++) {
+                list($name, $result) = $this->channel->pop($timeout);
+                $res[$name] = $result;
+            }
+            return $res;
+        } finally {
+            $this->count = 0;
         }
-        $this->count = 0;
-        return $res;
     }
 }
