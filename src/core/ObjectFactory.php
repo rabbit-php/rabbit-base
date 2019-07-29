@@ -11,6 +11,7 @@ namespace rabbit\core;
 use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
+use rabbit\contract\InitInterface;
 use function DI\create;
 
 /**
@@ -63,8 +64,8 @@ class ObjectFactory
     {
         foreach (self::$definitions as $name => $definition) {
             $obj = self::$container->get($name);
-            if (method_exists($obj, 'coInit')) {
-                $obj->coInit();
+            if ($obj instanceof InitInterface) {
+                $obj->init();
             }
         }
     }
