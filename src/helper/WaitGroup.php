@@ -46,8 +46,9 @@ class WaitGroup
      * @param mixed ...$params
      * @return WaitGroup
      */
-    public function add(string $name, callable $callback, ?callable $defer = null, ...$params): self
+    public function add(?string $name, callable $callback, ?callable $defer = null, ...$params): self
     {
+        $name = $name ?? $this->count;
         $this->count++;
         go(function () use ($name, $callback, $defer, $params) {
             if (is_callable($defer)) {
