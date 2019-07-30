@@ -69,7 +69,7 @@ class Timer extends AbstractTimer
     public function clearTimers(): bool
     {
         foreach ($this->timers as $name => $timerData) {
-            \Swoole\Timer::clear($timerData['tid']);
+            $this->clearTimerByName($name);
         }
         return true;
     }
