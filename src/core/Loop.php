@@ -23,7 +23,7 @@ class Loop
      * @param string $group
      * @param array $params
      */
-    public static function addEvent(string $group, array $params): void
+    public static function addEvent(string $group, array $params, bool $autoRun = true): string
     {
         if (count($params) !== 4) {
             throw new InvalidArgumentException("swoole event must have 4 param");
@@ -40,11 +40,12 @@ class Loop
         if ($params[3] && !is_int($params[3])) {
             throw new InvalidArgumentException("swoole event the 4th param must be SWOOLE_EVENT_READ or SWOOLE_EVENT_WRITE or SWOOLE_EVENT_READ | SWOOLE_EVENT_WRITE)");
         }
-        $id = (int)$params[0];
-        self::$loopList[$group]['event'][$id] = $params;
-        if (isset(self::$runGroup[$group]) && self::$runGroup[$group]) {
+        $id = uniqid();
+        self::$loopList[$group]['event'][$id] = [$params, $autoRun];
+        if (isset(self::$runGroup[$group]) && self::$runGroup[$group] && $autoRun) {
             self::runEvent($group, $id);
         }
+        return $id;
     }
 
     /**
@@ -52,7 +53,7 @@ class Loop
      * @param array $params
      * @return string
      */
-    public static function addTimer(string $group, array $params): string
+    public static function addTimer(string $group, array $params, bool $autoRun = true): string
     {
         if (count($params) < 2) {
             throw new InvalidArgumentException("swoole timer at least have 2 param");
@@ -67,8 +68,8 @@ class Loop
             throw new InvalidArgumentException("swoole timer the 3th param must be array");
         }
         $id = uniqid();
-        self::$loopList[$group]['timer'][$id] = $params;
-        if (isset(self::$runGroup[$group]) && self::$runGroup[$group]) {
+        self::$loopList[$group]['timer'][$id] = [$params, $autoRun];
+        if (isset(self::$runGroup[$group]) && self::$runGroup[$group] && $autoRun) {
             self::runTimer($group, $id);
         }
         return $id;
@@ -77,21 +78,25 @@ class Loop
     /**
      * @param string $group
      * @param string|null $id
+     * @throws \Exception
      */
-    public static function runEvent(string $group, $id = null)
+    public static function runEvent(string $group, ?string $id = null)
     {
         if ($id === null) {
             foreach (self::$loopList[$group]['event'] as $id => $event) {
-                if (isset(self::$running[$group]['evnet'][$id])) {
+                if (isset(self::$running[$group]['event'][$id])) {
                     App::warning("Event group <$group> $id already running!", 'Loop');
                     continue;
                 }
-                swoole_event_add(...$event);
-                self::$running[$group]['evnet'][$id] = $event[0];
+                [$event, $autoRun] = $event;
+                if ($autoRun && swoole_event_add(...$event)) {
+                    self::$running[$group]['event'][$id] = $event[0];
+                };
             }
-        } elseif (is_int($id) && isset(self::$loopList[$group]['event'][$id])) {
-            swoole_event_add(...self::$loopList[$group]['event'][$id]);
-            self::$running[$group]['evnet'][$id] = self::$loopList[$group]['event'][$id][0];
+        } elseif (is_string($id) && isset(self::$loopList[$group]['event'][$id]) && !isset(self::$running[$group]['event'][$id])) {
+            [$event] = self::$loopList[$group]['event'][$id];
+            swoole_event_add(...$event);
+            self::$running[$group]['event'][$id] = $event[0];
         }
     }
 
@@ -107,29 +112,32 @@ class Loop
                     App::warning("Timer group <$group> $id already running!", 'Loop');
                     continue;
                 }
-                self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...$timer);
+                [$timer, $autoRun] = $timer;
+                $autoRun && (self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...$timer));
             }
-        } elseif (is_string($id) && isset(self::$loopList[$group]['timer'][$id])) {
-            self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...self::$loopList[$group]['timer'][$id]);
+        } elseif (is_string($id) && isset(self::$loopList[$group]['timer'][$id]) && !isset(self::$running[$group]['timer'][$id])) {
+            [$timer] = self::$loopList[$group]['timer'][$id];
+            self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...$timer);
         }
     }
 
     /**
      * @param string $group
-     * @param int|null $id
+     * @param string|null $id
      */
-    public static function stopEvent(string $group, ?int $id = null): void
+    public static function stopEvent(string $group, ?string $id = null, bool $close = false): void
     {
         if ($id === null) {
             foreach (self::$running[$group]['event'] as $id => $stream) {
                 swoole_event_del($stream);
-                is_resource($stream) && @fclose($stream);
-                unset(self::$running[$group]['event'][$id]);
+                $close && is_resource($stream) && @fclose($stream);
             }
-        } elseif (is_int($id) && isset(self::$running[$group]['event'][$id])) {
+            unset(self::$running[$group]['event']);
+            self::$running[$group]['event'] = [];
+        } elseif (is_string($id) && isset(self::$running[$group]['event'][$id])) {
             $stream = self::$running[$group]['event'][$id];
             swoole_event_del($stream);
-            is_resource($stream) && @fclose($stream);
+            $close && is_resource($stream) && @fclose($stream);
             unset(self::$running[$group]['event'][$id]);
         }
     }
@@ -138,16 +146,47 @@ class Loop
      * @param string $group
      * @param string|null $id
      */
-    public static function stopTimer(string $group, ?string $id): void
+    public static function stopTimer(string $group, ?string $id = null): void
     {
         if ($id === null) {
             foreach (self::$running[$group]['timer'] as $id => $timer) {
                 \Swoole\Timer::clear($timer);
-                unset(self::$running[$group]['timer'][$id]);
             }
+            unset(self::$running[$group]['timer']);
+            self::$running[$group]['timer'] = [];
         } else {
             \Swoole\Timer::clear(self::$running[$group]['timer'][$id]);
             unset(self::$running[$group]['timer'][$id]);
+        }
+    }
+
+    /**
+     * @param string $group
+     * @param string|null $id
+     */
+    public static function removeEvent(string $group, ?string $id = null): void
+    {
+        self::stopEvent($group, $id, true);
+        if ($id === null) {
+            unset(self::$loopList[$group]['event']);
+            self::$running[$group]['event'] = [];
+        } else {
+            unset(self::$loopList[$group]['event'][$id]);
+        }
+    }
+
+    /**
+     * @param string $group
+     * @param string|null $id
+     */
+    public static function removeTimer(string $group, ?string $id = null): void
+    {
+        self::stopTimer($group, $id);
+        if ($id === null) {
+            unset(self::$loopList[$group]['timer']);
+            self::$running[$group]['timer'] = [];
+        } else {
+            unset(self::$loopList[$group]['timer'][$id]);
         }
     }
 
