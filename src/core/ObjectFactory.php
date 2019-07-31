@@ -50,17 +50,24 @@ class ObjectFactory
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public static function init()
+    public static function init(): void
     {
         self::getContainer();
         self::makeDefinitions(self::$definitions);
+    }
+
+    public static function autoBuild(): void
+    {
+        foreach (self::$definitions as $name => $definition) {
+            self::$container->get($name);
+        }
     }
 
     /**
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public static function workerInit()
+    public static function workerInit(): void
     {
         foreach (self::$definitions as $name => $definition) {
             $obj = self::$container->get($name);
