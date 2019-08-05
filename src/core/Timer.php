@@ -21,7 +21,7 @@ class Timer extends AbstractTimer
     {
         $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
-        $tid = \Swoole\Timer::after($time, [$this, 'timerCallback'], $params);
+        $tid = \Swoole\Timer::after($time, [$this, 'afterCallback'], $params);
         $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
         return $tid;
     }
@@ -72,6 +72,14 @@ class Timer extends AbstractTimer
             $this->clearTimerByName($name);
         }
         return true;
+    }
+
+    /**
+     * @param array|null $params
+     */
+    public function afterCallback(array $params = null): void
+    {
+        $this->run($params);
     }
 
     /**
