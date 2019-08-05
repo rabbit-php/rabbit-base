@@ -50,10 +50,11 @@ class ObjectFactory
      * @throws \DI\DependencyException
      * @throws \DI\NotFoundException
      */
-    public static function init(): void
+    public static function init(bool $auto = true): void
     {
         self::getContainer();
         self::makeDefinitions(self::$definitions);
+        self::autoBuild();
     }
 
     public static function autoBuild(): void
