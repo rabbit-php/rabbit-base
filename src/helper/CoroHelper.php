@@ -61,7 +61,7 @@ class CoroHelper
         return go(function () use ($function, $defer) {
             try {
                 if (is_callable($defer)) {
-                    $defer();
+                    defer($defer);
                 }
                 $function();
             } catch (\Throwable $throwable) {
