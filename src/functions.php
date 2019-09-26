@@ -6,6 +6,8 @@
  * Time: 15:21
  */
 
+use rabbit\helper\ExceptionHelper;
+
 defined('BREAKS') or define('BREAKS', PHP_SAPI === 'cli' ? PHP_EOL : '</br>');
 
 if (!function_exists('getDI')) {
@@ -31,7 +33,17 @@ if (!function_exists('rgo')) {
      */
     function rgo(\Closure $function, ?\Closure $defer = null): int
     {
-        return \rabbit\helper\CoroHelper::go($function, $defer);
+        return go(function () use ($function, $defer) {
+            try {
+                if (is_callable($defer)) {
+                    defer($defer);
+                }
+                $function();
+            } catch (\Throwable $throwable) {
+                print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                return 0;
+            }
+        });
     }
 }
 
