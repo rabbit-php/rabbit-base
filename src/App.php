@@ -26,9 +26,6 @@ class App
      */
     private static $aliases = ['@rabbit' => __DIR__ . '/..'];
 
-    /**
-     * @var Server
-     */
     private static $_server;
 
     /**
@@ -39,10 +36,7 @@ class App
     /** @var BaseObject */
     private static $_object;
 
-    /**
-     * @return Server|null
-     */
-    public static function getServer(): ?Server
+    public static function getServer()
     {
         return self::$_server;
     }
@@ -50,7 +44,7 @@ class App
     /**
      * @param Server $server
      */
-    public static function setServer(Server $server): void
+    public static function setServer($server): void
     {
         self::$_server = $server;
     }
