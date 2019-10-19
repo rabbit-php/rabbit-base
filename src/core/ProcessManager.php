@@ -3,7 +3,6 @@
 
 namespace rabbit\core;
 
-
 use RuntimeException;
 use Swoole\Event;
 use swoole_atomic;

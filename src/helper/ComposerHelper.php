@@ -8,7 +8,6 @@
 
 namespace rabbit\helper;
 
-
 use Composer\Autoload\ClassLoader;
 
 /**
@@ -20,7 +19,7 @@ class ComposerHelper
     /**
      * @var ClassLoader|mixed
      */
-    static $loader;
+    public static $loader;
 
     /**
      * @return ClassLoader

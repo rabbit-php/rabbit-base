@@ -52,13 +52,11 @@ class ClassHelper
 
                     //Append the token's value to the name of the namespace
                     $namespace .= $token[1];
-
                 } else {
                     if ($token === ';') {
 
                         //If the token is the semicolon, then we're done with the namespace declaration
                         $getting_namespace = false;
-
                     }
                 }
             }

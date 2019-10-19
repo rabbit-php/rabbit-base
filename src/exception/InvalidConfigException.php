@@ -8,7 +8,6 @@
 
 namespace rabbit\exception;
 
-
 use rabbit\core\Exception;
 
 /**

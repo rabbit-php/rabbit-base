@@ -53,7 +53,7 @@ if (!function_exists('waitGroup')) {
      */
     function waitGroup(): \rabbit\helper\WaitGroup
     {
-        return \rabbit\helper\CoroHelper::createGroup();
+        return new \rabbit\helper\WaitGroup();
     }
 }
 

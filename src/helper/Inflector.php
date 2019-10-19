@@ -27,8 +27,10 @@ class Inflector
             return mb_strtolower(trim(preg_replace($regex, '_\0', $name), '_'));
         }
 
-        return mb_strtolower(trim(str_replace('_', $separator, preg_replace($regex, $separator . '\0', $name)),
-            $separator));
+        return mb_strtolower(trim(
+            str_replace('_', $separator, preg_replace($regex, $separator . '\0', $name)),
+            $separator
+        ));
     }
 
     /**

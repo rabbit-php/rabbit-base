@@ -238,5 +238,4 @@ class App
     {
         static::getLogger()->log(LogLevel::INFO, $message, ['module' => $module ?? 'system']);
     }
-
 }

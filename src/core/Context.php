@@ -8,7 +8,6 @@
 
 namespace rabbit\core;
 
-
 /**
  * Class Context
  * @package rabbit\core

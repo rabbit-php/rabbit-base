@@ -2,8 +2,8 @@
 
 namespace rabbit\core;
 
+use Co\System;
 use rabbit\contract\AbstractTimer;
-use rabbit\helper\CoroHelper;
 
 /**
  * Class TimerCo
@@ -24,7 +24,7 @@ class TimerCo extends AbstractTimer
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = go(function () use ($time, $params) {
-            CoroHelper::sleep($time / 1000);
+            System::sleep($time / 1000);
             $this->timerCallback($params);
         });
         $this->timers[$name]['tid'] = $tid;
@@ -72,7 +72,7 @@ class TimerCo extends AbstractTimer
         $tid = go(function () use ($name, $time, $params) {
             while (isset($this->timers[$name])) {
                 $this->timerCallback($params);
-                CoroHelper::sleep($time / 1000);
+                System::sleep($time / 1000);
             }
         });
         $this->timers[$name]['tid'] = $tid;

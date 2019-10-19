@@ -200,7 +200,6 @@ class Loop
             isset(self::$loopList[$group]['event']) && self::runEvent($group);
             isset(self::$loopList[$group]['timer']) && self::runTimer($group);
         }
-
     }
 
     /**

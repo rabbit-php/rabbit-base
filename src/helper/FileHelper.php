@@ -250,8 +250,11 @@ class FileHelper
         try {
             return chmod($path, $mode);
         } catch (\Exception $e) {
-            throw new Exception("Failed to change permissions for directory \"$path\": " . $e->getMessage(),
-                $e->getCode(), $e);
+            throw new Exception(
+                "Failed to change permissions for directory \"$path\": " . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
     }
 
@@ -315,8 +318,11 @@ class FileHelper
             $result['flags'] |= self::PATTERN_NODIR;
         }
         $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
-        if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr($pattern, 1,
-                StringHelper::byteLength($pattern))) === false) {
+        if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr(
+            $pattern,
+            1,
+            StringHelper::byteLength($pattern)
+        )) === false) {
             $result['flags'] |= self::PATTERN_ENDSWITH;
         }
         $result['pattern'] = $pattern;
@@ -361,8 +367,11 @@ class FileHelper
         $path = str_replace('\\', '/', $path);
 
         if (!empty($options['except'])) {
-            if (($except = self::lastExcludeMatchingFromList($options['basePath'], $path,
-                    $options['except'])) !== null) {
+            if (($except = self::lastExcludeMatchingFromList(
+                $options['basePath'],
+                $path,
+                $options['except']
+            )) !== null) {
                 return $except['flags'] & self::PATTERN_NEGATIVE;
             }
         }
@@ -399,15 +408,24 @@ class FileHelper
             }
 
             if ($exclude['flags'] & self::PATTERN_NODIR) {
-                if (self::matchBasename(basename($path), $exclude['pattern'], $exclude['firstWildcard'],
-                    $exclude['flags'])) {
+                if (self::matchBasename(
+                    basename($path),
+                    $exclude['pattern'],
+                    $exclude['firstWildcard'],
+                    $exclude['flags']
+                )) {
                     return $exclude;
                 }
                 continue;
             }
 
-            if (self::matchPathname($path, $basePath, $exclude['pattern'], $exclude['firstWildcard'],
-                $exclude['flags'])) {
+            if (self::matchPathname(
+                $path,
+                $basePath,
+                $exclude['pattern'],
+                $exclude['firstWildcard'],
+                $exclude['flags']
+            )) {
                 return $exclude;
             }
         }

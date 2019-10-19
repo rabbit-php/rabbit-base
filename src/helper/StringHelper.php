@@ -172,8 +172,12 @@ class StringHelper
      */
     public static function mb_substr(string $string, int $start, int $length = null, string $encoding = null): string
     {
-        return empty($encoding) ? \mb_substr($string, $start, $length) : \mb_substr($string, $start, $length,
-            $encoding);
+        return empty($encoding) ? \mb_substr($string, $start, $length) : \mb_substr(
+            $string,
+            $start,
+            $length,
+            $encoding
+        );
     }
 
     /**

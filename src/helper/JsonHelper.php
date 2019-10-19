@@ -8,7 +8,6 @@
 
 namespace rabbit\helper;
 
-
 use rabbit\contract\Arrayable;
 
 /**

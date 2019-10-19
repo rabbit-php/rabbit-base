@@ -8,7 +8,6 @@
 
 namespace rabbit\core;
 
-
 use rabbit\helper\ArrayHelper;
 
 trait AttributeTrait

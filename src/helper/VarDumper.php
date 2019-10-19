@@ -13,7 +13,6 @@ use rabbit\exception\InvalidArgumentException;
  */
 class VarDumper
 {
-
     private $_objects;
 
     private $_output;
