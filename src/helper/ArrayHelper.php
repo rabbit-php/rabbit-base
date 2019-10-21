@@ -368,7 +368,7 @@ class ArrayHelper
      * @param bool $consecutive
      * @return bool
      */
-    public static function isIndexed($array, $consecutive = false): bool
+    public static function isIndexed($array, $checkType = 0): bool
     {
         if (!is_array($array)) {
             return false;
@@ -378,7 +378,9 @@ class ArrayHelper
             return true;
         }
 
-        if ($consecutive) {
+        if ($checkType === 0) {
+            return isset($array[0]);
+        } elseif ($checkType === 1) {
             return array_keys($array) === range(0, count($array) - 1);
         }
 

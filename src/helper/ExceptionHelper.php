@@ -42,4 +42,14 @@ class ExceptionHelper
 
         return $array;
     }
+
+    /**
+     * @param \Throwable $exception
+     * @return string
+     * @throws \Exception
+     */
+    public static function dumpExceptionToString(\Throwable $exception): string
+    {
+        return VarDumper::getDumper()->dumpAsString(static::convertExceptionToArray($exception));
+    }
 }
