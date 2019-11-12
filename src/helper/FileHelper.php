@@ -679,4 +679,26 @@ class FileHelper
 
         return $list;
     }
+
+    /**
+     * @param string $fileName
+     * @param \Closure $function
+     * @return mixed
+     * @throws \Throwable
+     */
+    public static function fgetsExt(string $fileName, \Closure $function)
+    {
+        try {
+            if (($fp = @fopen($fileName, 'r')) === false) {
+                throw new \InvalidArgumentException("Unable to open file: {$fileName}");
+            }
+            $data = call_user_func($function, $fp);
+        } catch (\Throwable $exception) {
+            throw $exception;
+        } finally {
+            @fclose($fp);
+        }
+
+        return $data;
+    }
 }
