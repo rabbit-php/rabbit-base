@@ -379,7 +379,7 @@ class ArrayHelper
         }
 
         if ($checkType === 0) {
-            return isset($array[0]);
+            return is_int(array_key_first($array));
         } elseif ($checkType === 1) {
             return array_keys($array) === range(0, count($array) - 1);
         }
@@ -507,7 +507,8 @@ class ArrayHelper
         array $keys,
         array $newKeys = null,
         array $default = null
-    ): ?array {
+    ): ?array
+    {
         if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
             (is_array($default) && self::isIndexed($default) && count($keys) !== count($default))) {
             return $default;
@@ -541,7 +542,8 @@ class ArrayHelper
         array $keys,
         array $newKeys = null,
         array $default = null
-    ): ?array {
+    ): ?array
+    {
         if (!is_array($array) || !is_array($keys) || !static::isIndexed($array)) {
             return null;
         }
