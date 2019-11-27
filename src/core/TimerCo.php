@@ -23,7 +23,7 @@ class TimerCo extends AbstractTimer
         $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
-        $tid = go(function () use ($time, $params) {
+        $tid = rgo(function () use ($time, $params) {
             System::sleep($time / 1000);
             $this->timerCallback($params);
         });
@@ -69,7 +69,7 @@ class TimerCo extends AbstractTimer
         $this->clearTimerByName($name);
         array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
         $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
-        $tid = go(function () use ($name, $time, $params) {
+        $tid = rgo(function () use ($name, $time, $params) {
             while (isset($this->timers[$name])) {
                 $this->timerCallback($params);
                 System::sleep($time / 1000);

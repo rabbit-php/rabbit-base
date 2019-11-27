@@ -29,6 +29,8 @@ class ObjectFactory
      * @var array
      */
     private static $definitions = [];
+    /** @var array */
+    private static $initList = [];
 
     /**
      * @param array $definitions
@@ -61,20 +63,6 @@ class ObjectFactory
     {
         foreach (self::$definitions as $name => $definition) {
             self::$container->get($name);
-        }
-    }
-
-    /**
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
-     */
-    public static function workerInit(): void
-    {
-        foreach (self::$definitions as $name => $definition) {
-            $obj = self::$container->get($name);
-            if ($obj instanceof InitInterface) {
-                $obj->init();
-            }
         }
     }
 
@@ -151,7 +139,12 @@ class ObjectFactory
     public static function get(string $name, bool $throwException = true, $default = null)
     {
         try {
-            return self::$container->get($name);
+            $obj = self::$container->get($name);
+            if ($obj instanceof InitInterface && !in_array($name, self::$initList)) {
+                self::$initList[] = $name;
+                $obj->init();
+            }
+            return $obj;
         } catch (\Throwable $e) {
             if ($throwException && $default === null) {
                 throw $e;
