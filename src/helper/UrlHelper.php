@@ -26,4 +26,33 @@ class UrlHelper
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
+
+    /**
+     * @param array $uris
+     * @return array
+     */
+    public static function dns2IP(array $uris): array
+    {
+        $ips = [];
+        foreach ($uris as $uri) {
+            $url = parse_url($uri);
+            if (!isset($url['host'])) {
+                continue;
+            }
+            if (filter_var($url['host'], FILTER_VALIDATE_IP)) {
+                $ips[] = $uri;
+                continue;
+            }
+            $res = \Co::getaddrinfo($url['host']);
+            if ($res) {
+                foreach ($res as $ip) {
+                    $url['host'] = $ip;
+                    $ips[] = UrlHelper::unparse_url($url);
+                }
+            } else {
+                $ips[] = $uri;
+            }
+        }
+        return $ips;
+    }
 }
