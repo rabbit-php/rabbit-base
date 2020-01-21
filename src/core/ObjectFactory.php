@@ -56,7 +56,6 @@ class ObjectFactory
     {
         self::getContainer();
         self::makeDefinitions(self::$definitions);
-        self::autoBuild();
     }
 
     public static function autoBuild(): void
