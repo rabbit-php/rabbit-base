@@ -525,11 +525,10 @@ class ArrayHelper
      * @return array|null
      */
     public static function getValueByArray(
-        array &$array,
+        array $array,
         array $keys,
         array $newKeys = null,
-        array $default = null,
-        bool $remove = false
+        array $default = null
     ): ?array
     {
         if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
@@ -548,9 +547,6 @@ class ArrayHelper
             foreach ($array as $akey => $value) {
                 if ($akey === $key) {
                     $result[$newKey] = $value;
-                    if ($remove) {
-                        unset($array[$akey]);
-                    }
                 }
             }
         }
