@@ -100,6 +100,28 @@ class ArrayHelper
     }
 
     /**
+     * @param array $array
+     * @param array $keys
+     * @param null $defualt
+     * @return mixed|null
+     */
+    public static function getOneValue(array &$array, array $keys, $defualt = null, bool $remove = false)
+    {
+        $result = $defualt;
+        foreach ($keys as $key) {
+            if (isset($array[$key]) && $result === $defualt) {
+                if ($remove) {
+                    $result = $array[$key];
+                    unset($array[$key]);
+                } else {
+                    return $array[$key];
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * @param $a
      * @param $b
      * @return array
@@ -503,10 +525,11 @@ class ArrayHelper
      * @return array|null
      */
     public static function getValueByArray(
-        array $array,
+        array &$array,
         array $keys,
         array $newKeys = null,
-        array $default = null
+        array $default = null,
+        bool $remove = false
     ): ?array
     {
         if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
@@ -525,6 +548,9 @@ class ArrayHelper
             foreach ($array as $akey => $value) {
                 if ($akey === $key) {
                     $result[$newKey] = $value;
+                    if ($remove) {
+                        unset($array[$akey]);
+                    }
                 }
             }
         }
