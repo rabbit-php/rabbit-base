@@ -189,4 +189,20 @@ class StringHelper
     {
         return empty($encoding) ? \mb_strtolower($string) : \mb_strtolower($string, $encoding);
     }
+
+    /**
+     * @param $haystack
+     * @param $needles
+     * @return bool
+     */
+    public static function contains($haystack, $needles)
+    {
+        foreach ((array)$needles as $needle) {
+            if ($needle !== '' && mb_strpos($haystack, $needle) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
