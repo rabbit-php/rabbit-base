@@ -34,9 +34,19 @@ class Loop
         if ($params[1] && !is_callable($params[1])) {
             throw new InvalidArgumentException("swoole event the 2th param must be null or callable");
         }
+        !empty($params[1]) && $params[1] = function () use ($params) {
+            rgo(function () use ($params) {
+                call_user_func($params[1]);
+            });
+        };
         if ($params[2] && !is_callable($params[2])) {
             throw new InvalidArgumentException("swoole event the 3th param must be null or callable");
         }
+        !empty($params[2]) && $params[2] = function () use ($params) {
+            rgo(function () use ($params) {
+                call_user_func($params[2]);
+            });
+        };
         if ($params[3] && !is_int($params[3])) {
             throw new InvalidArgumentException("swoole event the 4th param must be SWOOLE_EVENT_READ or SWOOLE_EVENT_WRITE or SWOOLE_EVENT_READ | SWOOLE_EVENT_WRITE)");
         }
