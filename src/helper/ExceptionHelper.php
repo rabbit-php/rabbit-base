@@ -25,7 +25,7 @@ class ExceptionHelper
     {
         $trace = explode("\n", $exception->getTraceAsString());
         $count = count($trace);
-        $depth = getDI('debug_depth', false, 0);
+        $depth = getDI('debug_depth', false, 3);
         $count < $depth && $depth = $count;
         $array = [
             'name' => $exception instanceof Exception ? $exception->getName() : 'Exception',

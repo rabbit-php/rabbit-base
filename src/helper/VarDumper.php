@@ -35,11 +35,9 @@ class VarDumper
     }
 
     /**
-     * dumpAsString
-     *
-     * @param unknown $var
-     * @param number $depth
-     * @return string|mixed|unknown
+     * @param $var
+     * @param int $depth
+     * @return string
      */
     public function dumpAsString($var, $depth = 10)
     {
