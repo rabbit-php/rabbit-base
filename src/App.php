@@ -14,6 +14,7 @@ use Psr\Log\NullLogger;
 use rabbit\core\BaseObject;
 use rabbit\core\ObjectFactory;
 use rabbit\server\Server;
+use Swoole\Coroutine\System;
 
 /**
  * Class App
@@ -155,7 +156,11 @@ class App
         if (self::$_logger instanceof LoggerInterface) {
             return self::$_logger;
         }
-        if ((self::$_logger = ObjectFactory::get('logger', false)) === null) {
+        $count = 3;
+        while ($count-- && null === self::$_logger = ObjectFactory::get('logger', false)) {
+            System::sleep(0.1);
+        }
+        if (self::$_logger === null) {
             self::$_logger = ObjectFactory::get(NullLogger::class);
         }
         return self::$_logger;
