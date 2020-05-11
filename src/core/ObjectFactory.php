@@ -37,7 +37,20 @@ class ObjectFactory
      */
     public static function setDefinitions(array $definitions): void
     {
-        self::$definitions = $definitions;
+        self::$definitions['default'] = $definitions;
+    }
+
+    /**
+     * @param array $init
+     */
+    public static function setPreinit(array $init): void
+    {
+        self::$definitions['pre'] = $init;
+        self::getContainer();
+        self::makeDefinitions(self::$definitions['pre']);
+        foreach (self::$definitions['pre'] as $name => $definition) {
+            self::$container->get($name);
+        }
     }
 
     /**
@@ -55,7 +68,7 @@ class ObjectFactory
     public static function init(bool $auto = true): void
     {
         self::getContainer();
-        self::makeDefinitions(self::$definitions);
+        self::makeDefinitions(self::$definitions['default']);
     }
 
     public static function autoBuild(): void
