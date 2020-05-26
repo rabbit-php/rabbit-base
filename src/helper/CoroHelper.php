@@ -58,7 +58,7 @@ class CoroHelper
      */
     public static function go(\Closure $function, ?\Closure $defer = null): int
     {
-        return go(function () use ($function, $defer) {
+        return go(function (\Closure $function, ?\Closure $defer = null) {
             try {
                 if (is_callable($defer)) {
                     defer($defer);
@@ -68,7 +68,7 @@ class CoroHelper
                 print_r(ExceptionHelper::convertExceptionToArray($throwable));
                 return 0;
             }
-        });
+        }, $function, $defer);
     }
 
     /**
