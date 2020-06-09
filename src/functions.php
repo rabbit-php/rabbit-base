@@ -6,6 +6,8 @@
  * Time: 15:21
  */
 
+use rabbit\helper\ExceptionHelper;
+
 defined('BREAKS') or define('BREAKS', PHP_SAPI === 'cli' ? PHP_EOL : '</br>');
 
 if (!function_exists('getDI')) {
@@ -79,5 +81,24 @@ if (!function_exists('hasDef')) {
     function hasDef(string $key): bool
     {
         return \rabbit\core\ObjectFactory::hasDef($key);
+    }
+}
+
+if (!function_exists('goloop')) {
+    /**
+     * @param string $key
+     * @return bool
+     */
+    function goloop(\Closure $function): int
+    {
+        return go(function () use ($function) {
+            while (true) {
+                try {
+                    $function();
+                } catch (\Throwable $throwable) {
+                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                }
+            }
+        });
     }
 }

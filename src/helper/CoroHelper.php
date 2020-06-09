@@ -85,7 +85,7 @@ class CoroHelper
      * @param \Closure $function
      * @param \Closure|null $defer
      */
-    public static function run(\Closure $function, ?\Closure $defer = null)
+    public static function run(\Closure $function, ?\Closure $defer = null): void
     {
         \Co\run(function () use ($function, $defer) {
             try {
@@ -95,6 +95,27 @@ class CoroHelper
                 $function();
             } catch (\Throwable $throwable) {
                 print_r(ExceptionHelper::convertExceptionToArray($throwable));
+            }
+        });
+    }
+
+    /**
+     * @param \Closure $function
+     * @param \Closure|null $defer
+     * @return int
+     */
+    public static function loop(\Closure $function, ?\Closure $defer = null): int
+    {
+        return go(function () use ($function, $defer) {
+            while (true) {
+                try {
+                    if (is_callable($defer)) {
+                        defer($defer);
+                    }
+                    $function();
+                } catch (\Throwable $throwable) {
+                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                }
             }
         });
     }
