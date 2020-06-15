@@ -18,43 +18,17 @@ class TimerCo extends AbstractTimer
      * @param array $params
      * @return int
      */
-    public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
-        $this->clearTimerByName($name);
-        array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
-        $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
-        $tid = rgo(function () use ($time, $params) {
+        self::checkTimer($name);
+        $tid = rgo(function () use ($name, $time, $callback, $params) {
             System::sleep($time / 1000);
-            $this->timerCallback($params);
+            if (isset($this->timers[$name])) {
+                call_user_func($callback, ...$params);
+            }
         });
-        $this->timers[$name]['tid'] = $tid;
+        self::$timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER];
         return $tid;
-    }
-
-    /**
-     * 移除一个定时器
-     *
-     * @param string $name 定时器名称
-     *
-     * @return bool
-     */
-    public function clearTimerByName(string $name): bool
-    {
-        if (!isset($this->timers[$name])) {
-            return true;
-        }
-        unset($this->timers[$name]);
-        return true;
-    }
-
-    /**
-     * 定时器回调函数
-     *
-     * @param array $params 参数传递
-     */
-    public function timerCallback(array $params): void
-    {
-        $this->run($params);
     }
 
     /**
@@ -64,27 +38,38 @@ class TimerCo extends AbstractTimer
      * @param array $params
      * @return int
      */
-    public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
-        $this->clearTimerByName($name);
-        array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
-        $this->timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
-        $tid = rgo(function () use ($name, $time, $params) {
+        self::checkTimer($name);
+        $tid = rgo(function () use ($name, $callback, $time, $params) {
             while (isset($this->timers[$name])) {
-                $this->timerCallback($params);
+                call_user_func($callback, ...$params);
                 System::sleep($time / 1000);
             }
         });
-        $this->timers[$name]['tid'] = $tid;
+        self::$timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER];
         return $tid;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function clearTimerByName(string $name): bool
+    {
+        if (!isset(self::$timers[$name])) {
+            return true;
+        }
+        unset(self::$timers[$name]);
+        return true;
     }
 
     /**
      * @return bool
      */
-    public function clearTimers(): bool
+    public static function clearTimers(): bool
     {
-        $this->timers = [];
+        self::$timers = [];
         return true;
     }
 }

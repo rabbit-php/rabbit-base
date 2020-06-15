@@ -2,6 +2,7 @@
 
 namespace rabbit\core;
 
+use Co\Channel;
 use rabbit\contract\AbstractTimer;
 
 /**
@@ -17,31 +18,20 @@ class Timer extends AbstractTimer
      * @param array $params
      * @return int
      */
-    public function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
-        $this->clearTimerByName($name);
-        array_unshift($params, $name ?? uniqid(), self::TYPE_AFTER, $callback);
-        $tid = \Swoole\Timer::after($time, [$this, 'afterCallback'], $params);
-        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
+        self::checkTimer($name);
+        $channel = new Channel(1);
+        $tid = rgo(function () use ($channel, $callback, $time, $params) {
+            if ($ret = $channel->pop($time / 1000)) {
+                return;
+            }
+            rgo(function () use ($callback, $params) {
+                call_user_func($callback, ...$params);
+            });
+        });
+        self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
         return $tid;
-    }
-
-    /**
-     * 移除一个定时器
-     *
-     * @param string $name 定时器名称
-     *
-     * @return bool
-     */
-    public function clearTimerByName(string $name): bool
-    {
-        if (!isset($this->timers[$name])) {
-            return true;
-        }
-        \Swoole\Timer::clear($this->timers[$name]['tid']);
-        unset($this->timers[$name]);
-
-        return true;
     }
 
     /**
@@ -51,43 +41,47 @@ class Timer extends AbstractTimer
      * @param array $params
      * @return int
      */
-    public function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
-        $this->clearTimerByName($name);
-        array_unshift($params, $name ?? uniqid(), self::TYPE_TICKET, $callback);
-
-        $tid = \Swoole\Timer::tick($time, [$this, 'timerCallback'], $params);
-
-        $this->timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
-
+        self::checkTimer($name);
+        $channel = new Channel(1);
+        $tid = rgo(function () use ($channel, $callback, $time, $params) {
+            while (true) {
+                if ($ret = $channel->pop($time / 1000)) {
+                    break;
+                }
+                rgo(function () use ($callback, $params) {
+                    call_user_func($callback, ...$params);
+                });
+            }
+        });
+        self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
         return $tid;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function clearTimerByName(string $name): bool
+    {
+        if (!isset(self::$timers[$name])) {
+            return true;
+        }
+        self::$timers[$name]['chan']->push(true);
+        unset(self::$timers[$name]);
+
+        return true;
     }
 
     /**
      * @return bool
      */
-    public function clearTimers(): bool
+    public static function clearTimers(): bool
     {
-        foreach ($this->timers as $name => $timerData) {
-            $this->clearTimerByName($name);
+        foreach (self::$timers as $name => $timerData) {
+            self::clearTimerByName($name);
         }
         return true;
-    }
-
-    /**
-     * @param array|null $params
-     */
-    public function afterCallback(array $params = null): void
-    {
-        $this->run($params);
-    }
-
-    /**
-     * @param int $timer_id
-     * @param array|null $params
-     */
-    public function timerCallback(int $timer_id, array $params = null): void
-    {
-        $this->run($params);
     }
 }
