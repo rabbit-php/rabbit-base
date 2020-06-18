@@ -613,6 +613,30 @@ class FileHelper
 
     /**
      * @param string $dir
+     * @param array $options
+     * @return array
+     */
+    public static function dealFiles(string $dir, array $options = []): void
+    {
+        $dir = self::clearDir($dir);
+        $options = self::setBasePath($dir, $options);
+        $handle = self::openDir($dir);
+        while (($file = readdir($handle)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (static::filterPath($path, $options)) {
+                if (is_dir($path) && (!isset($options['recursive']) || $options['recursive'])) {
+                    static::findFiles($path, $options);
+                }
+            }
+        }
+        closedir($handle);
+    }
+
+    /**
+     * @param string $dir
      * @return string
      */
     private static function clearDir(string $dir)
