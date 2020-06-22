@@ -50,7 +50,7 @@ class Timer extends AbstractTimer
     public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
-        $channel = new Channel();
+        $channel = new Channel(1);
         $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
             while (true) {
                 if ($ret = $channel->pop($time / 1000)) {
