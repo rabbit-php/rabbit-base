@@ -51,16 +51,14 @@ class Timer extends AbstractTimer
     {
         self::checkTimer($name);
         $channel = new Channel(1);
-        $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
-            while (true) {
-                if ($ret = $channel->pop($time / 1000)) {
-                    continue;
-                }
-                rgo(function () use ($name, $callback, $params) {
-                    self::$timers[$name]['count']++;
-                    call_user_func($callback, ...$params);
-                });
+        $tid = goloop(function () use ($name, $channel, $callback, $time, $params) {
+            if ($ret = $channel->pop($time / 1000)) {
+                return;
             }
+            rgo(function () use ($name, $callback, $params) {
+                self::$timers[$name]['count']++;
+                call_user_func($callback, ...$params);
+            });
         });
         self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
         return $tid;

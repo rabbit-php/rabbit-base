@@ -3,7 +3,9 @@
 namespace rabbit\core;
 
 use Co\System;
+use rabbit\App;
 use rabbit\contract\AbstractTimer;
+use rabbit\helper\ExceptionHelper;
 
 /**
  * Class TimerCo
@@ -51,8 +53,14 @@ class TimerCo extends AbstractTimer
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = rgo(function () use ($name, $callback, $time, $params) {
             while (isset(self::$timers[$name])) {
-                call_user_func($callback, ...$params);
-                System::sleep($time / 1000);
+                try {
+                    call_user_func($callback, ...$params);
+                } catch (\Throwable $exception) {
+                    App::info($exception->getMessage());
+                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                } finally {
+                    System::sleep($time / 1000);
+                }
             }
         });
         self::$timers[$name]['tid'] = $tid;
