@@ -21,13 +21,20 @@ class TimerCo extends AbstractTimer
     public static function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
+        self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = rgo(function () use ($name, $time, $callback, $params) {
             System::sleep($time / 1000);
-            if (isset($this->timers[$name])) {
-                call_user_func($callback, ...$params);
+            if (isset(self::$timers[$name])) {
+                try {
+                    call_user_func($callback, ...$params);
+                } catch (\Throwable $exception) {
+                    throw $exception;
+                } finally {
+                    self::clearTimerByName($name);
+                }
             }
         });
-        self::$timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER];
+        self::$timers[$name]['tid'] = $tid;
         return $tid;
     }
 
@@ -41,13 +48,14 @@ class TimerCo extends AbstractTimer
     public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
+        self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER];
         $tid = rgo(function () use ($name, $callback, $time, $params) {
-            while (isset($this->timers[$name])) {
+            while (isset(self::$timers[$name])) {
                 call_user_func($callback, ...$params);
                 System::sleep($time / 1000);
             }
         });
-        self::$timers[$name] = ['name' => $name, 'tid' => $tid, 'type' => self::TYPE_AFTER];
+        self::$timers[$name]['tid'] = $tid;
         return $tid;
     }
 

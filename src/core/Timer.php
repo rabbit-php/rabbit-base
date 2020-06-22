@@ -22,12 +22,18 @@ class Timer extends AbstractTimer
     {
         self::checkTimer($name);
         $channel = new Channel(1);
-        $tid = rgo(function () use ($channel, $callback, $time, $params) {
+        $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
             if ($ret = $channel->pop($time / 1000)) {
                 return;
             }
-            rgo(function () use ($callback, $params) {
-                call_user_func($callback, ...$params);
+            rgo(function () use ($name, $callback, $params) {
+                try {
+                    call_user_func($callback, ...$params);
+                } catch (\Throwable $exception) {
+                    throw $exception;
+                } finally {
+                    self::clearTimerByName($name);
+                }
             });
         });
         self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
@@ -44,13 +50,14 @@ class Timer extends AbstractTimer
     public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
-        $channel = new Channel(1);
-        $tid = rgo(function () use ($channel, $callback, $time, $params) {
+        $channel = new Channel();
+        $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
             while (true) {
                 if ($ret = $channel->pop($time / 1000)) {
-                    break;
+                    continue;
                 }
-                rgo(function () use ($callback, $params) {
+                rgo(function () use ($name, $callback, $params) {
+                    self::$timers[$name]['count']++;
                     call_user_func($callback, ...$params);
                 });
             }
