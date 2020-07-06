@@ -1,17 +1,18 @@
 <?php
+declare(strict_types=1);
 
-
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 /**
  * Class ClassHelper
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class ClassHelper
 {
     /**
      * getClassName
      *
+     * @param string $className
      * @return string
      */
     public static function getClassName(string $className): string

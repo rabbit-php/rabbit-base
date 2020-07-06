@@ -1,18 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/1/24
- * Time: 15:21
- */
+declare(strict_types=1);
 
-namespace rabbit\exception;
+namespace Rabbit\Base\Exception;
 
-use rabbit\core\Exception;
+use Rabbit\Base\Core\Exception;
 
 /**
  * Class InvalidConfigException
- * @package rabbit\exception
+ * @package Rabbit\Base\Exception
  */
 class InvalidConfigException extends Exception
 {

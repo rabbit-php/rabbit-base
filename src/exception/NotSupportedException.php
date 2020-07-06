@@ -1,18 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/10/20
- * Time: 20:14
- */
+declare(strict_types=1);
 
-namespace rabbit\exception;
+namespace Rabbit\Base\Exception;
 
-use rabbit\core\Exception;
+use Rabbit\Base\Core\Exception;
 
 /**
  * Class NotSupportedException
- * @package rabbit\exception
+ * @package Rabbit\Base\Exception
  */
 class NotSupportedException extends Exception
 {

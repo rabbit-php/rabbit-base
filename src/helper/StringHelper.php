@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 /**
  * Class StringHelper
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class StringHelper
 {
@@ -188,6 +189,16 @@ class StringHelper
     public static function mb_strtolower(string $string, string $encoding = null): string
     {
         return empty($encoding) ? \mb_strtolower($string) : \mb_strtolower($string, $encoding);
+    }
+
+    /**
+     * @param string $string
+     * @param string|null $encoding
+     * @return string
+     */
+    public static function mb_strtoupper(string $string, string $encoding = null): string
+    {
+        return empty($encoding) ? \mb_strtoupper($string) : \mb_strtoupper($string, $encoding);
     }
 
     /**

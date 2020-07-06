@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
+namespace Rabbit\Base\Helper;
 
-namespace rabbit\helper;
+use SplFixedArray;
 
 /**
  * Class SplArrayHelper
@@ -10,12 +12,12 @@ namespace rabbit\helper;
 class SplArrayHelper
 {
     /**
-     * @param \SplFixedArray $array
-     * @param \SplFixedArray $array1
+     * @param SplFixedArray $array
+     * @param SplFixedArray $array1
      * @param int $offset
      * @param int|null $length
      */
-    public static function push(\SplFixedArray &$array, \SplFixedArray $array1, int $offset = 0, int $length = null)
+    public static function push(SplFixedArray &$array, SplFixedArray $array1, int $offset = 0, int $length = null):void
     {
         $maxLen = Min($array->count() - $offset, $array1->count());
         if ($length === null || $maxLen < $length) {
@@ -27,14 +29,14 @@ class SplArrayHelper
     }
 
     /**
-     * @param \SplFixedArray $array
+     * @param SplFixedArray $array
      * @param mixed ...$array1
-     * @return \SplFixedArray
+     * @return SplFixedArray
      */
-    public static function merge(\SplFixedArray $array, ...$array1): \SplFixedArray
+    public static function merge(SplFixedArray $array, ...$array1): SplFixedArray
     {
         $index = 0;
-        /** @var \SplFixedArray $spl */
+        /** @var SplFixedArray $spl */
         foreach ($array1 as $spl) {
             foreach ($spl as $value) {
                 $array[$index] = $value;
@@ -45,18 +47,18 @@ class SplArrayHelper
     }
 
     /**
-     * @param \SplFixedArray $array
+     * @param SplFixedArray $array
      * @param int $offset
      * @param int $length
-     * @return \SplFixedArray
+     * @return SplFixedArray
      */
-    public static function splice(\SplFixedArray $array, int $offset, int $length = null): \SplFixedArray
+    public static function splice(SplFixedArray $array, int $offset, int $length = null): SplFixedArray
     {
         $maxLen = $array->count() - $offset;
         if ($length === null || $maxLen < $length) {
             $length = $maxLen;
         }
-        $result = new \SplFixedArray($length);
+        $result = new SplFixedArray($length);
         for ($i = $offset; $i < $offset + $length; $i++) {
             $result[$i - $offset] = $array[$i];
         }

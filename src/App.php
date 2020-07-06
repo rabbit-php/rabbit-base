@@ -1,20 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/9/30
- * Time: 10:30
- */
+declare(strict_types=1);
 
-namespace rabbit;
+namespace Rabbit\Base;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use rabbit\core\BaseObject;
-use rabbit\core\ObjectFactory;
-use rabbit\server\Server;
-use Swoole\Coroutine\System;
+use Rabbit\Base\Core\ObjectFactory;
+use Swoole\Server;
+use Throwable;
 
 /**
  * Class App
@@ -25,41 +19,42 @@ class App
     /**
      * @var array
      */
-    private static $aliases = ['@rabbit' => __DIR__ . '/..'];
-
+    private static array $aliases = ['@rabbit' => __DIR__ . '/..'];
+    /** @var Server */
     private static $_server;
+    /** @var \Co\Server */
+    private static $_coServer;
 
     /**
      * @var LoggerInterface
      */
-    private static $_logger;
+    private static LoggerInterface $_logger;
 
-    /** @var BaseObject */
-    private static $_object;
-
+    /**
+     * @return \Co\Server|Server
+     */
     public static function getServer()
     {
-        return self::$_server;
+        if (self::$_server !== null) {
+            return self::$_server;
+        }
+        return self::$_coServer;
     }
 
     /**
      * @param Server $server
      */
-    public static function setServer($server): void
+    public static function setServer(Server $server): void
     {
         self::$_server = $server;
     }
 
     /**
-     * @return BaseObject
+     * @param \Co\Server $server
      */
-    public static function getApp(): BaseObject
+    public static function setCoServer(\Co\Server $server): void
     {
-        if (self::$_object) {
-            return self::$_object;
-        }
-        self::$_object = new BaseObject();
-        return self::$_object;
+        self::$_coServer = $server;
     }
 
     /**
@@ -138,29 +133,15 @@ class App
     }
 
     /**
-     * @param string $message
-     * @param string|null $module
-     * @throws \Exception
-     */
-    public static function debug(string $message, string $module = null): void
-    {
-        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
-    }
-
-    /**
      * @return LoggerInterface
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function getLogger(): LoggerInterface
     {
         if (self::$_logger instanceof LoggerInterface) {
             return self::$_logger;
         }
-        $count = 3;
-        while ($count-- && null === self::$_logger = ObjectFactory::get('logger', false)) {
-            System::sleep(0.1);
-        }
-        if (self::$_logger === null) {
+        if (null === ObjectFactory::get('logger', false)) {
             self::$_logger = ObjectFactory::get(NullLogger::class);
         }
         return self::$_logger;
@@ -175,9 +156,19 @@ class App
     }
 
     /**
+     * @param string $message
+     * @param string|null $module
+     * @throws Throwable
+     */
+    public static function debug(string $message, string $module = null): void
+    {
+        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
+    }
+
+    /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function emergency($message, string $module = null): void
     {
@@ -187,7 +178,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function alert($message, string $module = null): void
     {
@@ -197,7 +188,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function critical($message, string $module = null): void
     {
@@ -207,7 +198,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function error($message, string $module = null): void
     {
@@ -217,7 +208,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function warning($message, string $module = null): void
     {
@@ -227,7 +218,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function notice($message, string $module = null): void
     {
@@ -237,7 +228,7 @@ class App
     /**
      * @param $message
      * @param string|null $module
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function info($message, string $module = null): void
     {

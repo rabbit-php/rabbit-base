@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 use Co\Channel;
 
 /**
  * Class ChannelLock
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class ChannelLock
 {
     /** @var Channel */
-    private $chan;
+    private Channel $chan;
 
     /**
      * ChannelLock constructor.
@@ -24,6 +24,8 @@ class ChannelLock
 
     /**
      * @param callable $callback
+     * @param float|null $timeout
+     * @return mixed
      */
     public function lock(callable $callback, ?float $timeout = null)
     {

@@ -1,12 +1,12 @@
 <?php
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
-use rabbit\contract\Arrayable;
+use Rabbit\Base\Contract\ArrayAble;
 
 /**
  * Class ArrayHelper
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class ArrayHelper
 {
@@ -16,7 +16,7 @@ class ArrayHelper
      * @param bool $recursive
      * @return array
      */
-    public static function toArray($object, $properties = [], $recursive = true): array
+    public static function toArray($object, array $properties = [], bool $recursive = true): array
     {
         if (is_array($object)) {
             if ($recursive) {
@@ -44,7 +44,7 @@ class ArrayHelper
                     return $recursive ? static::toArray($result, $properties) : $result;
                 }
             }
-            if ($object instanceof Arrayable) {
+            if ($object instanceof ArrayAble) {
                 $result = $object->toArray([], [], $recursive);
             } else {
                 $result = [];
@@ -65,7 +65,7 @@ class ArrayHelper
      * @param null $default
      * @return mixed|null
      */
-    public static function getValue($array, $key, $default = null)
+    public static function getValue(array $array, $key, $default = null)
     {
         if ($key instanceof \Closure) {
             return $key($array, $default);

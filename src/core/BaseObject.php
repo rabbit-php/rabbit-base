@@ -1,23 +1,17 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/10/24
- * Time: 20:27
- */
+declare(strict_types=1);
 
-namespace rabbit\core;
-
-use yii\exceptions\InvalidCallException;
+namespace Rabbit\Base\Core;
 
 /**
  * Class BaseObject
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class BaseObject
 {
     /**
      * @param $name
+     * @return mixed
      */
     public function __get($name)
     {
@@ -73,7 +67,7 @@ class BaseObject
      * @param bool $checkVars
      * @return bool
      */
-    public function hasProperty($name, $checkVars = true)
+    public function hasProperty(string $name, bool $checkVars = true): bool
     {
         return $this->canGetProperty($name, $checkVars) || $this->canSetProperty($name, false);
     }
@@ -83,26 +77,26 @@ class BaseObject
      * @param bool $checkVars
      * @return bool
      */
-    public function canGetProperty($name, $checkVars = true)
+    public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'get' . $name) || $checkVars && property_exists($this, $name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param bool $checkVars
      * @return bool
      */
-    public function canSetProperty($name, $checkVars = true)
+    public function canSetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'set' . $name) || $checkVars && property_exists($this, $name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return bool
      */
-    public function hasMethod($name)
+    public function hasMethod(string $name): bool
     {
         return method_exists($this, $name);
     }

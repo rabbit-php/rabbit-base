@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Rabbit\Base\Contract;
 
 /**
- * Interface InitInterface
+ * Interface ArrayAble
  * @package Rabbit\Base\Contract
  */
-interface InitInterface
+interface ArrayAble
 {
     /**
-     * @return mixed
+     * @return array
      */
-    public function init();
+    public function toArray(): array;
 }

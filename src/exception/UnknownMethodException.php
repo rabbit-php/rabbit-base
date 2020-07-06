@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/1/24
- * Time: 15:37
- */
+declare(strict_types=1);
 
-namespace rabbit\exception;
+namespace Rabbit\Base\Exception;
 
 /**
  * Class UnknownMethodException
- * @package rabbit\exception
+ * @package Rabbit\Base\Exception
  */
 class UnknownMethodException extends \BadMethodCallException
 {

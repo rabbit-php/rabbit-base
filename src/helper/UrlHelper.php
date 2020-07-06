@@ -1,19 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 /**
- * Class IPHelper
- * @package rabbit\helper
+ * Class UrlHelper
+ * @package Rabbit\Base\Helper
  */
 class UrlHelper
 {
     /**
      * @param array $parsed_url
+     * @param bool $withAuth
      * @return string
      */
-    public static function unparse_url(array $parsed_url, bool $withAuth = true): string
+    public static function unParseUrl(array $parsed_url, bool $withAuth = true): string
     {
         $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
@@ -47,7 +48,7 @@ class UrlHelper
             if ($res) {
                 foreach ($res as $ip) {
                     $url['host'] = $ip;
-                    $ips[] = UrlHelper::unparse_url($url);
+                    $ips[] = self::unParseUrl($url);
                 }
             } else {
                 $ips[] = $uri;

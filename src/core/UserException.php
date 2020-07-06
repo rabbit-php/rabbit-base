@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/10/13
- * Time: 19:29
- */
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 /**
  * Class UserException
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class UserException extends Exception
 {

@@ -1,27 +1,30 @@
 <?php
+declare(strict_types=1);
 
-
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 use rabbit\App;
-use rabbit\exception\InvalidArgumentException;
+use Rabbit\Base\Exception\InvalidArgumentException;
 
 /**
  * Class Loop
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class Loop
 {
     /** @var array */
-    private static $loopList = [];
+    private static array $loopList = [];
     /** @var array */
-    private static $running = [];
+    private static array $running = [];
     /** @var array */
-    private static $runGroup = [];
+    private static array $runGroup = [];
 
     /**
      * @param string $group
      * @param array $params
+     * @param bool $autoRun
+     * @return string
+     * @throws \Exception
      */
     public static function addEvent(string $group, array $params, bool $autoRun = true): string
     {
@@ -61,7 +64,9 @@ class Loop
     /**
      * @param string $group
      * @param array $params
+     * @param bool $autoRun
      * @return string
+     * @throws \Exception
      */
     public static function addTimer(string $group, array $params, bool $autoRun = true): string
     {
@@ -101,7 +106,7 @@ class Loop
                 [$event, $autoRun] = $event;
                 if ($autoRun && swoole_event_add(...$event)) {
                     self::$running[$group]['event'][$id] = $event[0];
-                };
+                }
             }
         } elseif (is_string($id) && isset(self::$loopList[$group]['event'][$id]) && !isset(self::$running[$group]['event'][$id])) {
             [$event] = self::$loopList[$group]['event'][$id];
@@ -113,6 +118,7 @@ class Loop
     /**
      * @param string $group
      * @param string|null $id
+     * @throws \Exception
      */
     public static function runTimer(string $group, ?string $id = null)
     {
@@ -123,17 +129,18 @@ class Loop
                     continue;
                 }
                 [$timer, $autoRun] = $timer;
-                $autoRun && (self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...$timer));
+                $autoRun && (self::$running[$group]['timer'][$id] = Timer::addTickTimer($group . '.timer.' . $id, ...$timer));
             }
         } elseif (is_string($id) && isset(self::$loopList[$group]['timer'][$id]) && !isset(self::$running[$group]['timer'][$id])) {
             [$timer] = self::$loopList[$group]['timer'][$id];
-            self::$running[$group]['timer'][$id] = \Swoole\Timer::tick(...$timer);
+            self::$running[$group]['timer'][$id] = Timer::addTickTimer($group . '.timer.' . $id, ...$timer);
         }
     }
 
     /**
      * @param string $group
      * @param string|null $id
+     * @param bool $close
      */
     public static function stopEvent(string $group, ?string $id = null, bool $close = false): void
     {
@@ -202,6 +209,7 @@ class Loop
 
     /**
      * @param string $group
+     * @throws \Exception
      */
     public static function run(string $group)
     {

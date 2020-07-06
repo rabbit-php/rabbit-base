@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 use Co\Channel;
 use rabbit\App;
-use rabbit\core\Exception;
 
 /**
  * Class ChanRun
@@ -14,9 +13,9 @@ use rabbit\core\Exception;
 class ChanRun
 {
     /** @var Channel */
-    protected $channel;
+    protected Channel $channel;
     /** @var bool */
-    protected $running = false;
+    protected bool $running = false;
     /** @var callable */
     protected $callback;
 

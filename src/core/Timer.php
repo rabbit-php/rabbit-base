@@ -1,35 +1,92 @@
 <?php
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 use Co\Channel;
-use rabbit\contract\AbstractTimer;
+use rabbit\App;
+use Throwable;
 
 /**
  * Class Timer
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
-class Timer extends AbstractTimer
+class Timer
 {
+    const TYPE_AFTER = 'after';
+    const TYPE_TICKET = 'tick';
+
+    /**
+     * @var array 所有定时器
+     */
+    protected static array $timers = [];
+
+    /**
+     * @return array
+     */
+    public static function getTimers(): array
+    {
+        return self::$timers;
+    }
+
+    /**
+     * @param string $name
+     * @param null $default
+     * @return array
+     */
+    public static function getTimer(string $name, $default = null): array
+    {
+        return isset(self::$timers[$name]) ? self::$timers[$name] : $default;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     * @throws Exception
+     */
+    public static function checkTimer(string $name): bool
+    {
+        if (isset(self::$timers[$name])) {
+            throw new Exception("$name timer already exists");
+        }
+        return true;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     * @throws Exception
+     */
+    public static function stopTimer(string $name): bool
+    {
+        self::checkTimer($name);
+        $timer = self::getTimer($name);
+        $timer['chan']->push(true);
+        return true;
+    }
+
     /**
      * @param string $name
      * @param float $time
      * @param callable $callback
      * @param array $params
      * @return int
+     * @throws Exception
      */
     public static function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
         $channel = new Channel(1);
         $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
-            if ($ret = $channel->pop($time / 1000)) {
+            if ($channel->pop($time / 1000)) {
                 return;
             }
             rgo(function () use ($name, $callback, $params) {
                 try {
+                    self::$timers[$name]['count']++;
                     call_user_func($callback, ...$params);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
+                    App::error($exception->getMessage());
                     throw $exception;
                 } finally {
                     self::clearTimerByName($name);
@@ -46,13 +103,14 @@ class Timer extends AbstractTimer
      * @param callable $callback
      * @param array $params
      * @return int
+     * @throws Exception
      */
     public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
         self::checkTimer($name);
         $channel = new Channel(1);
-        $tid = goloop(function () use ($name, $channel, $callback, $time, $params) {
-            if ($ret = $channel->pop($time / 1000)) {
+        $tid = loop(function () use ($name, $channel, $callback, $time, $params) {
+            if ($channel->pop($time / 1000)) {
                 return;
             }
             rgo(function () use ($name, $callback, $params) {

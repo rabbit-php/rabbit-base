@@ -1,24 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/26
- * Time: 20:25
- */
+declare(strict_types=1);
 
-namespace rabbit\contract;
+namespace Rabbit\Base\Contract;
 
 /**
- * Class AbstractArray
- * @package rabbit\contract
+ * Trait ArrayAbleTrait
+ * @package Rabbit\Base\Contract
  */
-trait ArrayableTrait
+trait ArrayAbleTrait
 {
     /** @var array */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * @param $name
+     * @return mixed|null
      */
     public function __get($name)
     {

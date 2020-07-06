@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/1/24
- * Time: 15:31
- */
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 /**
  * Class Inflector
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class Inflector
 {

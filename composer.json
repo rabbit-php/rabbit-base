@@ -1,6 +1,6 @@
 {
-  "name": "rabbit/framework",
-  "description": "rabbit framework",
+  "name": "rabbit/base",
+  "description": "rabbit base",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -10,13 +10,20 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
+    "php": ">=7.4.0",
+    "ext-swoole": ">=4.5.0",
     "psr/log": "^1.0",
-    "php-di/php-di": "^6.0"
+    "php-di/php-di": "^6.2",
+    "ext-mbstring": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "swoole/ide-helper": "@dev",
+    "phpunit/phpunit": "*"
   },
   "autoload": {
     "psr-4": {
-      "rabbit\\": "src/"
+      "Rabbit\\Base\\": "src/"
     },
     "files": [
       "src/functions.php"

@@ -1,29 +1,24 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/18
- * Time: 22:53
- */
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
 use Swoole\Coroutine\Channel;
 
 /**
  * Class WaitGroup
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class WaitGroup
 {
     /** @var int */
-    private $count = 0;
+    private int $count = 0;
 
-    /** @var \Swoole\Coroutine\Channel */
-    private $channel;
+    /** @var Channel */
+    private Channel $channel;
 
     /**
-     * CoroGroup constructor.
+     * WaitGroup constructor.
      */
     public function __construct()
     {

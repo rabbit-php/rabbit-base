@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/13
- * Time: 10:32
- */
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
+
+use SplFixedArray;
 
 /**
  * Class BytesHelper
@@ -23,12 +19,13 @@ class BytesHelper
     const DEC = 0;
 
     /**
-     * @param \SplFixedArray $bytes
+     * @param SplFixedArray $bytes
+     * @param int $type
      * @return string
      */
-    public static function bytes2string(\SplFixedArray $bytes, int $type = self::DEC): string
+    public static function bytes2string(SplFixedArray $bytes, int $type = self::DEC): string
     {
-        $decfun = function () use ($bytes) {
+        $decFun = function () use ($bytes) {
             $str = '';
             foreach ($bytes as $byte) {
                 $str .= chr($byte);
@@ -36,21 +33,20 @@ class BytesHelper
             return $str;
         };
         switch ($type) {
-            case self::DEC:
-                return $decfun();
             case self::HEX:
                 $hex = implode("", $bytes->toArray());
                 return pack("H*", $hex);
             default:
-                return $decfun();
+                return $decFun();
         }
     }
 
     /**
      * @param string $str
-     * @return \SplFixedArray
+     * @param int $type
+     * @return SplFixedArray
      */
-    public static function string2bytes(string $str, int $type = self::DEC): \SplFixedArray
+    public static function string2bytes(string $str, int $type = self::DEC): SplFixedArray
     {
         switch ($type) {
             case self::DEC:
@@ -62,7 +58,7 @@ class BytesHelper
             default:
                 $func = 'ord';
         }
-        $bytes = new \SplFixedArray(strlen($str));
+        $bytes = new SplFixedArray(strlen($str));
         for ($i = 0; $i < strlen($str); $i++) {
             $bytes[$i] = $func($str[$i]);
         }
@@ -70,12 +66,12 @@ class BytesHelper
     }
 
     /**
-     * @param \SplFixedArray $bytes
+     * @param SplFixedArray $bytes
      * @param int $position
      * @param int $bit
      * @return int
      */
-    public static function bytesToUInt(\SplFixedArray $bytes, int $position, int $bit): int
+    public static function bytesToUInt(SplFixedArray $bytes, int $position, int $bit): int
     {
         $val = 0;
         for ($i = ($bit - 1); $i >= 0; $i--) {
@@ -93,11 +89,11 @@ class BytesHelper
     /**
      * @param int $val
      * @param int $bit
-     * @return \SplFixedArray
+     * @return SplFixedArray
      */
-    public static function uintToBytes(int $val, int $bit): \SplFixedArray
+    public static function uintToBytes(int $val, int $bit): SplFixedArray
     {
-        $byte = new \SplFixedArray($bit);
+        $byte = new SplFixedArray($bit);
         for ($i = 0; $i < $byte->count(); $i++) {
             $byte[$i] = ($val >> ($i * 8) & 0xff);
         }

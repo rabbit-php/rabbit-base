@@ -1,14 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/10/9
- * Time: 18:01
- */
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
-use rabbit\contract\Arrayable;
+
+use Rabbit\Base\Contract\ArrayAble;
 
 /**
  * Class JsonHelper

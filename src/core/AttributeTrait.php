@@ -1,19 +1,18 @@
 <?php
+declare(strict_types=1);
+
+namespace Rabbit\Base\Core;
+
+use Rabbit\Base\Helper\ArrayHelper;
+
 /**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/2/20
- * Time: 1:32
+ * Trait AttributeTrait
+ * @package Rabbit\Base\Core
  */
-
-namespace rabbit\core;
-
-use rabbit\helper\ArrayHelper;
-
 trait AttributeTrait
 {
     /** @var array */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * @return array

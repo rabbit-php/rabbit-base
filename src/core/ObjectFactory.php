@@ -1,36 +1,35 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/9/30
- * Time: 13:47
- */
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
-use rabbit\contract\InitInterface;
+use DI\DependencyException;
+use DI\NotFoundException;
+use Rabbit\Base\Contract\InitInterface;
+use ReflectionException;
+use Throwable;
 use function DI\create;
 
 /**
  * Class ObjectFactory
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class ObjectFactory
 {
     /**
      * @var Container
      */
-    private static $container;
+    private static Container $container;
 
     /**
      * @var array
      */
-    private static $definitions = [];
+    private static array $definitions = [];
     /** @var array */
-    private static $initList = [];
+    private static array $initList = [];
 
     /**
      * @param array $definitions
@@ -42,6 +41,9 @@ class ObjectFactory
 
     /**
      * @param array $init
+     * @throws DependencyException
+     * @throws NotFoundException
+     * @throws \Exception
      */
     public static function setPreinit(array $init): void
     {
@@ -62,10 +64,10 @@ class ObjectFactory
     }
 
     /**
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws NotFoundException
      */
-    public static function init(bool $auto = true): void
+    public static function init(): void
     {
         self::getContainer();
         self::makeDefinitions(self::$definitions['default']);
@@ -80,6 +82,7 @@ class ObjectFactory
 
     /**
      * @return Container
+     * @throws \Exception
      */
     public static function getContainer(): Container
     {
@@ -94,10 +97,10 @@ class ObjectFactory
      * @param array $definitions
      * @param bool $refresh
      * @return array
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws NotFoundException
      */
-    private static function makeDefinitions(array $definitions = [], bool $refresh = true)
+    private static function makeDefinitions(array $definitions = [], bool $refresh = true): array
     {
         foreach ($definitions as $name => $value) {
             if (is_array($value) && isset($value['class'])) {
@@ -145,8 +148,9 @@ class ObjectFactory
     /**
      * @param string $name
      * @param bool $throwException
+     * @param null $default
      * @return mixed|null
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function get(string $name, bool $throwException = true, $default = null)
     {
@@ -157,7 +161,7 @@ class ObjectFactory
                 $obj->init();
             }
             return $obj;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($throwException && $default === null) {
                 throw $e;
             }
@@ -167,8 +171,8 @@ class ObjectFactory
 
     /**
      * @param array $definitions
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws NotFoundException
      */
     public static function set(array $definitions = [])
     {
@@ -198,8 +202,8 @@ class ObjectFactory
      * @param array $params
      * @param bool $singleTon
      * @return mixed
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws NotFoundException|ReflectionException
      */
     public static function createObject($type, array $params = [], bool $singleTon = true)
     {
@@ -225,9 +229,10 @@ class ObjectFactory
      * @param string $class
      * @param array $params
      * @param bool $singleTon
-     * @return mixed
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @return mixed|string
+     * @throws DependencyException
+     * @throws NotFoundException
+     * @throws ReflectionException
      */
     private static function make(string $class, array $params = [], bool $singleTon)
     {
@@ -247,7 +252,7 @@ class ObjectFactory
     /**
      * @param $object
      * @param iterable $config
-     * @return mixed
+     * @throws ReflectionException
      */
     public static function configure($object, iterable $config)
     {

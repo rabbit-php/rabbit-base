@@ -1,27 +1,23 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/21
- * Time: 2:37
- */
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
-use rabbit\core\Exception;
+use Rabbit\Base\Core\Exception;
+use Throwable;
 
 /**
  * Class ExceptionHelper
- * @package rabbit\helper
+ * @package Rabbit\Base\Helper
  */
 class ExceptionHelper
 {
     /**
-     * @param \Throwable $exception
+     * @param Throwable $exception
      * @return array
-     * @throws \Exception
+     * @throws Throwable
      */
-    public static function convertExceptionToArray(\Throwable $exception): array
+    public static function convertExceptionToArray(Throwable $exception): array
     {
         $trace = explode("\n", $exception->getTraceAsString());
         $count = count($trace);
@@ -44,11 +40,11 @@ class ExceptionHelper
     }
 
     /**
-     * @param \Throwable $exception
+     * @param Throwable $exception
      * @return string
-     * @throws \Exception
+     * @throws Throwable
      */
-    public static function dumpExceptionToString(\Throwable $exception): string
+    public static function dumpExceptionToString(Throwable $exception): string
     {
         return VarDumper::getDumper()->dumpAsString(static::convertExceptionToArray($exception));
     }

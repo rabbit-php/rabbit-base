@@ -1,14 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/1/8
- * Time: 15:21
- */
-
-use rabbit\helper\ExceptionHelper;
-
-defined('BREAKS') or define('BREAKS', PHP_SAPI === 'cli' ? PHP_EOL : '</br>');
 
 if (!function_exists('getDI')) {
     /**
@@ -16,11 +6,11 @@ if (!function_exists('getDI')) {
      * @param bool $throwException
      * @param null $default
      * @return mixed|null
-     * @throws Exception
+     * @throws Throwable
      */
     function getDI(string $name, bool $throwException = true, $default = null)
     {
-        return \rabbit\core\ObjectFactory::get($name, $throwException, $default);
+        return \Rabbit\Base\Core\ObjectFactory::get($name, $throwException, $default);
     }
 }
 
@@ -29,21 +19,20 @@ if (!function_exists('rgo')) {
      * @param Closure $function
      * @param Closure|null $defer
      * @return int
-     * @throws Exception
      */
     function rgo(\Closure $function, ?\Closure $defer = null): int
     {
-        return \rabbit\helper\CoroHelper::go($function, $defer);
-    }
-}
-
-if (!function_exists('waitGroup')) {
-    /**
-     * @return \rabbit\helper\WaitGroup
-     */
-    function waitGroup(): \rabbit\helper\WaitGroup
-    {
-        return new \rabbit\helper\WaitGroup();
+        return go(function () use ($function, $defer) {
+            try {
+                if (is_callable($defer)) {
+                    defer($defer);
+                }
+                return $function();
+            } catch (\Throwable $throwable) {
+                print_r(\Rabbit\Base\Helper\ExceptionHelper::convertExceptionToArray($throwable));
+                return 0;
+            }
+        });
     }
 }
 
@@ -69,7 +58,7 @@ if (!function_exists('hasDI')) {
      */
     function hasDI(string $key): bool
     {
-        return \rabbit\core\ObjectFactory::has($key);
+        return \Rabbit\Base\Core\ObjectFactory::has($key);
     }
 }
 
@@ -80,23 +69,23 @@ if (!function_exists('hasDef')) {
      */
     function hasDef(string $key): bool
     {
-        return \rabbit\core\ObjectFactory::hasDef($key);
+        return \Rabbit\Base\Core\ObjectFactory::hasDef($key);
     }
 }
 
-if (!function_exists('goloop')) {
+if (!function_exists('loop')) {
     /**
-     * @param string $key
-     * @return bool
+     * @param Closure $function
+     * @return int
      */
-    function goloop(\Closure $function): int
+    function loop(\Closure $function): int
     {
         return go(function () use ($function) {
             while (true) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
-                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                    print_r(\Rabbit\Base\Helper\ExceptionHelper::convertExceptionToArray($throwable));
                 }
             }
         });

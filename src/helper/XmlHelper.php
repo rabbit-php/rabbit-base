@@ -1,6 +1,6 @@
 <?php
-
-namespace rabbit\helper;
+declare(strict_types=1);
+namespace Rabbit\Base\Helper;
 
 /**
  * Class XmlHelper

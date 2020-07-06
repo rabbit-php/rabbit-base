@@ -1,19 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/11/21
- * Time: 2:37
- */
+declare(strict_types=1);
 
-namespace rabbit\helper;
+namespace Rabbit\Base\Helper;
 
-use rabbit\core\Exception;
-use rabbit\exception\InvalidArgumentException;
+
+use Rabbit\Base\Core\Exception;
+use Rabbit\Base\Exception\InvalidArgumentException;
+use Rabbit\Base\Exception\InvalidConfigException;
 
 /**
- * Class BaseFileHelper
- * @package rabbit\helper
+ * Class FileHelper
+ * @package Rabbit\Base\Helper
  */
 class FileHelper
 {
@@ -26,19 +23,20 @@ class FileHelper
     /**
      * @var string the path (or alias) of a PHP file containing MIME type information.
      */
-    public static $mimeMagicFile = __DIR__ . '/mimeTypes.php';
+    public static string $mimeMagicFile = __DIR__ . '/mimeTypes.php';
     /**
      * @var string the path (or alias) of a PHP file containing MIME aliases.
      */
-    public static $mimeAliasesFile = __DIR__ . '/mimeAliases.php';
-    private static $_mimeTypes = [];
-    private static $_mimeAliases = [];
+    public static string $mimeAliasesFile = __DIR__ . '/mimeAliases.php';
+    private static array $_mimeTypes = [];
+    private static array $_mimeAliases = [];
 
     /**
      * @param string $file
      * @param string|null $magicFile
      * @param bool $checkExtension
      * @return string|null
+     * @throws InvalidConfigException
      */
     public static function getMimeType(string $file, string $magicFile = null, bool $checkExtension = true): ?string
     {
@@ -227,6 +225,7 @@ class FileHelper
      * @param int $mode
      * @param bool $recursive
      * @return bool
+     * @throws Exception
      */
     public static function createDirectory(string $path, int $mode = 0775, bool $recursive = true): bool
     {
@@ -319,10 +318,10 @@ class FileHelper
         }
         $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
         if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr(
-            $pattern,
-            1,
-            StringHelper::byteLength($pattern)
-        )) === false) {
+                $pattern,
+                1,
+                StringHelper::byteLength($pattern)
+            )) === false) {
             $result['flags'] |= self::PATTERN_ENDSWITH;
         }
         $result['pattern'] = $pattern;
@@ -332,9 +331,9 @@ class FileHelper
 
     /**
      * @param string $pattern
-     * @return int
+     * @return bool
      */
-    private static function firstWildcardInPattern(string $pattern): int
+    private static function firstWildcardInPattern(string $pattern): bool
     {
         $wildcards = ['*', '?', '[', '\\'];
         $wildcardSearch = function ($r, $c) use ($pattern) {
@@ -368,11 +367,11 @@ class FileHelper
 
         if (!empty($options['except'])) {
             if (($except = self::lastExcludeMatchingFromList(
-                $options['basePath'],
-                $path,
-                $options['except']
-            )) !== null) {
-                return $except['flags'] & self::PATTERN_NEGATIVE;
+                    $options['basePath'],
+                    $path,
+                    $options['except']
+                )) !== null) {
+                return (bool)($except['flags'] & self::PATTERN_NEGATIVE);
             }
         }
 
@@ -476,7 +475,8 @@ class FileHelper
         string $pattern,
         int $firstWildcard,
         bool $flags
-    ): bool {
+    ): bool
+    {
         // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
         if (isset($pattern[0]) && $pattern[0] === '/') {
             $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));

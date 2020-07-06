@@ -1,16 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2019/1/24
- * Time: 15:36
- */
+declare(strict_types=1);
 
-namespace rabbit\exception;
+namespace Rabbit\Base\Exception;
 
 /**
  * Class InvalidCallException
- * @package rabbit\exception
+ * @package Rabbit\Base\Exception
  */
 class InvalidCallException extends \BadMethodCallException
 {

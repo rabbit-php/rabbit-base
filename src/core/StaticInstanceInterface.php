@@ -1,22 +1,17 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 /**
  * Interface StaticInstanceInterface
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 interface StaticInstanceInterface
 {
     /**
-     * Returns static class instance, which can be used to obtain meta information.
-     * @param bool $refresh whether to re-create static instance even, if it is already cached.
-     * @return static class instance.
+     * @param bool $refresh
+     * @return mixed
      */
     public static function instance($refresh = false);
 }

@@ -1,23 +1,29 @@
 <?php
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
+
+use DI\DependencyException;
+use DI\NotFoundException;
+use ReflectionException;
 
 /**
  * Trait StaticInstanceTrait
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 trait StaticInstanceTrait
 {
     /**
      * @var static[] static instances in format: `[className => object]`
      */
-    private static $_instances = [];
+    private static array $_instances = [];
 
 
     /**
-     * Returns static class instance, which can be used to obtain meta information.
-     * @param bool $refresh whether to re-create static instance even, if it is already cached.
-     * @return static class instance.
+     * @param bool $refresh
+     * @return mixed|StaticInstanceTrait
+     * @throws DependencyException
+     * @throws NotFoundException|ReflectionException
      */
     public static function instance($refresh = false)
     {

@@ -1,20 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Administrator
- * Date: 2018/10/9
- * Time: 13:36
- */
+declare(strict_types=1);
 
-namespace rabbit\core;
+namespace Rabbit\Base\Core;
 
 /**
  * Class Context
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class Context
 {
     /**
+     * @param string|null $key
      * @return array|null
      */
     public static function getAll(string $key = null): ?array
@@ -24,6 +20,7 @@ class Context
 
     /**
      * @param array $config
+     * @param string|null $key
      */
     public static function setAll($config = [], string $key = null): void
     {
@@ -35,6 +32,7 @@ class Context
     /**
      * @param string $name
      * @param $value
+     * @param string|null $key
      */
     public static function set(string $name, $value, string $key = null): void
     {
@@ -64,6 +62,7 @@ class Context
 
     /**
      * @param string $name
+     * @param string|null $key
      * @return bool
      */
     public static function has(string $name, string $key = null): bool
@@ -76,6 +75,7 @@ class Context
 
     /**
      * @param string $name
+     * @param string|null $key
      */
     public static function delete(string $name, string $key = null): void
     {

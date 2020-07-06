@@ -1,23 +1,25 @@
 <?php
+declare(strict_types=1);
+namespace Rabbit\Base\Helper;
 
-namespace rabbit\helper;
 
-use rabbit\contract\Arrayable;
-use rabbit\core\Context;
-use rabbit\exception\InvalidArgumentException;
+use Closure;
+use Rabbit\Base\Contract\ArrayAble;
+use Rabbit\Base\Core\Context;
+use Rabbit\Base\Exception\InvalidArgumentException;
+use ReflectionException;
 
 /**
  * Class VarDumper
- *
- * @package common\Helpers
+ * @package Rabbit\Base\Helper
  */
 class VarDumper
 {
-    private $_objects;
+    private array $_objects;
 
-    private $_output;
+    private string $_output;
 
-    private $_depth;
+    private int $_depth;
 
     /**
      * getDumper
@@ -39,7 +41,7 @@ class VarDumper
      * @param int $depth
      * @return string
      */
-    public function dumpAsString($var, $depth = 10)
+    public function dumpAsString($var, int $depth = 10)
     {
         $this->_output = '';
         $this->_objects = [];
@@ -55,16 +57,14 @@ class VarDumper
      * @param mixed $var variable to be dumped
      * @param int $level depth level
      */
-    private function dumpInternal($var, $level)
+    private function dumpInternal($var, int $level)
     {
         switch (gettype($var)) {
             case 'boolean':
                 $this->_output .= $var ? 'true' : 'false';
                 break;
-            case 'integer':
-                $this->_output .= (string)$var;
-                break;
             case 'double':
+            case 'integer':
                 $this->_output .= (string)$var;
                 break;
             case 'string':
@@ -131,7 +131,7 @@ class VarDumper
      *
      * @param $var
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function export($var)
     {
@@ -145,7 +145,7 @@ class VarDumper
      *
      * @param $var
      * @param $level
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function exportInternal($var, $level)
     {
@@ -174,7 +174,7 @@ class VarDumper
                 }
                 break;
             case 'object':
-                if ($var instanceof \Closure) {
+                if ($var instanceof Closure) {
                     $this->_output .= $this->exportClosure($var);
                 } else {
                     try {
@@ -211,11 +211,11 @@ class VarDumper
     /**
      * exportClosure
      *
-     * @param \Closure $closure
+     * @param Closure $closure
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    private function exportClosure(\Closure $closure)
+    private function exportClosure(Closure $closure)
     {
         $reflection = new \ReflectionFunction($closure);
 
