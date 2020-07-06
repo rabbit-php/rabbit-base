@@ -20,42 +20,10 @@ class App
      * @var array
      */
     private static array $aliases = ['@rabbit' => __DIR__ . '/..'];
-    /** @var Server */
-    private static $_server;
-    /** @var \Co\Server */
-    private static $_coServer;
-
     /**
      * @var LoggerInterface
      */
     private static LoggerInterface $_logger;
-
-    /**
-     * @return \Co\Server|Server
-     */
-    public static function getServer()
-    {
-        if (self::$_server !== null) {
-            return self::$_server;
-        }
-        return self::$_coServer;
-    }
-
-    /**
-     * @param Server $server
-     */
-    public static function setServer(Server $server): void
-    {
-        self::$_server = $server;
-    }
-
-    /**
-     * @param \Co\Server $server
-     */
-    public static function setCoServer(\Co\Server $server): void
-    {
-        self::$_coServer = $server;
-    }
 
     /**
      * @param $alias

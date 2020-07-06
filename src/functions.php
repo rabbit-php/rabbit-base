@@ -91,3 +91,18 @@ if (!function_exists('loop')) {
         });
     }
 }
+
+if (!function_exists('create')) {
+    /**
+     * @param $type
+     * @param array $params
+     * @param bool $singleTon
+     * @return mixed
+     * @throws \DI\DependencyException
+     * @throws \DI\NotFoundException
+     */
+    function create($type, array $params = [], bool $singleTon = true)
+    {
+        return \rabbit\core\ObjectFactory::createObject($type, $params, $singleTon);
+    }
+}
