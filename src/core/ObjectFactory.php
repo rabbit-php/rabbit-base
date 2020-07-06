@@ -22,7 +22,7 @@ class ObjectFactory
     /**
      * @var Container
      */
-    private static Container $container;
+    private static ?Container $container = null;
 
     /**
      * @var array
