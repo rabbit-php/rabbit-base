@@ -527,8 +527,8 @@ class ArrayHelper
     public static function getValueByArray(
         array $array,
         array $keys,
-        array $newKeys = null,
-        array $default = null
+        array $default = null,
+        array $newKeys = null
     ): ?array
     {
         if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
@@ -562,8 +562,8 @@ class ArrayHelper
     public static function getValueByList(
         array $array,
         array $keys,
-        array $newKeys = null,
-        array $default = null
+        array $default = null,
+        array $newKeys = null
     ): ?array
     {
         if (!is_array($array) || !is_array($keys) || !static::isIndexed($array)) {
@@ -571,7 +571,7 @@ class ArrayHelper
         }
         $result = [];
         foreach ($array as $index => $value) {
-            $result[$index] = ArrayHelper::getValueByArray($array, $keys, $newKeys, $default);
+            $result[$index] = ArrayHelper::getValueByArray($array, $keys, $default, $newKeys);
         }
         return $result;
     }
