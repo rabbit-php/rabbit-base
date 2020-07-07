@@ -103,7 +103,7 @@ if (!function_exists('create')) {
      */
     function create($type, array $params = [], bool $singleTon = true)
     {
-        return \rabbit\core\ObjectFactory::createObject($type, $params, $singleTon);
+        return \Rabbit\Base\Core\ObjectFactory::createObject($type, $params, $singleTon);
     }
 }
 

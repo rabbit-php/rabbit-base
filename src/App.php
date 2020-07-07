@@ -23,7 +23,7 @@ class App
     /**
      * @var LoggerInterface
      */
-    private static LoggerInterface $_logger;
+    private static ?LoggerInterface $_logger = null;
 
     /**
      * @param $alias
