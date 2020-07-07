@@ -106,3 +106,15 @@ if (!function_exists('create')) {
         return \rabbit\core\ObjectFactory::createObject($type, $params, $singleTon);
     }
 }
+
+if (!function_exists('configure')) {
+    /**
+     * @param $object
+     * @param iterable $config
+     * @throws ReflectionException
+     */
+    function configure($object, iterable $config)
+    {
+        return \Rabbit\Base\Core\ObjectFactory::configure($object, $config);
+    }
+}
