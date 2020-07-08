@@ -6,13 +6,12 @@ namespace Rabbit\Base;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use Rabbit\Base\Core\ObjectFactory;
-use Swoole\Server;
+use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
 /**
  * Class App
- * @package rabbit
+ * @package Rabbit\Base
  */
 class App
 {
@@ -109,8 +108,11 @@ class App
         if (self::$_logger instanceof LoggerInterface) {
             return self::$_logger;
         }
-        if (null === ObjectFactory::get('logger', false)) {
-            self::$_logger = ObjectFactory::get(NullLogger::class);
+        try {
+            self::$_logger = getDI('logger');
+        } catch (\Throwable $exception) {
+            print_r($exception->getMessage());
+            self::$_logger = getDI(NullLogger::class);
         }
         return self::$_logger;
     }
