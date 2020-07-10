@@ -1,5 +1,8 @@
 <?php
 
+use DI\DependencyException;
+use DI\NotFoundException;
+
 if (!function_exists('getDI')) {
     /**
      * @param string $name
@@ -98,8 +101,8 @@ if (!function_exists('create')) {
      * @param array $params
      * @param bool $singleTon
      * @return mixed
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @throws DependencyException
+     * @throws ReflectionException|NotFoundException
      */
     function create($type, array $params = [], bool $singleTon = true)
     {
@@ -115,6 +118,22 @@ if (!function_exists('configure')) {
      */
     function configure($object, iterable $config)
     {
-        return \Rabbit\Base\Core\ObjectFactory::configure($object, $config);
+        \Rabbit\Base\Core\ObjectFactory::configure($object, $config);
+    }
+}
+
+if (!function_exists('lock')) {
+    /**
+     * @param string $name
+     * @param Closure $function
+     * @param string $key
+     * @param float|int $timeout
+     * @param array $params
+     * @return mixed
+     */
+    function lock(string $name, Closure $function, string $key = '', float $timeout = 600, array $params = [])
+    {
+        $lock = \Rabbit\Base\Helper\LockHelper::getLock($name);
+        return $lock($function, $key, $timeout, $params);
     }
 }
