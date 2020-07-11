@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
 
-use Rabbit\Base\Contract\LockInterface;
-use Rabbit\Base\Core\Exception;
+use Closure;
+use Co\Channel;
+use Rabbit\Base\atomic\AtomicLock;
+use Throwable;
 
 /**
  * Class LockHelper
@@ -12,31 +14,44 @@ use Rabbit\Base\Core\Exception;
  */
 class LockHelper
 {
-    /** @var array */
-    private static array $locks = [];
+    const TYPE_PROCESS = 0;
+    const TYPE_DISTRIBUTED = 1;
+    static ?string $distributedLock = null;
 
     /**
-     * @param string $name
-     * @param LockInterface $lock
-     * @throws Exception
+     * @param string $class
      */
-    public static function add(string $name, LockInterface $lock): void
+    public function setDistributedLock(string $class): void
     {
-        if (isset(self::$locks[$name])) {
-            throw new Exception("Lock $name already exists");
-        }
-        self::$locks[$name] = $lock;
+        self::$distributedLock = $class;
     }
 
     /**
+     * @param Closure $function
+     * @param int|null $type
      * @param string $name
-     * @return LockInterface|null
+     * @param float|int $timeout
+     * @return mixed
+     * @throws Throwable
      */
-    public static function getLock(string $name): ?LockInterface
+    public static function lock(Closure $function, int $type = self::TYPE_PROCESS, string $name = '', float $timeout = 600)
     {
-        if (isset(self::$locks[$name])) {
-            return self::$locks[$name];
+        static $disChan, $proChan;
+        $disChan = new Channel();
+        $proChan = new Channel();
+        if ($type === self::TYPE_DISTRIBUTED) {
+            if (!$disChan->isEmpty()) {
+                $lock = $disChan->pop();
+            } else {
+                $lock = new self::$distributedLock();
+            }
+        } else {
+            if (!$proChan->isEmpty()) {
+                $lock = $proChan->pop();
+            } else {
+                $lock = new AtomicLock();
+            }
         }
-        return null;
+        return $lock($function, $name, $timeout);
     }
 }

@@ -30,11 +30,10 @@ class AtomicLock implements LockInterface
      * @param Closure $function
      * @param string $name
      * @param float $timeout
-     * @param array $params
      * @return mixed
      * @throws Throwable
      */
-    public function __invoke(Closure $function, string $name = '', float $timeout = 0.001, array $params = [])
+    public function __invoke(Closure $function, string $name = '', float $timeout = 0.001)
     {
         try {
             while ($this->atomic->get() !== 0) {

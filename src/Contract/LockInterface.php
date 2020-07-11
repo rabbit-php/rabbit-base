@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Contract;
 
+use Closure;
+
 /**
  * Interface LockInterface
  * @package Rabbit\Base\Contract
@@ -10,11 +12,10 @@ namespace Rabbit\Base\Contract;
 interface LockInterface
 {
     /**
-     * @param \Closure $function
+     * @param Closure $function
      * @param string $name
      * @param float $timeout
-     * @param array $params
      * @return mixed
      */
-    public function __invoke(\Closure $function, string $name = '', float $timeout = 600, array $params = []);
+    public function __invoke(Closure $function, string $name = '', float $timeout = 600);
 }

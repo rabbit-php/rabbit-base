@@ -137,3 +137,18 @@ if (!function_exists('lock')) {
         return $lock($function, $key, $timeout, $params);
     }
 }
+
+if (!function_exists('sync')) {
+    /**
+     * @param Closure $function
+     * @return mixed
+     */
+    function sycn(Closure $function)
+    {
+        $flags = \Swoole\Runtime::getHookFlags();
+        \Swoole\Runtime::enableCoroutine(false);
+        $result = $function();
+        \Swoole\Runtime::enableCoroutine($flags);
+        return $result;
+    }
+}
