@@ -21,6 +21,10 @@
     "swoole/ide-helper": "@dev",
     "phpunit/phpunit": "*"
   },
+  "suggest": {
+    "ext-dom": "*",
+    "ext-simplexml": "*"
+  },
   "autoload": {
     "psr-4": {
       "Rabbit\\Base\\": "src/"
