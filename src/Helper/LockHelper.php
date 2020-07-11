@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
 
-use Closure;
-use Co\Channel;
-use Rabbit\Base\atomic\AtomicLock;
-use Throwable;
+use Rabbit\Base\Contract\LockInterface;
+use Rabbit\Base\Core\Exception;
 
 /**
  * Class LockHelper
@@ -14,48 +12,48 @@ use Throwable;
  */
 class LockHelper
 {
-    const TYPE_PROCESS = 0;
-    const TYPE_DISTRIBUTED = 1;
-    static ?string $distributedLock = null;
+    /** @var array */
+    private static array $locks = [];
 
     /**
-     * @param string $class
+     * @param string $name
+     * @param LockInterface $lock
+     * @throws Exception
      */
-    public function setDistributedLock(string $class): void
+    public static function add(string $name, LockInterface $lock): void
     {
-        self::$distributedLock = $class;
+        if (isset(self::$locks[$name])) {
+            throw new Exception("Lock $name already exists");
+        }
+        self::$locks[$name] = $lock;
     }
 
     /**
-     * @param Closure $function
-     * @param int|null $type
      * @param string $name
+     * @return LockInterface|null
+     */
+    public static function getLock(string $name): ?LockInterface
+    {
+        if (isset(self::$locks[$name])) {
+            return self::$locks[$name];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param \Closure $function
+     * @param string $key
      * @param float|int $timeout
      * @return mixed
-     * @throws Throwable
+     * @throws Exception
      */
-    public static function lock(Closure $function, int $type = self::TYPE_PROCESS, string $name = '', float $timeout = 600)
+    public static function lock(string $name, \Closure $function, string $key = '', float $timeout = 600)
     {
-        static $disChan, $proChan;
-        $disChan = new Channel();
-        $proChan = new Channel();
-        if ($type === self::TYPE_DISTRIBUTED) {
-            if (!$disChan->isEmpty()) {
-                $lock = $disChan->pop();
-            } else {
-                $lock = new self::$distributedLock();
-            }
-            $result = $lock($function, $name, $timeout);
-            $disChan->push($lock);
-        } else {
-            if (!$proChan->isEmpty()) {
-                $lock = $proChan->pop();
-            } else {
-                $lock = new AtomicLock();
-            }
-            $result = $lock($function, $name, $timeout);
-            $proChan->push($lock);
+        if (!isset(self::$locks[$name])) {
+            throw new Exception("Locks has not name $name");
         }
-        return $result;
+        $lock = self::$locks[$name];
+        return $lock($function, $key, $timeout);
     }
 }
