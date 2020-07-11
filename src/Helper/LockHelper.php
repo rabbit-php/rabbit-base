@@ -45,13 +45,17 @@ class LockHelper
             } else {
                 $lock = new self::$distributedLock();
             }
+            $result = $lock($function, $name, $timeout);
+            $disChan->push($lock);
         } else {
             if (!$proChan->isEmpty()) {
                 $lock = $proChan->pop();
             } else {
                 $lock = new AtomicLock();
             }
+            $result = $lock($function, $name, $timeout);
+            $proChan->push($lock);
         }
-        return $lock($function, $name, $timeout);
+        return $result;
     }
 }
