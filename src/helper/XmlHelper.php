@@ -5,6 +5,7 @@ namespace Rabbit\Base\Helper;
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMText;
 use Rabbit\Base\Contract\ArrayAble;
 use Traversable;
@@ -116,6 +117,7 @@ class XmlHelper
      * @param string $version
      * @param string $encoding
      * @return mixed
+     * @throws DOMException
      */
     public static function format(?array $data, string $rootTag = 'root', string $itemTag = 'item', string $version = '1.0', string $encoding = 'UTF-8'): string
     {
@@ -135,45 +137,89 @@ class XmlHelper
      * @param DOMElement $element
      * @param mixed $data
      * @param string $itemTag
-     * @return void
+     * @throws DOMException
      */
-    protected static function buildXml(DOMElement $element, $data, string $itemTag = 'item'): void
+    protected static function buildXml(DOMElement $element, $data, string $itemTag)
     {
         if (is_array($data) ||
             ($data instanceof Traversable && !$data instanceof Arrayable)
         ) {
-            if ($data) {
-                foreach ($data as $name => $value) {
-                    if (is_int($name) && is_object($value)) {
-                        self::buildXml($element, $value);
-                    } elseif (is_array($value) || is_object($value)) {
-                        $child = new DOMElement(is_int($name) ? $itemTag : $name);
-                        $element->appendChild($child);
-                        self::buildXml($child, $value);
-                    } else {
-                        $child = new DOMElement(is_int($name) ? $itemTag : $name);
-                        $element->appendChild($child);
-                        $child->appendChild(new DOMText((string)$value));
-                    }
+            foreach ($data as $name => $value) {
+                if (is_int($name) && is_object($value)) {
+                    self::buildXml($element, $value, $itemTag);
+                } elseif (is_array($value) || is_object($value)) {
+                    $child = new DOMElement(self::getValidXmlElementName($name, $itemTag));
+                    $element->appendChild($child);
+                    self::buildXml($child, $value, $itemTag);
+                } else {
+                    $child = new DOMElement(self::getValidXmlElementName($name, $itemTag));
+                    $element->appendChild($child);
+                    $child->appendChild(new DOMText(self::formatScalarValue($value)));
                 }
-            } else {
-                $element->appendChild(new DOMText((string)null));
             }
-
         } elseif (is_object($data)) {
-            $child = new DOMElement(StringHelper::basename(get_class($data)));
-            $element->appendChild($child);
+            $child = $element;
             if ($data instanceof Arrayable) {
-                self::buildXml($child, $data->toArray());
+                self::buildXml($child, $data->toArray(), $itemTag);
             } else {
                 $array = [];
                 foreach ($data as $name => $value) {
                     $array[$name] = $value;
                 }
-                self::buildXml($child, $array);
+                self::buildXml($child, $array, $itemTag);
             }
         } else {
-            $element->appendChild(new DOMText((string)$data));
+            $element->appendChild(new DOMText(self::formatScalarValue($data)));
         }
+    }
+
+    /**
+     * @param $name
+     * @param string $itemTag
+     * @return string
+     * @throws DOMException
+     */
+    protected static function getValidXmlElementName($name, string $itemTag): string
+    {
+        if (empty($name) || is_int($name) || !self::isValidXmlName($name)) {
+            return $itemTag;
+        }
+
+        return $name;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     * @throws DOMException
+     */
+    protected static function isValidXmlName($name): bool
+    {
+        try {
+            new DOMElement($name);
+            return true;
+        } catch (DOMException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Formats scalar value to use in XML text node.
+     *
+     * @param int|string|bool|float $value a scalar value.
+     * @return string string representation of the value.
+     */
+    protected static function formatScalarValue($value): string
+    {
+        if ($value === true) {
+            return 'true';
+        }
+        if ($value === false) {
+            return 'false';
+        }
+        if (is_float($value)) {
+            return StringHelper::floatToString($value);
+        }
+        return (string)$value;
     }
 }
