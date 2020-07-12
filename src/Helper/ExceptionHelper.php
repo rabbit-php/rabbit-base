@@ -30,7 +30,7 @@ class ExceptionHelper
             'type' => get_class($exception),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
-            'stack-trace' => $depth === 0 ? $depth : array_slice($trace, 0, $depth),
+            'stack-trace' => $depth === 0 ? $trace : array_slice($trace, 0, $depth),
         ];
         if (($prev = $exception->getPrevious()) !== null) {
             $array['previous'] = self::convertExceptionToArray($prev);
