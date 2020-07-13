@@ -65,7 +65,7 @@ class ArrayHelper
      * @param null $default
      * @return mixed|null
      */
-    public static function getValue(array $array, $key, $default = null)
+    public static function getValue($array, $key, $default = null)
     {
         if ($key instanceof \Closure) {
             return $key($array, $default);
