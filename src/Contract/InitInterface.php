@@ -9,8 +9,5 @@ namespace Rabbit\Base\Contract;
  */
 interface InitInterface
 {
-    /**
-     * @return mixed
-     */
-    public function init();
+    public function init(): void;
 }

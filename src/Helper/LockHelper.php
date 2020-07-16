@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
 
+use Rabbit\Base\App;
 use Rabbit\Base\Contract\LockInterface;
 use Rabbit\Base\Core\Exception;
 
@@ -20,12 +21,14 @@ class LockHelper
      * @param LockInterface $lock
      * @throws Exception
      */
-    public static function add(string $name, LockInterface $lock): void
+    public static function add(string $name, LockInterface $lock): bool
     {
         if (isset(self::$locks[$name])) {
-            throw new Exception("Lock $name already exists");
+            App::warning("Lock $name already exists");
+            return false;
         }
         self::$locks[$name] = $lock;
+        return true;
     }
 
     /**
