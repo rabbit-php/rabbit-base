@@ -6,7 +6,6 @@ namespace Rabbit\Base;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
 /**
@@ -18,17 +17,17 @@ class App
     /**
      * @var array
      */
-    private static array $aliases = ['@rabbit' => __DIR__ . '/..'];
+    private static array $aliases = [];
     /**
      * @var LoggerInterface
      */
     private static ?LoggerInterface $_logger = null;
 
     /**
-     * @param $alias
-     * @param $path
+     * @param string $alias
+     * @param string $path
      */
-    public static function setAlias($alias, $path): void
+    public static function setAlias(string $alias, string $path): void
     {
         if (strncmp($alias, '@', 1)) {
             $alias = '@' . $alias;
@@ -66,12 +65,15 @@ class App
     }
 
     /**
-     * @param $alias
+     * @param string $alias
      * @param bool $throwException
-     * @return null|string
+     * @return string|null
      */
-    public static function getAlias($alias, $throwException = true): ?string
+    public static function getAlias(string $alias, bool $throwException = true): ?string
     {
+        if ($alias === '@root' && !isset(self::$aliases['@root'])) {
+            self::$aliases['@root'] = dirname(__DIR__, 4);
+        }
         if (strncmp($alias, '@', 1)) {
             // not an alias
             return $alias;
