@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Rabbit\Base\atomic;
+namespace Rabbit\Base\Atomic;
 
 use Closure;
 use Rabbit\Base\Contract\LockInterface;
