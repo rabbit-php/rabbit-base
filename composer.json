@@ -32,5 +32,15 @@
     "files": [
       "src/functions.php"
     ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Rabbit\\Base\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": [
+      "./vendor/bin/phpunit"
+    ]
   }
 }

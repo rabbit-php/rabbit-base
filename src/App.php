@@ -27,7 +27,7 @@ class App
      * @param string $alias
      * @param string $path
      */
-    public static function setAlias(string $alias, string $path): void
+    public static function setAlias(string $alias, ?string $path): void
     {
         if (strncmp($alias, '@', 1)) {
             $alias = '@' . $alias;

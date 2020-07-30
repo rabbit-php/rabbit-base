@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace Rabbit\Base\Core;
 
 use Co\Channel;
-use rabbit\App;
+use Rabbit\Base\App;
+use Throwable;
 
 /**
  * Class ChanRun
- * @package rabbit\core
+ * @package Rabbit\Base\Core
  */
 class ChanRun
 {
@@ -42,8 +43,7 @@ class ChanRun
     /**
      * @param callable|null $call
      * @return int
-     * @throws Exception
-     * @throws \Exception
+     * @throws Throwable
      */
     public function process(?callable $call = null): int
     {

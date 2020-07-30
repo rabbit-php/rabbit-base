@@ -40,7 +40,7 @@ class AtomicLock implements LockInterface
                 \Co::sleep($timeout);
             }
             $this->atomic->add();
-            return call_user_func($function, ...$params);
+            return call_user_func($function);
         } catch (Throwable $throwable) {
             print_r(ExceptionHelper::convertExceptionToArray($throwable));
         } finally {

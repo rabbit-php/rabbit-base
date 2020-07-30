@@ -29,7 +29,7 @@ trait StaticInstanceTrait
     {
         $className = get_called_class();
         if ($refresh || !isset(self::$_instances[$className])) {
-            self::$_instances[$className] = ObjectFactory::createObject($className);
+            self::$_instances[$className] = create($className);
         }
         return self::$_instances[$className];
     }

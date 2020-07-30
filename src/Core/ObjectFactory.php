@@ -8,7 +8,9 @@ use DI\ContainerBuilder;
 use DI\Definition\Helper\DefinitionHelper;
 use DI\DependencyException;
 use DI\NotFoundException;
+use InvalidArgumentException;
 use Rabbit\Base\Contract\InitInterface;
+use ReflectionClass;
 use ReflectionException;
 use Throwable;
 use function DI\create;
@@ -43,9 +45,9 @@ class ObjectFactory
      * @param array $init
      * @throws DependencyException
      * @throws NotFoundException
-     * @throws \Exception
+     * @throws Throwable
      */
-    public static function setPreinit(array $init): void
+    public static function setPreInit(array $init): void
     {
         self::$definitions['pre'] = $init;
         self::getContainer();
@@ -58,31 +60,25 @@ class ObjectFactory
     /**
      * @return array
      */
-    public static function getDefiinitions(): array
+    public static function getDefinitions(): array
     {
         return self::$definitions;
     }
 
     /**
      * @throws DependencyException
-     * @throws NotFoundException
+     * @throws NotFoundException|ReflectionException
+     * @throws Throwable
      */
     public static function init(): void
     {
         self::getContainer();
-        self::makeDefinitions(self::$definitions['default']);
-    }
-
-    public static function autoBuild(): void
-    {
-        foreach (self::$definitions as $name => $definition) {
-            self::$container->get($name);
-        }
+        isset(self::$definitions['default']) && self::makeDefinitions(self::$definitions['default']);
     }
 
     /**
      * @return Container
-     * @throws \Exception
+     * @throws Throwable
      */
     public static function getContainer(): Container
     {
@@ -98,7 +94,7 @@ class ObjectFactory
      * @param bool $refresh
      * @return array
      * @throws DependencyException
-     * @throws NotFoundException
+     * @throws NotFoundException|ReflectionException
      */
     private static function makeDefinitions(array $definitions = [], bool $refresh = true): array
     {
@@ -172,29 +168,11 @@ class ObjectFactory
     /**
      * @param array $definitions
      * @throws DependencyException
-     * @throws NotFoundException
+     * @throws ReflectionException|NotFoundException
      */
-    public static function set(array $definitions = [])
+    public static function add(array $definitions = []):void
     {
         self::makeDefinitions($definitions);
-    }
-
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public static function has(string $name): bool
-    {
-        return self::$container->has($name);
-    }
-
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public static function hasDef(string $name): bool
-    {
-        return isset(self::$definitions[$name]);
     }
 
     /**
@@ -209,7 +187,10 @@ class ObjectFactory
     {
         if (is_string($type)) {
             return self::make($type, $params, $singleTon);
-        } elseif (is_array($type) && isset($type['class'])) {
+        } elseif (is_array($type)) {
+            if (!isset($type['class'])) {
+                throw new InvalidArgumentException('Object configuration must be an array containing a "class" element.');
+            }
             $class = $type['class'];
             unset($type['class']);
             $params = array_merge($type, $params);
@@ -218,11 +199,9 @@ class ObjectFactory
             return static::$container->get($type->getDefinition('')->getName());
         } elseif (is_callable($type, true)) {
             return static::$container->call($type, $params);
-        } elseif (is_array($type)) {
-            throw new \InvalidArgumentException('Object configuration must be an array containing a "class" element.');
         }
 
-        throw new \InvalidArgumentException('Unsupported configuration type: ' . gettype($type));
+        throw new InvalidArgumentException('Unsupported configuration type: ' . gettype($type));
     }
 
     /**
@@ -234,7 +213,7 @@ class ObjectFactory
      * @throws NotFoundException
      * @throws ReflectionException
      */
-    private static function make(string $class, array $params = [], bool $singleTon)
+    private static function make(string $class, array $params = [], bool $singleTon = true)
     {
         if ($singleTon) {
             if (in_array($class, static::$container->getKnownEntryNames())) {
@@ -254,12 +233,12 @@ class ObjectFactory
      * @param iterable $config
      * @throws ReflectionException
      */
-    public static function configure($object, iterable $config)
+    public static function configure($object, iterable $config):void
     {
         static $conParams = [];
         $class = get_class($object);
         if (!isset($conParams[$class])) {
-            $obj = (new \ReflectionClass($class))->getConstructor();
+            $obj = (new ReflectionClass($class))->getConstructor();
             if ($obj !== null) {
                 foreach ($obj->getParameters() as $parameter) {
                     $conParams[$class][] = $parameter->getName();

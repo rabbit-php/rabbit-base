@@ -5,6 +5,7 @@ namespace Rabbit\Base\Core;
 
 use Co\Channel;
 use rabbit\App;
+use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
 /**
@@ -109,14 +110,20 @@ class Timer
     {
         self::checkTimer($name);
         $channel = new Channel(1);
-        $tid = loop(function () use ($name, $channel, $callback, $time, $params) {
-            if ($channel->pop($time / 1000)) {
-                return;
+        $tid = go(function () use ($name, $channel, $callback, $time, $params) {
+            while (true) {
+                try {
+                    if ($channel->pop($time / 1000)) {
+                        return;
+                    }
+                    rgo(function () use ($name, $callback, $params) {
+                        self::$timers[$name]['count']++;
+                        call_user_func($callback, ...$params);
+                    });
+                } catch (\Throwable $throwable) {
+                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                }
             }
-            rgo(function () use ($name, $callback, $params) {
-                self::$timers[$name]['count']++;
-                call_user_func($callback, ...$params);
-            });
         });
         self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
         return $tid;

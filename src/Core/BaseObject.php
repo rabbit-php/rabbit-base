@@ -19,7 +19,10 @@ class BaseObject
         if (method_exists($this, $getter)) {
             return $this->$getter();
         }
-        return $this->$name;
+        if (isset($this->$name)) {
+            return $this->$name;
+        }
+        throw new \RuntimeException("Undefined property: $name");
     }
 
     /**
