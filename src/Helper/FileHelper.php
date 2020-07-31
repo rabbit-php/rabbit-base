@@ -628,7 +628,7 @@ class FileHelper
             $path = $dir . DIRECTORY_SEPARATOR . $file;
             if (static::filterPath($path, $options)) {
                 if (is_dir($path) && (!isset($options['recursive']) || $options['recursive'])) {
-                    static::findFiles($path, $options);
+                    static::dealFiles($path, $options);
                 }
             }
         }
