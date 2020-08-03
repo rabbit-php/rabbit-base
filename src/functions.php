@@ -135,8 +135,13 @@ if (!function_exists('sync')) {
     }
 }
 
-if (!function_exists('wgo')) {
-    function wgo(WaitGroup $wg, Closure $function)
+if (!function_exists('wg')) {
+    /**
+     * @param WaitGroup $wg
+     * @param Closure $function
+     * @throws Throwable
+     */
+    function wgo(WaitGroup $wg, Closure $function): void
     {
         $wg->add();
         go(function () use ($function, $wg): void {
@@ -148,5 +153,23 @@ if (!function_exists('wgo')) {
                 $wg->done();
             }
         });
+    }
+}
+
+if (!function_exists('wgeach')) {
+    /**
+     * @param array $data
+     * @param Closure $function
+     * @param float|int $timeout
+     * @return bool
+     */
+    function wgeach(array &$data, Closure $function, float $timeout = -1): bool
+    {
+        $wg = new WaitGroup();
+        foreach ($data as $datum) {
+            $wg->add();
+            wgo($wg, fn() => $function($datum));
+        }
+        return $wg->wait($timeout);
     }
 }
