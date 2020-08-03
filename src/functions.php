@@ -1,7 +1,12 @@
 <?php
 
+use Co\WaitGroup;
 use DI\DependencyException;
 use DI\NotFoundException;
+use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Helper\ExceptionHelper;
+use Rabbit\Base\Helper\LockHelper;
+use Swoole\Runtime;
 
 if (!function_exists('getDI')) {
     /**
@@ -13,7 +18,7 @@ if (!function_exists('getDI')) {
      */
     function getDI(string $name, bool $throwException = true, $default = null)
     {
-        return \Rabbit\Base\Core\ObjectFactory::get($name, $throwException, $default);
+        return ObjectFactory::get($name, $throwException, $default);
     }
 }
 
@@ -23,17 +28,16 @@ if (!function_exists('rgo')) {
      * @param Closure|null $defer
      * @return int
      */
-    function rgo(\Closure $function, ?\Closure $defer = null): int
+    function rgo(Closure $function, ?Closure $defer = null): int
     {
-        return go(function () use ($function, $defer) {
+        return go(function () use ($function, $defer): void {
             try {
                 if (is_callable($defer)) {
                     defer($defer);
                 }
-                return $function();
+                $function();
             } catch (\Throwable $throwable) {
-                print_r(\Rabbit\Base\Helper\ExceptionHelper::convertExceptionToArray($throwable));
-                return 0;
+                print_r(ExceptionHelper::convertExceptionToArray($throwable));
             }
         });
     }
@@ -54,41 +58,19 @@ if (!function_exists('env')) {
     }
 }
 
-if (!function_exists('hasDI')) {
-    /**
-     * @param string $key
-     * @return bool
-     */
-    function hasDI(string $key): bool
-    {
-        return \Rabbit\Base\Core\ObjectFactory::has($key);
-    }
-}
-
-if (!function_exists('hasDef')) {
-    /**
-     * @param string $key
-     * @return bool
-     */
-    function hasDef(string $key): bool
-    {
-        return \Rabbit\Base\Core\ObjectFactory::hasDef($key);
-    }
-}
-
 if (!function_exists('loop')) {
     /**
      * @param Closure $function
      * @return int
      */
-    function loop(\Closure $function): int
+    function loop(Closure $function): int
     {
         return go(function () use ($function) {
             while (true) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
-                    print_r(\Rabbit\Base\Helper\ExceptionHelper::convertExceptionToArray($throwable));
+                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
                 }
             }
         });
@@ -106,7 +88,7 @@ if (!function_exists('create')) {
      */
     function create($type, array $params = [], bool $singleTon = true)
     {
-        return \Rabbit\Base\Core\ObjectFactory::createObject($type, $params, $singleTon);
+        return ObjectFactory::createObject($type, $params, $singleTon);
     }
 }
 
@@ -118,7 +100,7 @@ if (!function_exists('configure')) {
      */
     function configure($object, iterable $config)
     {
-        \Rabbit\Base\Core\ObjectFactory::configure($object, $config);
+        ObjectFactory::configure($object, $config);
     }
 }
 
@@ -133,7 +115,7 @@ if (!function_exists('lock')) {
      */
     function lock(string $name, Closure $function, string $key = '', float $timeout = 600, array $params = [])
     {
-        $lock = \Rabbit\Base\Helper\LockHelper::getLock($name);
+        $lock = LockHelper::getLock($name);
         return $lock($function, $key, $timeout, $params);
     }
 }
@@ -145,10 +127,26 @@ if (!function_exists('sync')) {
      */
     function sycn(Closure $function)
     {
-        $flags = \Swoole\Runtime::getHookFlags();
-        \Swoole\Runtime::enableCoroutine(false);
+        $flags = Runtime::getHookFlags();
+        Runtime::enableCoroutine(false);
         $result = $function();
-        \Swoole\Runtime::enableCoroutine($flags);
+        Runtime::enableCoroutine($flags);
         return $result;
+    }
+}
+
+if (!function_exists('wgo')) {
+    function wgo(WaitGroup $wg, Closure $function)
+    {
+        $wg->add();
+        go(function () use ($function, $wg): void {
+            try {
+                $function();
+            } catch (Throwable $throwable) {
+                print_r(ExceptionHelper::convertExceptionToArray($throwable));
+            } finally {
+                $wg->done();
+            }
+        });
     }
 }
