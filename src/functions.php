@@ -113,10 +113,10 @@ if (!function_exists('lock')) {
      * @param array $params
      * @return mixed
      */
-    function lock(string $name, Closure $function, string $key = '', float $timeout = 600, array $params = [])
+    function lock(string $name, Closure $function, string $key = '', float $timeout = 600)
     {
         $lock = LockHelper::getLock($name);
-        return $lock($function, $key, $timeout, $params);
+        return $lock($function, $key, $timeout);
     }
 }
 
