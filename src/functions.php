@@ -168,7 +168,7 @@ if (!function_exists('wgeach')) {
         $wg = new WaitGroup();
         foreach ($data as $key => $datum) {
             $wg->add();
-            wgo($wg, fn() => $function($datum, $key));
+            wgo($wg, fn() => $function($key, $datum));
         }
         return $wg->wait($timeout);
     }
