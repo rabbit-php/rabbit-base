@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Swoole\Coroutine;
 
+use BadMethodCallException;
+use InvalidArgumentException;
 use Rabbit\Base\Helper\ExceptionHelper;
-use Swoole\Coroutine\Channel;
+use Throwable;
 
 /**
  * Class WaitGroup
@@ -23,6 +25,11 @@ class WaitGroup
         $this->chan = new Channel(1);
     }
 
+    /**
+     * @param callable $function
+     * @return int
+     * @throws Throwable
+     */
     public function add(callable $function): int
     {
         if ($this->waiting) {
