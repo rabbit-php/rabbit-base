@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
-use Co\WaitGroup;
 use DI\DependencyException;
 use DI\NotFoundException;
 use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Rabbit\Base\Helper\LockHelper;
 use Swoole\Runtime;
@@ -27,6 +28,7 @@ if (!function_exists('rgo')) {
      * @param Closure $function
      * @param Closure|null $defer
      * @return int
+     * @throws Throwable
      */
     function rgo(Closure $function, ?Closure $defer = null): int
     {
@@ -62,6 +64,7 @@ if (!function_exists('loop')) {
     /**
      * @param Closure $function
      * @return int
+     * @throws Throwable
      */
     function loop(Closure $function): int
     {
@@ -110,7 +113,6 @@ if (!function_exists('lock')) {
      * @param Closure $function
      * @param string $key
      * @param float|int $timeout
-     * @param array $params
      * @return mixed
      */
     function lock(string $name, Closure $function, string $key = '', float $timeout = 600)
@@ -125,7 +127,7 @@ if (!function_exists('sync')) {
      * @param Closure $function
      * @return mixed
      */
-    function sycn(Closure $function)
+    function sync(Closure $function)
     {
         $flags = Runtime::getHookFlags();
         Runtime::enableCoroutine(false);
@@ -135,40 +137,19 @@ if (!function_exists('sync')) {
     }
 }
 
-if (!function_exists('wg')) {
-    /**
-     * @param WaitGroup $wg
-     * @param Closure $function
-     * @throws Throwable
-     */
-    function wgo(WaitGroup $wg, Closure $function): void
-    {
-        $wg->add();
-        go(function () use ($function, $wg): void {
-            try {
-                $function();
-            } catch (Throwable $throwable) {
-                print_r(ExceptionHelper::convertExceptionToArray($throwable));
-            } finally {
-                $wg->done();
-            }
-        });
-    }
-}
-
 if (!function_exists('wgeach')) {
     /**
      * @param array $data
      * @param Closure $function
      * @param float|int $timeout
      * @return bool
+     * @throws Throwable
      */
     function wgeach(array &$data, Closure $function, float $timeout = -1): bool
     {
         $wg = new WaitGroup();
         foreach ($data as $key => $datum) {
-            $wg->add();
-            wgo($wg, fn() => $function($key, $datum));
+            $wg->add(fn() => $function($key, $datum));
         }
         return $wg->wait($timeout);
     }
