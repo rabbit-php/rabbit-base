@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
+use Co;
+
 /**
  * Class Context
  * @package Rabbit\Base\Core
@@ -15,7 +17,7 @@ class Context
      */
     public static function getAll(string $key = null): ?array
     {
-        return $key !== null ? \Co::getContext()[$key] : \Co::getContext();
+        return $key !== null ? Co::getContext()[$key] : Co::getContext();
     }
 
     /**
@@ -37,9 +39,9 @@ class Context
     public static function set(string $name, $value, string $key = null): void
     {
         if ($key !== null) {
-            \Co::getContext()[$key][$name] = $value;
+            Co::getContext()[$key][$name] = $value;
         } else {
-            \Co::getContext()[$name] = $value;
+            Co::getContext()[$name] = $value;
         }
     }
 
@@ -51,13 +53,13 @@ class Context
     public static function get(string $name, string $key = null)
     {
         if ($key !== null) {
-            if (!isset(\Co::getContext()[$key])) {
+            if (!isset(Co::getContext()[$key])) {
                 return null;
             } else {
-                return isset(\Co::getContext()[$key][$name]) ? \Co::getContext()[$key][$name] : null;
+                return isset(Co::getContext()[$key][$name]) ? Co::getContext()[$key][$name] : null;
             }
         }
-        return isset(\Co::getContext()[$name]) ? \Co::getContext()[$name] : null;
+        return isset(Co::getContext()[$name]) ? Co::getContext()[$name] : null;
     }
 
     /**
@@ -68,9 +70,9 @@ class Context
     public static function has(string $name, string $key = null): bool
     {
         if ($key !== null) {
-            return isset(\Co::getContext()[$key]) && isset(\Co::getContext()[$key][$name]);
+            return isset(Co::getContext()[$key]) && isset(Co::getContext()[$key][$name]);
         }
-        return isset(\Co::getContext()[$name]);
+        return isset(Co::getContext()[$name]);
     }
 
     /**
@@ -79,10 +81,10 @@ class Context
      */
     public static function delete(string $name, string $key = null): void
     {
-        if ($key !== null && isset(\Co::getContext()[$key]) && isset(\Co::getContext()[$key][$name])) {
-            unset(\Co::getContext()[$key][$name]);
-        } elseif (isset(\Co::getContext()[$name])) {
-            unset(\Co::getContext()[$name]);
+        if ($key !== null && isset(Co::getContext()[$key]) && isset(Co::getContext()[$key][$name])) {
+            unset(Co::getContext()[$key][$name]);
+        } elseif (isset(Co::getContext()[$name])) {
+            unset(Co::getContext()[$name]);
         }
     }
 }

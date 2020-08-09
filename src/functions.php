@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use DI\DependencyException;
 use DI\NotFoundException;
+use Rabbit\Base\App;
 use Rabbit\Base\Core\ObjectFactory;
 use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\ExceptionHelper;
@@ -26,20 +27,16 @@ if (!function_exists('getDI')) {
 if (!function_exists('rgo')) {
     /**
      * @param Closure $function
-     * @param Closure|null $defer
      * @return int
      * @throws Throwable
      */
-    function rgo(Closure $function, ?Closure $defer = null): int
+    function rgo(Closure $function): int
     {
-        return go(function () use ($function, $defer): void {
+        return go(function () use ($function): void {
             try {
-                if (is_callable($defer)) {
-                    defer($defer);
-                }
                 $function();
             } catch (\Throwable $throwable) {
-                print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                App::error(ExceptionHelper::convertExceptionToArray($throwable));
             }
         });
     }
@@ -68,12 +65,12 @@ if (!function_exists('loop')) {
      */
     function loop(Closure $function): int
     {
-        return go(function () use ($function) {
+        return rgo(function () use ($function) {
             while (true) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
-                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                    App::error(ExceptionHelper::convertExceptionToArray($throwable));
                 }
             }
         });
@@ -152,5 +149,22 @@ if (!function_exists('wgeach')) {
             $wg->add(fn() => $function($key, $datum));
         }
         return $wg->wait($timeout);
+    }
+}
+
+if (!function_exists('getRootId')) {
+    /**
+     * @return int
+     */
+    function getRootId(): int
+    {
+        $cid = Co::getCid();
+        while (true) {
+            $pid = Co::getPcid($cid);
+            if ($pid === false || $pid === -1) {
+                return $cid;
+            }
+            $cid = $pid;
+        }
     }
 }

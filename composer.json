@@ -26,12 +26,12 @@
     "ext-simplexml": "*"
   },
   "autoload": {
-    "psr-4": {
-      "Rabbit\\Base\\": "src/"
-    },
     "files": [
       "src/functions.php"
-    ]
+    ],
+    "psr-4": {
+      "Rabbit\\Base\\": "src/"
+    }
   },
   "autoload-dev": {
     "psr-4": {

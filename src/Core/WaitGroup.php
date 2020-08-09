@@ -6,6 +6,7 @@ namespace Rabbit\Base\Core;
 use BadMethodCallException;
 use Co\Channel;
 use InvalidArgumentException;
+use Rabbit\Base\App;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
@@ -45,7 +46,7 @@ class WaitGroup
             try {
                 $function();
             } catch (Throwable $throwable) {
-                print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                App::error(ExceptionHelper::convertExceptionToArray($throwable));
             } finally {
                 $this->done();
             }

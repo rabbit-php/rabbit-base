@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Rabbit\Base\Core;
 
 use Co\Channel;
-use rabbit\App;
+use Rabbit\Base\App;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
@@ -78,11 +78,11 @@ class Timer
     {
         self::checkTimer($name);
         $channel = new Channel(1);
-        $tid = rgo(function () use ($name, $channel, $callback, $time, $params) {
+        $tid = go(function () use ($name, $channel, $callback, $time, $params) {
             if ($channel->pop($time / 1000)) {
                 return;
             }
-            rgo(function () use ($name, $callback, $params) {
+            go(function () use ($name, $callback, $params) {
                 try {
                     self::$timers[$name]['count']++;
                     call_user_func($callback, ...$params);
@@ -105,6 +105,7 @@ class Timer
      * @param array $params
      * @return int
      * @throws Exception
+     * @throws Throwable
      */
     public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
     {
@@ -121,7 +122,7 @@ class Timer
                         call_user_func($callback, ...$params);
                     });
                 } catch (\Throwable $throwable) {
-                    print_r(ExceptionHelper::convertExceptionToArray($throwable));
+                    App::error(ExceptionHelper::convertExceptionToArray($throwable));
                 }
             }
         });
