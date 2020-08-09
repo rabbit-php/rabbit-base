@@ -135,27 +135,6 @@ if (!function_exists('sync')) {
     }
 }
 
-if (!function_exists('wg')) {
-    /**
-     * @param WaitGroup $wg
-     * @param Closure $function
-     * @throws Throwable
-     */
-    function wgo(WaitGroup $wg, Closure $function): void
-    {
-        $wg->add();
-        go(function () use ($function, $wg): void {
-            try {
-                $function();
-            } catch (Throwable $throwable) {
-                print_r(ExceptionHelper::convertExceptionToArray($throwable));
-            } finally {
-                $wg->done();
-            }
-        });
-    }
-}
-
 if (!function_exists('wgeach')) {
     /**
      * @param array $data
@@ -167,8 +146,7 @@ if (!function_exists('wgeach')) {
     {
         $wg = new WaitGroup();
         foreach ($data as $key => $datum) {
-            $wg->add();
-            wgo($wg, fn() => $function($key, $datum));
+            $wg->add(fn() => $function($key, $datum));
         }
         return $wg->wait($timeout);
     }
