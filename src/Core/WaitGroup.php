@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace Swoole\Coroutine;
+namespace Rabbit\Base\Core;
 
 use BadMethodCallException;
+use Co\Channel;
 use InvalidArgumentException;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
 
 /**
  * Class WaitGroup
- * @package Swoole\Coroutine
+ * @package Rabbit\Base\Core
  */
 class WaitGroup
 {

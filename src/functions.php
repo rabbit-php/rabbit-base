@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
-use Co\WaitGroup;
 use DI\DependencyException;
 use DI\NotFoundException;
 use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Rabbit\Base\Helper\LockHelper;
 use Swoole\Runtime;
@@ -126,7 +127,7 @@ if (!function_exists('sync')) {
      * @param Closure $function
      * @return mixed
      */
-    function sycn(Closure $function)
+    function sync(Closure $function)
     {
         $flags = Runtime::getHookFlags();
         Runtime::enableCoroutine(false);
@@ -142,6 +143,7 @@ if (!function_exists('wgeach')) {
      * @param Closure $function
      * @param float|int $timeout
      * @return bool
+     * @throws Throwable
      */
     function wgeach(array &$data, Closure $function, float $timeout = -1): bool
     {
