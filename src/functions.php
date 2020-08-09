@@ -65,7 +65,7 @@ if (!function_exists('loop')) {
      */
     function loop(Closure $function): int
     {
-        return rgo(function () use ($function) {
+        return go(function () use ($function) {
             while (true) {
                 try {
                     $function();
