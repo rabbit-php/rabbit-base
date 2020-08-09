@@ -46,7 +46,7 @@ class WaitGroup
             try {
                 $function();
             } catch (Throwable $throwable) {
-                App::error(ExceptionHelper::convertExceptionToArray($throwable));
+                App::error(ExceptionHelper::dumpExceptionToString($throwable));
             } finally {
                 $this->done();
             }

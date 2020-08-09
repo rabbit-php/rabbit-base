@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Rabbit\Base\Atomic;
 
 use Closure;
+use Rabbit\Base\App;
 use Rabbit\Base\Contract\LockInterface;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Swoole\Atomic;
@@ -42,7 +43,7 @@ class AtomicLock implements LockInterface
             $this->atomic->add();
             return call_user_func($function);
         } catch (Throwable $throwable) {
-            print_r(ExceptionHelper::convertExceptionToArray($throwable));
+            App::error(ExceptionHelper::dumpExceptionToString($throwable));
         } finally {
             $this->atomic->sub();
         }

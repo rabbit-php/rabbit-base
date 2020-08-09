@@ -122,7 +122,7 @@ class Timer
                         call_user_func($callback, ...$params);
                     });
                 } catch (\Throwable $throwable) {
-                    App::error(ExceptionHelper::convertExceptionToArray($throwable));
+                    App::error(ExceptionHelper::dumpExceptionToString($throwable));
                 }
             }
         });
