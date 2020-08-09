@@ -26,7 +26,7 @@
     "ext-simplexml": "*"
   },
   "autoload": {
-    "classMap": [
+    "classmap": [
       "src/Core/WaitGroup.php"
     ],
     "psr-4": {
