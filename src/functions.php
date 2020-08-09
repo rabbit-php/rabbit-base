@@ -27,6 +27,7 @@ if (!function_exists('rgo')) {
      * @param Closure $function
      * @param Closure|null $defer
      * @return int
+     * @throws Throwable
      */
     function rgo(Closure $function, ?Closure $defer = null): int
     {
@@ -62,6 +63,7 @@ if (!function_exists('loop')) {
     /**
      * @param Closure $function
      * @return int
+     * @throws Throwable
      */
     function loop(Closure $function): int
     {
@@ -110,7 +112,6 @@ if (!function_exists('lock')) {
      * @param Closure $function
      * @param string $key
      * @param float|int $timeout
-     * @param array $params
      * @return mixed
      */
     function lock(string $name, Closure $function, string $key = '', float $timeout = 600)
