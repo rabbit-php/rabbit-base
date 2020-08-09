@@ -36,7 +36,7 @@ class WaitGroup
         if ($this->waiting) {
             throw new BadMethodCallException('WaitGroup misuse: add called concurrently with wait');
         }
-        $count = $this->count++;
+        $count = $this->count + 1;
         if ($count < 0) {
             throw new InvalidArgumentException('WaitGroup misuse: negative counter');
         }
