@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare (strict_types = 1);
 
 use DI\DependencyException;
 use DI\NotFoundException;
@@ -131,6 +131,21 @@ if (!function_exists('sync')) {
         $result = $function();
         Runtime::enableCoroutine($flags);
         return $result;
+    }
+}
+
+if (!function_exists('wgo')) {
+    /**
+     * @author Albert <63851587@qq.com>
+     * @param Closure $function
+     * @param float $timeout
+     * @return boolean
+     */
+    function wgo(Closure $function, float $timeout = -1): bool
+    {
+        $wg = new WaitGroup();
+        $wg->add(fn() => $function());
+        return $wg->wait($timeout);
     }
 }
 
