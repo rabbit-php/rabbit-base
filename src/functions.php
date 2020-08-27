@@ -1,5 +1,6 @@
 <?php
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 use DI\DependencyException;
 use DI\NotFoundException;
@@ -9,6 +10,8 @@ use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Rabbit\Base\Helper\LockHelper;
 use Swoole\Runtime;
+
+static $loopList = [];
 
 if (!function_exists('getDI')) {
     /**
@@ -63,10 +66,15 @@ if (!function_exists('loop')) {
      * @return int
      * @throws Throwable
      */
-    function loop(Closure $function): int
+    function loop(Closure $function, string $name = null): int
     {
-        return go(function () use ($function) {
-            while (true) {
+        global $loopList;
+        if ($name === null) {
+            $name = uniqid();
+        }
+        $loopList[] = $name;
+        return go(function () use ($function, &$loopList, $name) {
+            while (in_array($name, $loopList)) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
@@ -74,6 +82,23 @@ if (!function_exists('loop')) {
                 }
             }
         });
+    }
+}
+
+if (!function_exists('loopStop')) {
+    /**
+     * @author Albert <63851587@qq.com>
+     * @param string $name
+     * @return void
+     */
+    function loopStop(string $name = null): void
+    {
+        global $loopList;
+        if ($name === null) {
+            $loopList = [];
+            return;
+        }
+        unset($loopList[array_search($name, $loopList)]);
     }
 }
 
@@ -144,7 +169,7 @@ if (!function_exists('wgo')) {
     function wgo(Closure $function, float $timeout = -1): bool
     {
         $wg = new WaitGroup();
-        $wg->add(fn() => $function());
+        $wg->add(fn () => $function());
         return $wg->wait($timeout);
     }
 }
@@ -161,7 +186,7 @@ if (!function_exists('wgeach')) {
     {
         $wg = new WaitGroup();
         foreach ($data as $key => $datum) {
-            $wg->add(fn() => $function($key, $datum));
+            $wg->add(fn () => $function($key, $datum));
         }
         return $wg->wait($timeout);
     }
