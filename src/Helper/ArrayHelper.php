@@ -11,6 +11,21 @@ use Rabbit\Base\Contract\ArrayAble;
 class ArrayHelper
 {
     /**
+     * @author Albert <63851587@qq.com>
+     * @param array $array
+     * @return void
+     */
+    public static function toArrayJson(array &$array): void
+    {
+        foreach ($array as &$value) {
+            if (is_string($value)) {
+                $json = json_decode($value, true);
+                $value = json_last_error() === JSON_ERROR_NONE ? $json : $value;
+            }
+        }
+    }
+
+    /**
      * @param $object
      * @param array $properties
      * @param bool $recursive
@@ -529,10 +544,10 @@ class ArrayHelper
         array $keys,
         array $default = null,
         array $newKeys = null
-    ): ?array
-    {
+    ): ?array {
         if (($newKeys && is_array($newKeys) && count($keys) !== count($newKeys)) ||
-            (is_array($default) && self::isIndexed($default) && count($keys) !== count($default))) {
+            (is_array($default) && self::isIndexed($default) && count($keys) !== count($default))
+        ) {
             return $default;
         }
         $result = [];
@@ -564,8 +579,7 @@ class ArrayHelper
         array $keys,
         array $default = null,
         array $newKeys = null
-    ): ?array
-    {
+    ): ?array {
         if (!is_array($array) || !is_array($keys) || !static::isIndexed($array)) {
             return null;
         }
