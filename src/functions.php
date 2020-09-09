@@ -6,12 +6,18 @@ use DI\DependencyException;
 use DI\NotFoundException;
 use Rabbit\Base\App;
 use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Rabbit\Base\Helper\LockHelper;
 use Swoole\Runtime;
 
 static $loopList = [];
+
+register_shutdown_function(function () {
+    loopStop();
+    Timer::clearTimers();
+});
 
 if (!function_exists('getDI')) {
     /**
