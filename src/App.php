@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base;
@@ -14,6 +15,7 @@ use Throwable;
  */
 class App
 {
+    public static ?int $id = null;
     /**
      * @var array
      */

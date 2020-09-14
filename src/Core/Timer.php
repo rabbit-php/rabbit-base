@@ -89,13 +89,11 @@ class Timer
             }
             go(function () use ($name, $callback, $params) {
                 try {
-                    self::$timers[$name]['count']++;
+                    self::clearTimerByName($name);
                     call_user_func($callback, ...$params);
                 } catch (Throwable $exception) {
                     App::error($exception->getMessage());
                     throw $exception;
-                } finally {
-                    self::clearTimerByName($name);
                 }
             });
         });
