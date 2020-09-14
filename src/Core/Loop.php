@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
@@ -118,24 +119,27 @@ class Loop
     }
 
     /**
+     * @author Albert <63851587@qq.com>
      * @param string $group
-     * @param string|null $id
-     * @throws Throwable
+     * @param string|null $name
+     * @return void
      */
-    public static function runTimer(string $group, ?string $id = null): void
+    public static function runTimer(string $group, ?string $name = null): void
     {
-        if ($id === null) {
-            foreach (self::$loopList[$group]['timer'] as $id => $timer) {
-                if (isset(self::$running[$group]['timer'][$id])) {
-                    App::warning("Timer group <$group> $id already running!", 'Loop');
+        if ($name === null) {
+            foreach (self::$loopList[$group]['timer'] as $name => $timer) {
+                if (isset(self::$running[$group]['timer'][$name])) {
+                    App::warning("Timer group <$group> $name already running!", 'Loop');
                     continue;
                 }
                 [$timer, $autoRun] = $timer;
-                $autoRun && (self::$running[$group]['timer'][$id] = Timer::addTickTimer($group . '.timer.' . $id, ...array_merge($timer, [[$id]])));
+                $name = $group . '.timer.' . $name;
+                $autoRun && (self::$running[$group]['timer'][$name] = Timer::addTickTimer(...[...$timer, $name, [[$name]]]));
             }
-        } elseif (isset(self::$loopList[$group]['timer'][$id]) && !isset(self::$running[$group]['timer'][$id])) {
-            [$timer] = self::$loopList[$group]['timer'][$id];
-            self::$running[$group]['timer'][$id] = Timer::addTickTimer($group . '.timer.' . $id, ...array_merge($timer, [[$id]]));
+        } elseif (isset(self::$loopList[$group]['timer'][$name]) && !isset(self::$running[$group]['timer'][$name])) {
+            [$timer] = self::$loopList[$group]['timer'][$name];
+            $name = $group . '.timer.' . $name;
+            self::$running[$group]['timer'][$name] = Timer::addTickTimer(...[...$timer, $name, [[$name]]]);
         }
     }
 
@@ -162,20 +166,22 @@ class Loop
     }
 
     /**
+     * @author Albert <63851587@qq.com>
      * @param string $group
-     * @param string|null $id
+     * @param string|null $name
+     * @return void
      */
-    public static function stopTimer(string $group, ?string $id = null): void
+    public static function stopTimer(string $group, ?string $name = null): void
     {
-        if ($id === null) {
-            foreach (self::$running[$group]['timer'] as $id => $timer) {
-                Timer::clearTimerByName($group . '.timer.' . $id);
+        if ($name === null) {
+            foreach (self::$running[$group]['timer'] as $name => $timer) {
+                Timer::clearTimerByName($name);
             }
             unset(self::$running[$group]['timer']);
             self::$running[$group]['timer'] = [];
         } else {
-            Timer::clearTimerByName($group . '.timer.' . $id);
-            unset(self::$running[$group]['timer'][$id]);
+            Timer::clearTimerByName($name);
+            unset(self::$running[$group]['timer'][$name]);
         }
     }
 
@@ -195,17 +201,19 @@ class Loop
     }
 
     /**
+     * @author Albert <63851587@qq.com>
      * @param string $group
-     * @param string|null $id
+     * @param string|null $name
+     * @return void
      */
-    public static function removeTimer(string $group, ?string $id = null): void
+    public static function removeTimer(string $group, ?string $name = null): void
     {
-        self::stopTimer($group, $id);
-        if ($id === null) {
+        self::stopTimer($group, $name);
+        if ($name === null) {
             unset(self::$loopList[$group]['timer']);
             self::$running[$group]['timer'] = [];
         } else {
-            unset(self::$loopList[$group]['timer'][$id]);
+            unset(self::$loopList[$group]['timer'][$name]);
         }
     }
 

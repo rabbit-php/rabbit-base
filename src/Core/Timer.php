@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
@@ -67,16 +68,20 @@ class Timer
     }
 
     /**
-     * @param string $name
+     * @author Albert <63851587@qq.com>
      * @param float $time
      * @param callable $callback
+     * @param string $name
      * @param array $params
-     * @return int
-     * @throws Exception
+     * @return integer
      */
-    public static function addAfterTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addAfterTimer(float $time, callable $callback, string $name = null, array $params = []): int
     {
-        self::checkTimer($name);
+        if ($name === null) {
+            $name = uniqid();
+        } else {
+            self::checkTimer($name);
+        }
         $channel = new Channel(1);
         $tid = go(function () use ($name, $channel, $callback, $time, $params) {
             if ($channel->pop($time / 1000)) {
@@ -99,17 +104,20 @@ class Timer
     }
 
     /**
-     * @param string $name
+     * @author Albert <63851587@qq.com>
      * @param float $time
      * @param callable $callback
+     * @param string $name
      * @param array $params
-     * @return int
-     * @throws Exception
-     * @throws Throwable
+     * @return integer
      */
-    public static function addTickTimer(string $name, float $time, callable $callback, array $params = []): int
+    public static function addTickTimer(float $time, callable $callback, string $name = null, array $params = []): int
     {
-        self::checkTimer($name);
+        if ($name === null) {
+            $name = uniqid();
+        } else {
+            self::checkTimer($name);
+        }
         $channel = new Channel(1);
         $tid = go(function () use ($name, $channel, $callback, $time, $params) {
             while (true) {
