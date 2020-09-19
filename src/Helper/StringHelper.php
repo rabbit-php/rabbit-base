@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -215,5 +216,19 @@ class StringHelper
         }
 
         return false;
+    }
+    /**
+     * @author Albert <63851587@qq.com>
+     * @param [type] $value
+     * @return string
+     */
+    public static function NumNormalize($value): string
+    {
+        if (!is_scalar($value)) {
+            $type = gettype($value);
+            throw new \InvalidArgumentException("Value must be scalar. $type given.");
+        }
+        $value = str_replace([' ', ','], ['', '.'], $value);
+        return preg_replace('/\.(?=.*\.)/', '', $value);
     }
 }
