@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
+use Throwable;
 use Co\Channel;
 use Rabbit\Base\App;
 use Rabbit\Base\Helper\ExceptionHelper;
-use Throwable;
 
 /**
  * Class Timer
@@ -51,19 +51,6 @@ class Timer
         if (isset(self::$timers[$name])) {
             throw new Exception("$name timer already exists");
         }
-        return true;
-    }
-
-    /**
-     * @param string $name
-     * @return bool
-     * @throws Exception
-     */
-    public static function stopTimer(string $name): bool
-    {
-        self::checkTimer($name);
-        $timer = self::getTimer($name);
-        $timer['chan']->push(true);
         return true;
     }
 
