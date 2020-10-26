@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
-use Throwable;
-use Co\Channel;
 use Rabbit\Base\App;
 use Rabbit\Base\Helper\ExceptionHelper;
 
@@ -55,61 +53,52 @@ class Timer
     }
 
     /**
-     * @author Albert <63851587@qq.com>
+     * @Author Albert 63851587@qq.com
+     * @DateTime 2020-10-25
      * @param float $time
      * @param callable $callback
      * @param string $name
      * @param array $params
-     * @return integer
+     * @return void
      */
-    public static function addAfterTimer(float $time, callable $callback, string $name = null, array $params = []): int
+    public static function addAfterTimer(float $time, callable $callback, string $name = null, array $params = [])
     {
         if ($name === null) {
             $name = uniqid();
         } else {
             self::checkTimer($name);
         }
-        $channel = new Channel(1);
-        $tid = go(function () use ($name, $channel, $callback, $time, $params) {
-            if ($channel->pop($time / 1000)) {
-                return;
-            }
-            go(function () use ($name, $callback, $params) {
-                try {
-                    self::clearTimerByName($name);
-                    call_user_func($callback, ...$params);
-                } catch (Throwable $exception) {
-                    App::error($exception->getMessage());
-                    throw $exception;
-                }
+        self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER, 'count' => 0];
+        return rgo(function () use ($name, $time, $callback, $params) {
+            usleep($time);
+            rgo(function () use ($name, $callback, $params) {
+                self::clearTimerByName($name);
+                call_user_func($callback, ...$params);
             });
         });
-        self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_AFTER, 'count' => 0];
-        return $tid;
     }
 
     /**
-     * @author Albert <63851587@qq.com>
+     * @Author Albert 63851587@qq.com
+     * @DateTime 2020-10-25
      * @param float $time
      * @param callable $callback
      * @param string $name
      * @param array $params
-     * @return integer
+     * @return void
      */
-    public static function addTickTimer(float $time, callable $callback, string $name = null, array $params = []): int
+    public static function addTickTimer(float $time, callable $callback, string $name = null, array $params = [])
     {
         if ($name === null) {
             $name = uniqid();
         } else {
             self::checkTimer($name);
         }
-        $channel = new Channel(1);
-        $tid = go(function () use ($name, $channel, $callback, $time, $params) {
-            while (true) {
+        self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_TICKET, 'count' => 0];
+        return rgo(function () use ($name, $callback, $time, $params) {
+            while (isset(self::$timers[$name])) {
+                usleep($time);
                 try {
-                    if ($channel->pop($time / 1000)) {
-                        return;
-                    }
                     rgo(function () use ($name, $callback, $params) {
                         self::$timers[$name]['count']++;
                         call_user_func($callback, ...$params);
@@ -119,8 +108,6 @@ class Timer
                 }
             }
         });
-        self::$timers[$name] = ['name' => $name, 'chan' => $channel, 'tid' => $tid, 'type' => self::TYPE_TICKET, 'count' => 0];
-        return $tid;
     }
 
     /**
@@ -132,9 +119,7 @@ class Timer
         if (!isset(self::$timers[$name])) {
             return true;
         }
-        self::$timers[$name]['chan']->push(true);
         unset(self::$timers[$name]);
-
         return true;
     }
 

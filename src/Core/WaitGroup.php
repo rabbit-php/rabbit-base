@@ -1,14 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
-use BadMethodCallException;
-use Co\Channel;
-use InvalidArgumentException;
-use Rabbit\Base\App;
-use Rabbit\Base\Helper\ExceptionHelper;
 use Throwable;
+use Rabbit\Base\App;
+use BadMethodCallException;
+use InvalidArgumentException;
+use Rabbit\Base\Helper\ExceptionHelper;
 
 /**
  * Class WaitGroup
@@ -16,7 +16,7 @@ use Throwable;
  */
 class WaitGroup
 {
-    protected Channel $chan;
+    protected $chan;
 
     protected int $count = 0;
 
@@ -24,7 +24,7 @@ class WaitGroup
 
     public function __construct()
     {
-        $this->chan = new Channel(1);
+        $this->chan = makeChannel(1);
     }
 
     /**
@@ -42,7 +42,7 @@ class WaitGroup
             throw new InvalidArgumentException('WaitGroup misuse: negative counter');
         }
         $this->count = $count;
-        return go(function () use ($function): void {
+        return rgo(function () use ($function): void {
             try {
                 $function();
             } catch (Throwable $throwable) {
@@ -72,7 +72,7 @@ class WaitGroup
         }
         if ($this->count > 0) {
             $this->waiting = true;
-            $done = $this->chan->pop($timeout);
+            $done = waitChannel($this->chan, $timeout);
             $this->waiting = false;
             return $done;
         }

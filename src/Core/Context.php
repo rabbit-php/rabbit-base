@@ -1,9 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
-
-use Co;
 
 /**
  * Class Context
@@ -12,36 +11,17 @@ use Co;
 class Context
 {
     /**
-     * @param string|null $key
-     * @return array|null
-     */
-    public static function getAll(string $key = null): ?array
-    {
-        return $key !== null ? Co::getContext()[$key] : Co::getContext();
-    }
-
-    /**
-     * @param array $config
-     * @param string|null $key
-     */
-    public static function setAll($config = [], string $key = null): void
-    {
-        foreach ($config as $name => $value) {
-            self::set($name, $value, $key);
-        }
-    }
-
-    /**
      * @param string $name
      * @param $value
      * @param string|null $key
      */
     public static function set(string $name, $value, string $key = null): void
     {
+        $context = getContext();
         if ($key !== null) {
-            Co::getContext()[$key][$name] = $value;
+            $context[$key][$name] = $value;
         } else {
-            Co::getContext()[$name] = $value;
+            $context[$name] = $value;
         }
     }
 
@@ -52,14 +32,15 @@ class Context
      */
     public static function get(string $name, string $key = null)
     {
+        $context = getContext();
         if ($key !== null) {
-            if (!isset(Co::getContext()[$key])) {
+            if (!isset($context[$key])) {
                 return null;
             } else {
-                return isset(Co::getContext()[$key][$name]) ? Co::getContext()[$key][$name] : null;
+                return isset($context[$key][$name]) ? $context[$key][$name] : null;
             }
         }
-        return isset(Co::getContext()[$name]) ? Co::getContext()[$name] : null;
+        return isset($context[$name]) ? $context[$name] : null;
     }
 
     /**
@@ -69,10 +50,11 @@ class Context
      */
     public static function has(string $name, string $key = null): bool
     {
+        $context = getContext();
         if ($key !== null) {
-            return isset(Co::getContext()[$key]) && isset(Co::getContext()[$key][$name]);
+            return isset($context[$key]) && isset($context[$key][$name]);
         }
-        return isset(Co::getContext()[$name]);
+        return isset($context[$name]);
     }
 
     /**
@@ -81,10 +63,11 @@ class Context
      */
     public static function delete(string $name, string $key = null): void
     {
-        if ($key !== null && isset(Co::getContext()[$key]) && isset(Co::getContext()[$key][$name])) {
-            unset(Co::getContext()[$key][$name]);
-        } elseif (isset(Co::getContext()[$name])) {
-            unset(Co::getContext()[$name]);
+        $context = getContext();
+        if ($key !== null && isset($context[$key]) && isset($context[$key][$name])) {
+            unset($context[$key][$name]);
+        } elseif (isset( $context[$name])) {
+            unset($context[$name]);
         }
     }
 }

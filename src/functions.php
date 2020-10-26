@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-use DI\DependencyException;
-use DI\NotFoundException;
-use Rabbit\Base\App;
-use Rabbit\Base\Core\ObjectFactory;
-use Rabbit\Base\Core\Timer;
-use Rabbit\Base\Core\WaitGroup;
-use Rabbit\Base\Helper\ExceptionHelper;
-use Rabbit\Base\Helper\LockHelper;
+use Swow\Channel;
 use Swoole\Runtime;
+use DI\NotFoundException;
+use DI\DependencyException;
+use Rabbit\Base\Core\Timer;
+use Rabbit\Base\Core\Coroutine;
+use Rabbit\Base\Core\WaitGroup;
+use Rabbit\Base\Helper\LockHelper;
+use Rabbit\Base\Core\ObjectFactory;
+use Swow\Coroutine as SwowCoroutine;
+use Rabbit\Base\Helper\ExceptionHelper;
+use Swoole\Coroutine\Channel as CoroutineChannel;
 
 static $loopList = [];
 
@@ -34,18 +37,18 @@ if (!function_exists('getDI')) {
 }
 
 if (!function_exists('rgo')) {
-    /**
-     * @param Closure $function
-     * @return int
-     * @throws Throwable
-     */
-    function rgo(Closure $function): int
+    function rgo(Closure $function)
     {
+        if (getCoEnv() === 1) {
+            $co = new Coroutine($function);
+            $co->resume();
+            return $co;
+        }
         return go(function () use ($function): void {
             try {
                 $function();
             } catch (\Throwable $throwable) {
-                App::error(ExceptionHelper::dumpExceptionToString($throwable));
+                print_r(ExceptionHelper::dumpExceptionToString($throwable));
             }
         });
     }
@@ -67,27 +70,30 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('loop')) {
-    /**
-     * @param Closure $function
-     * @return int
-     * @throws Throwable
-     */
-    function loop(Closure $function, string $name = null): int
+    function loop(Closure $function, string $name = null)
     {
         global $loopList;
         if ($name === null) {
             $name = uniqid();
         }
         $loopList[] = $name;
-        return go(function () use ($function, &$loopList, $name) {
+
+        $func = function () use ($function, &$loopList, $name) {
             while (in_array($name, $loopList)) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
-                    App::error(ExceptionHelper::dumpExceptionToString($throwable));
+                    print_r(ExceptionHelper::dumpExceptionToString($throwable));
                 }
             }
-        });
+        };
+
+        if (getCoEnv() === 1) {
+            $co = new Coroutine($func);
+            $co->resume();
+            return $co;
+        }
+        return go($func);
     }
 }
 
@@ -204,6 +210,9 @@ if (!function_exists('getRootId')) {
      */
     function getRootId(): int
     {
+        if (getCoEnv() === 1) {
+            return Coroutine::getMain()->getId();
+        }
         $cid = Co::getCid();
         while (true) {
             $pid = Co::getPcid($cid);
@@ -212,5 +221,68 @@ if (!function_exists('getRootId')) {
             }
             $cid = $pid;
         }
+    }
+}
+
+if (!function_exists('getCid')) {
+    function getCid(): int
+    {
+        if (extension_loaded('swoole')) {
+            return Co::getCid();
+        }
+        if (extension_loaded('swow') && $co = SwowCoroutine::getCurrent()) {
+            return $co ? $co->getId() : -1;
+        }
+        return -1;
+    }
+}
+
+if (!function_exists('getCoEnv')) {
+    function getCoEnv(): int
+    {
+        if (extension_loaded('swoole') && (-1 !== Co::getCid())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+}
+
+if (!function_exists('makeChannel')) {
+    function makeChannel(int $size = null)
+    {
+        return getCoEnv() === 1 ? new Channel($size ?? 0) : new CoroutineChannel($size ?? null);
+    }
+}
+
+if (!function_exists('getContext')) {
+    function getContext(int $id = null)
+    {
+        if (getCoEnv() === 1) {
+            $context = Coroutine::getCurrent()->getContext();
+        } else {
+            $context = Co::getContext($id ?? Co::getCid());
+        }
+        return $context;
+    }
+}
+
+if (!function_exists('waitChannle')) {
+    function waitChannel($channel, float $timeout = -1, int $n = 1): bool
+    {
+        if ($n === 0) {
+            while ($channel->isEmpty()) {
+                usleep(intval($timeout * 1000));
+            }
+            return true;
+        }
+        while ($channel->isEmpty()) {
+            if ($n--) {
+                usleep(intval($timeout * 1000));
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }

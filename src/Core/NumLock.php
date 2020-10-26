@@ -7,7 +7,6 @@ namespace Rabbit\Base\Core;
 use Closure;
 use Throwable;
 use Rabbit\Base\App;
-use Swoole\Coroutine;
 use Rabbit\Base\Contract\LockInterface;
 use Rabbit\Base\Helper\ExceptionHelper;
 
@@ -26,7 +25,7 @@ class NumLock implements LockInterface
     {
         try {
             while ($this->num !== 0) {
-                Coroutine::sleep($timeout);
+                usleep(intval($timeout * 1000));
             }
             $this->num++;
             return call_user_func($function);
