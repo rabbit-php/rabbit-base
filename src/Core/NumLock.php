@@ -32,7 +32,7 @@ class NumLock implements LockInterface
         } catch (Throwable $throwable) {
             App::error(ExceptionHelper::dumpExceptionToString($throwable));
         } finally {
-            $this->num--;
+            $this->num = 0;
         }
     }
 }

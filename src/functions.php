@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Swow\Channel;
-use Swoole\Runtime;
 use DI\NotFoundException;
 use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
@@ -157,17 +156,17 @@ if (!function_exists('lock')) {
 }
 
 if (!function_exists('sync')) {
-    /**
-     * @param Closure $function
-     * @return mixed
-     */
-    function sync(Closure $function)
+    function sync(&$value, Closure $function, float $timeout = 0.001): void
     {
-        $flags = Runtime::getHookFlags();
-        Runtime::enableCoroutine(false);
-        $result = $function();
-        Runtime::enableCoroutine($flags);
-        return $result;
+        if ($value !== 0) {
+            while ($value !== 0) {
+                usleep(intval($timeout * 1000));
+            }
+            return;
+        }
+        $value++;
+        $function();
+        $value = 0;
     }
 }
 
@@ -268,17 +267,18 @@ if (!function_exists('getContext')) {
 }
 
 if (!function_exists('waitChannle')) {
-    function waitChannel($channel, float $timeout = -1, int $n = 1): bool
+    function waitChannel($channel, float $timeout = -1): bool
     {
-        if ($n === 0) {
+        if ((int)$timeout === -1) {
             while ($channel->isEmpty()) {
-                usleep(intval($timeout * 1000));
+                usleep(intval($timeout * 1000 * 1000));
             }
             return true;
         }
+        $n = 1;
         while ($channel->isEmpty()) {
             if ($n--) {
-                usleep(intval($timeout * 1000));
+                usleep(intval($timeout * 1000 * 1000));
             } else {
                 return false;
             }
