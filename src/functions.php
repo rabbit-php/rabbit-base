@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Swow\Channel;
 use DI\NotFoundException;
 use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
+use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\LockHelper;
@@ -248,9 +248,9 @@ if (!function_exists('getCoEnv')) {
 }
 
 if (!function_exists('makeChannel')) {
-    function makeChannel(int $size = null)
+    function makeChannel(int $size = 0)
     {
-        return getCoEnv() === 1 ? new Channel($size ?? 0) : new CoroutineChannel($size ?? null);
+        return getCoEnv() === 1 ? new Channel($size) : new CoroutineChannel($size);
     }
 }
 
@@ -263,26 +263,5 @@ if (!function_exists('getContext')) {
             $context = Co::getContext($id ?? Co::getCid());
         }
         return $context;
-    }
-}
-
-if (!function_exists('waitChannle')) {
-    function waitChannel($channel, float $timeout = -1): bool
-    {
-        if ($timeout <= 0) {
-            while ($channel->isEmpty()) {
-                usleep(1000 * 1000);
-            }
-            return true;
-        }
-        $n = 1;
-        while ($channel->isEmpty()) {
-            if ($n--) {
-                usleep(intval($timeout * 1000 * 1000));
-            } else {
-                return false;
-            }
-        }
-        return true;
     }
 }

@@ -28,11 +28,12 @@ class WaitGroup
     }
 
     /**
+     * @Author Albert 63851587@qq.com
+     * @DateTime 2020-10-27
      * @param callable $function
-     * @return int
-     * @throws Throwable
+     * @return void
      */
-    public function add(callable $function): int
+    public function add(callable $function)
     {
         if ($this->waiting) {
             throw new BadMethodCallException('WaitGroup misuse: add called concurrently with wait');
@@ -72,7 +73,7 @@ class WaitGroup
         }
         if ($this->count > 0) {
             $this->waiting = true;
-            $done = waitChannel($this->chan, $timeout);
+            $done = $this->chan->pop($timeout);
             $this->waiting = false;
             return $done;
         }
