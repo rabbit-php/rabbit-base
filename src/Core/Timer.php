@@ -71,8 +71,8 @@ class Timer
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER, 'count' => 0];
         return rgo(function () use ($name, $time, $callback, $params) {
             usleep($time * 1000);
-            rgo(function () use ($name, $callback, $params) {
-                self::clearTimerByName($name);
+            self::clearTimerByName($name);
+            rgo(function () use ($callback, $params) {
                 call_user_func($callback, ...$params);
             });
         });
