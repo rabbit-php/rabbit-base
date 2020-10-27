@@ -1,14 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Atomic;
 
 use Closure;
+use Throwable;
+use Swoole\Atomic;
 use Rabbit\Base\App;
 use Rabbit\Base\Contract\LockInterface;
 use Rabbit\Base\Helper\ExceptionHelper;
-use Swoole\Atomic;
-use Throwable;
 
 /**
  * Class AtomicLock

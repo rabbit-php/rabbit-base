@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -44,7 +45,7 @@ class UrlHelper
                 $ips[] = $uri;
                 continue;
             }
-            $res = \Co::getaddrinfo($url['host']);
+            $res = gethostbynamel($url['host']);
             if ($res) {
                 foreach ($res as $ip) {
                     $url['host'] = $ip;
