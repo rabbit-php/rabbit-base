@@ -269,9 +269,9 @@ if (!function_exists('getContext')) {
 if (!function_exists('waitChannle')) {
     function waitChannel($channel, float $timeout = -1): bool
     {
-        if ((int)$timeout === -1) {
+        if ($timeout <= 0) {
             while ($channel->isEmpty()) {
-                usleep(intval($timeout * 1000 * 1000));
+                usleep(1000 * 1000);
             }
             return true;
         }
