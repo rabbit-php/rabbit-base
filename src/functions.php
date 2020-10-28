@@ -171,13 +171,7 @@ if (!function_exists('sync')) {
 }
 
 if (!function_exists('wgo')) {
-    /**
-     * @author Albert <63851587@qq.com>
-     * @param Closure $function
-     * @param float $timeout
-     * @return boolean
-     */
-    function wgo(Closure $function, float $timeout = -1): bool
+    function wgo(Closure $function, int $timeout = -1): bool
     {
         $wg = new WaitGroup();
         $wg->add(fn () => $function());
@@ -186,14 +180,7 @@ if (!function_exists('wgo')) {
 }
 
 if (!function_exists('wgeach')) {
-    /**
-     * @param array $data
-     * @param Closure $function
-     * @param float|int $timeout
-     * @return bool
-     * @throws Throwable
-     */
-    function wgeach(array &$data, Closure $function, float $timeout = -1): bool
+    function wgeach(array &$data, Closure $function, int $timeout = -1): bool
     {
         $wg = new WaitGroup();
         foreach ($data as $key => $datum) {

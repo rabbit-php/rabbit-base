@@ -66,7 +66,7 @@ class WaitGroup
         }
     }
 
-    public function wait(float $timeout = -1): bool
+    public function wait(int $timeout = -1): bool
     {
         if ($this->waiting) {
             throw new BadMethodCallException('WaitGroup misuse: reused before previous wait has returned');
