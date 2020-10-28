@@ -7,12 +7,13 @@ use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
-use Rabbit\Base\Core\WaitGroup;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Swoole\Coroutine\Channel as CoroutineChannel;
+use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
+use Swow\Sync\WaitGroup;
 
 static $loopList = [];
 
@@ -36,7 +37,7 @@ if (!function_exists('getDI')) {
 }
 
 if (!function_exists('rgo')) {
-    function rgo(Closure $function)
+    function rgo(callable $function)
     {
         if (getCoEnv() === 1) {
             $co = new Coroutine($function);
@@ -69,7 +70,7 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('loop')) {
-    function loop(Closure $function, string $name = null)
+    function loop(callable $function, string $name = null)
     {
         global $loopList;
         if ($name === null) {
@@ -143,12 +144,12 @@ if (!function_exists('configure')) {
 if (!function_exists('lock')) {
     /**
      * @param string $name
-     * @param Closure $function
+     * @param callable $function
      * @param string $key
      * @param float|int $timeout
      * @return mixed
      */
-    function lock(string $name, Closure $function, string $key = '', float $timeout = 600)
+    function lock(string $name, callable $function, string $key = '', float $timeout = 600)
     {
         $lock = LockHelper::getLock($name);
         return $lock($function, $key, $timeout);
@@ -156,7 +157,7 @@ if (!function_exists('lock')) {
 }
 
 if (!function_exists('sync')) {
-    function sync(&$value, Closure $function, float $timeout = 0.001): void
+    function sync(&$value, callable $function, float $timeout = 0.001): void
     {
         if ($value !== 0) {
             while ($value !== 0) {
@@ -171,22 +172,28 @@ if (!function_exists('sync')) {
 }
 
 if (!function_exists('wgo')) {
-    function wgo(Closure $function, int $timeout = -1): bool
+    function wgo(callable $function, int $timeout = -1): bool
     {
-        $wg = new WaitGroup();
-        $wg->add(fn () => $function());
-        return $wg->wait($timeout);
+        $wg = waitGroup(1);
+        rgo(function () use ($function, $wg) {
+            $function();
+            $wg->done();
+        });
+        return $wg->wait($timeout) ?? true;
     }
 }
 
 if (!function_exists('wgeach')) {
-    function wgeach(array &$data, Closure $function, int $timeout = -1): bool
+    function wgeach(array &$data, callable $function, int $timeout = -1): bool
     {
-        $wg = new WaitGroup();
+        $wg = waitGroup(count($data));
         foreach ($data as $key => $datum) {
-            $wg->add(fn () => $function($key, $datum));
+            rgo(function () use ($function, $key, $datum, $wg) {
+                $function($key, $datum);
+                $wg->done();
+            });
         }
-        return $wg->wait($timeout);
+        return $wg->wait($timeout) ?? true;
     }
 }
 
@@ -228,9 +235,8 @@ if (!function_exists('getCoEnv')) {
     {
         if (extension_loaded('swoole') && (-1 !== Co::getCid())) {
             return 0;
-        } else {
-            return 1;
         }
+        return 1;
     }
 }
 
@@ -245,10 +251,20 @@ if (!function_exists('getContext')) {
     function getContext(int $id = null)
     {
         if (getCoEnv() === 1) {
-            $context = Coroutine::getCurrent()->getContext();
-        } else {
-            $context = Co::getContext($id ?? Co::getCid());
+            return Coroutine::getCurrent()->getContext();
         }
-        return $context;
+        return Co::getContext($id ?? Co::getCid());
+    }
+}
+
+if (!function_exists('waitGroup')) {
+    function waitGroup(int $n = 0)
+    {
+        if (getCoEnv() === 1) {
+            $wg = new WaitGroup();
+            $n && $wg->add($n);
+            return $wg;
+        }
+        return new CoroutineWaitGroup($n);
     }
 }

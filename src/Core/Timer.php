@@ -40,19 +40,6 @@ class Timer
     }
 
     /**
-     * @param string $name
-     * @return bool
-     * @throws Exception
-     */
-    public static function checkTimer(string $name): bool
-    {
-        if (isset(self::$timers[$name])) {
-            throw new Exception("$name timer already exists");
-        }
-        return true;
-    }
-
-    /**
      * @Author Albert 63851587@qq.com
      * @DateTime 2020-10-26
      * @param integer $time
@@ -65,16 +52,18 @@ class Timer
     {
         if ($name === null) {
             $name = uniqid();
-        } else {
-            self::checkTimer($name);
+        } elseif (isset(self::$timers[$name])) {
+            return;
         }
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER, 'count' => 0];
         return rgo(function () use ($name, $time, $callback, $params) {
             usleep($time * 1000);
-            self::clearTimerByName($name);
-            rgo(function () use ($callback, $params) {
-                call_user_func($callback, ...$params);
-            });
+            if (isset(self::$timers[$name])) {
+                self::clearTimerByName($name);
+                rgo(function () use ($callback, $params) {
+                    call_user_func($callback, ...$params);
+                });
+            }
         });
     }
 
@@ -91,20 +80,22 @@ class Timer
     {
         if ($name === null) {
             $name = uniqid();
-        } else {
-            self::checkTimer($name);
+        } elseif (isset(self::$timers[$name])) {
+            return;
         }
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_TICKET, 'count' => 0];
         return rgo(function () use ($name, $callback, $time, $params) {
             while (isset(self::$timers[$name])) {
                 usleep($time * 1000);
-                try {
-                    rgo(function () use ($name, $callback, $params) {
-                        self::$timers[$name]['count']++;
-                        call_user_func($callback, ...$params);
-                    });
-                } catch (\Throwable $throwable) {
-                    App::error(ExceptionHelper::dumpExceptionToString($throwable));
+                if (isset(self::$timers[$name])) {
+                    try {
+                        rgo(function () use ($name, $callback, $params) {
+                            self::$timers[$name]['count']++;
+                            call_user_func($callback, ...$params);
+                        });
+                    } catch (\Throwable $throwable) {
+                        App::error(ExceptionHelper::dumpExceptionToString($throwable));
+                    }
                 }
             }
         });
