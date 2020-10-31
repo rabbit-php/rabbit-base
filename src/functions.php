@@ -14,6 +14,7 @@ use Rabbit\Base\Helper\ExceptionHelper;
 use Swoole\Coroutine\Channel as CoroutineChannel;
 use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
+use Swow\Sync\WaitReference;
 
 static $loopList = [];
 
@@ -174,26 +175,46 @@ if (!function_exists('sync')) {
 if (!function_exists('wgo')) {
     function wgo(callable $function, int $timeout = -1): bool
     {
-        $wg = waitGroup(1);
-        rgo(function () use ($function, $wg) {
-            $function();
-            $wg->done();
-        });
-        return $wg->wait($timeout) ?? true;
+        if (getCoEnv() === 1) {
+            $wf = new WaitReference();
+            rgo(function () use ($function, $wf) {
+                $function($wf);
+            });
+            WaitReference::wait($wf, $timeout);
+            return true;
+        } else {
+            $wg = new CoroutineWaitGroup(1);
+            rgo(function () use ($function, $wg) {
+                $function();
+                $wg->done();
+            });
+            return $wg->wait($timeout);
+        }
     }
 }
 
 if (!function_exists('wgeach')) {
     function wgeach(array &$data, callable $function, int $timeout = -1): bool
     {
-        $wg = waitGroup(count($data));
-        foreach ($data as $key => $datum) {
-            rgo(function () use ($function, $key, $datum, $wg) {
-                $function($key, $datum);
-                $wg->done();
-            });
+        if (getCoEnv() === 1) {
+            $wf = new WaitReference();
+            foreach ($data as $key => $datum) {
+                rgo(function () use ($function, $key, $datum, $wf) {
+                    $function($key, $datum, $wf);
+                });
+            }
+            WaitReference::wait($wf, $timeout);
+            return true;
+        } else {
+            $wg = new CoroutineWaitGroup(count($data));
+            foreach ($data as $key => $datum) {
+                rgo(function () use ($function, $key, $datum, $wg) {
+                    $function($key, $datum);
+                    $wg->done();
+                });
+            }
+            return $wg->wait($timeout);
         }
-        return $wg->wait($timeout) ?? true;
     }
 }
 
@@ -266,5 +287,14 @@ if (!function_exists('waitGroup')) {
             return $wg;
         }
         return new CoroutineWaitGroup($n);
+    }
+}
+
+if (!function_exists('waitReference')) {
+    function waitReference(callable $func, int $timeout = -1): void
+    {
+        $wf = new WaitReference();
+        $func($wf);
+        WaitReference::wait($wf, $timeout);
     }
 }
