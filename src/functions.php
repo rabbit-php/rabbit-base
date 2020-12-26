@@ -167,8 +167,13 @@ if (!function_exists('sync')) {
             return;
         }
         $value++;
-        $function();
-        $value = 0;
+        try {
+            $function();
+        } catch (Throwable $e) {
+            throw $e;
+        } finally {
+            $value = 0;
+        }
     }
 }
 
