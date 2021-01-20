@@ -306,3 +306,17 @@ if (!function_exists('waitReference')) {
         WaitReference::wait($wf, $timeout);
     }
 }
+
+if (!function_exists('str_starts_with')) {
+    function str_ends_with(string $haystack, string $needle): bool
+    {
+        return strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+
+if (!function_exists('str_ends_with')) {
+    function str_ends_with(string $haystack, string $needle): bool
+    {
+        return $needle === '' || substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
+}
