@@ -320,3 +320,10 @@ if (!function_exists('str_ends_with')) {
         return $needle === '' || substr_compare($haystack, $needle, -strlen($needle)) === 0;
     }
 }
+
+if (!function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle): bool
+    {
+        return strpos($haystack, $needle) !== false;
+    }
+}
