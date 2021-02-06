@@ -29,6 +29,20 @@ class UrlHelper
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
+    public static function unParseUrlArray(array $parsed_url): array
+    {
+        return array_filter([
+            'scheme' => isset($parsed_url['scheme']) ? $parsed_url['scheme'] : null,
+            'host' => isset($parsed_url['host']) ? $parsed_url['host'] : null,
+            'port' => isset($parsed_url['port']) ? $parsed_url['port'] : null,
+            'user' => isset($parsed_url['user']) ? urldecode($parsed_url['user']) : null,
+            'pass' => isset($parsed_url['pass']) ? urldecode($parsed_url['pass']) : null,
+            'path' => isset($parsed_url['path']) ? urldecode($parsed_url['path']) : null,
+            'query' => isset($parsed_url['query']) ? urldecode($parsed_url['query']) : null,
+            'fragment' => isset($parsed_url['fragment']) ? $parsed_url['fragment'] : null
+        ]);
+    }
+
     /**
      * @param array $uris
      * @return array
