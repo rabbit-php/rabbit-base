@@ -249,7 +249,7 @@ class ArrayHelper
      * @param array $groups
      * @return array
      */
-    public static function index($array, $key, $groups = []): array
+    public static function index(array $array, ?string $key, $groups = []): array
     {
         $result = [];
         $groups = (array)$groups;
