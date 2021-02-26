@@ -162,7 +162,7 @@ if (!function_exists('sync')) {
     {
         if ($value !== 0) {
             while ($value !== 0) {
-                usleep(intval($timeout * 1000));
+                usleep(intval($timeout * 1000 * 1000));
             }
             return;
         }
