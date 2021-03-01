@@ -35,17 +35,22 @@ class AtomicLock implements LockInterface
      * @return mixed
      * @throws Throwable
      */
-    public function __invoke(Closure $function, string $name = '', float $timeout = 0.001)
+    public function __invoke(Closure $function, bool $next = true, string $name = '', float $timeout = 0.001)
     {
         try {
             while ($this->atomic->get() !== 0) {
-                \Co::sleep($timeout);
+                if ($next) {
+                    usleep($timeout * 1000);
+                } else {
+                    return false;
+                }
             }
             $this->atomic->add();
-            return call_user_func($function);
+            $result = call_user_func($function);
+            $this->atomic->sub();
+            return $result;
         } catch (Throwable $throwable) {
             App::error(ExceptionHelper::dumpExceptionToString($throwable));
-        } finally {
             $this->atomic->sub();
         }
     }

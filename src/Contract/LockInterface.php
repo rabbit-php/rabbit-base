@@ -17,5 +17,5 @@ interface LockInterface
      * @param float $timeout
      * @return mixed
      */
-    public function __invoke(Closure $function, string $name = '', float $timeout = 600);
+    public function __invoke(Closure $function, bool $next = true, string $name = '', float $timeout = 600);
 }

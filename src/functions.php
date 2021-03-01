@@ -150,10 +150,10 @@ if (!function_exists('lock')) {
      * @param float|int $timeout
      * @return mixed
      */
-    function lock(string $name, callable $function, string $key = '', float $timeout = 600)
+    function lock(string $name, callable $function, bool $next = true, string $key = '', float $timeout = 600)
     {
         $lock = LockHelper::getLock($name);
-        return $lock($function, $key, $timeout);
+        return $lock($function, $next, $key, $timeout);
     }
 }
 
