@@ -9,6 +9,7 @@ use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Swoole\Coroutine\Channel as CoroutineChannel;
@@ -152,7 +153,9 @@ if (!function_exists('lock')) {
      */
     function lock(string $name, callable $function, bool $next = true, string $key = '', float $timeout = 600)
     {
-        $lock = LockHelper::getLock($name);
+        if (null === $lock = LockHelper::getLock($name)) {
+            throw new InvalidConfigException("lock name $name not exists!");
+        }
         return $lock($function, $next, $key, $timeout);
     }
 }
