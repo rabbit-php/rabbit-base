@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Contract;
@@ -12,5 +13,5 @@ interface IdInterface
     /**
      * @return mixed
      */
-    public function create();
+    public function nextId();
 }
