@@ -50,7 +50,11 @@ if (!function_exists('rgo')) {
             try {
                 $function();
             } catch (\Throwable $throwable) {
-                print_r(ExceptionHelper::dumpExceptionToString($throwable));
+                if (getDI('debug')) {
+                    fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
+                } else {
+                    fwrite(STDOUT, $throwable->getMessage());
+                }
             }
         });
     }
@@ -85,7 +89,11 @@ if (!function_exists('loop')) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
-                    print_r(ExceptionHelper::dumpExceptionToString($throwable));
+                    if (getDI('debug')) {
+                        fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
+                    } else {
+                        fwrite(STDOUT, $throwable->getMessage());
+                    }
                 }
             }
         };

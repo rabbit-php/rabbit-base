@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Rabbit\Base\Helper;
 
 
@@ -48,7 +50,7 @@ class VarDumper
         $this->_depth = $depth;
         $this->dumpInternal($var, 0);
 
-        return $this->_output;
+        return $this->_output . PHP_EOL;
     }
 
     /**
