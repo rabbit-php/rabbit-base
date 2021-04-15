@@ -6,7 +6,6 @@ use DI\NotFoundException;
 use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\Channel;
-use Rabbit\Base\Core\ClassLoader;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
