@@ -6,6 +6,7 @@ use DI\NotFoundException;
 use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\Channel;
+use Rabbit\Base\Core\ClassLoader;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
@@ -17,7 +18,8 @@ use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
 
-static $loopList = [];
+global $loopList;
+$loopList = [];
 
 register_shutdown_function(function () {
     loopStop();
@@ -135,7 +137,7 @@ if (!function_exists('create')) {
      */
     function create($type, array $params = [], bool $singleTon = true)
     {
-        return ObjectFactory::createObject($type, $params, $singleTon);
+        return schedule(ObjectFactory::class . '::createObject', $type, $params, $singleTon);
     }
 }
 
@@ -339,15 +341,19 @@ if (!function_exists('str_contains')) {
     }
 }
 
-if (!function_exists('lock_schedule')) {
-    function lock_schedule(callable $func)
+if (!function_exists('schedule')) {
+    function schedule(callable $callback, ...$arg)
     {
-        if (getCoEnv() === 0 && \Co::getOptions()['enable_preemptive_scheduler']) {
+        static $enable = true;
+        $lock = getCoEnv() === 0 && \Co::getOptions()['enable_preemptive_scheduler'] && $enable;
+        if ($lock) {
             \Co::disableScheduler();
-            $res = call_user_func($func);
+            $enable = false;
+        }
+        $res = call_user_func($callback, ...$arg);
+        if ($lock) {
+            $enable = true;
             \Co::enableScheduler();
-        } else {
-            $res = call_user_func($func);
         }
         return $res;
     }

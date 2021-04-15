@@ -19,9 +19,7 @@ class ClassLoader
 
     public function loadClass($class)
     {
-        \Co::disableScheduler();
-        $this->loader->loadClass($class);
-        \Co::enableScheduler();
+        schedule([$this->loader, 'loadClass'], $class);
     }
 
     public static function PreemptiveLoader(AutoloadClassLoader $loader): void
