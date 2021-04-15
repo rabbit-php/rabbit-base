@@ -338,3 +338,17 @@ if (!function_exists('str_contains')) {
         return strpos($haystack, $needle) !== false;
     }
 }
+
+if (!function_exists('lock_schedule')) {
+    function lock_schedule(callable $func)
+    {
+        if (getCoEnv() === 0 && \Co::getOptions()['enable_preemptive_scheduler']) {
+            \Co::disableScheduler();
+            $res = call_user_func($func);
+            \Co::enableScheduler();
+        } else {
+            $res = call_user_func($func);
+        }
+        return $res;
+    }
+}

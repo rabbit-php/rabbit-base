@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
@@ -170,7 +171,7 @@ class ObjectFactory
      * @throws DependencyException
      * @throws ReflectionException|NotFoundException
      */
-    public static function add(array $definitions = []):void
+    public static function add(array $definitions = []): void
     {
         self::makeDefinitions($definitions);
     }
@@ -215,17 +216,19 @@ class ObjectFactory
      */
     private static function make(string $class, array $params = [], bool $singleTon = true)
     {
-        if ($singleTon) {
-            if (in_array($class, static::$container->getKnownEntryNames())) {
-                return static::$container->get($class);
+        return lock_schedule(function () use ($class, $params, $singleTon) {
+            if ($singleTon) {
+                if (in_array($class, static::$container->getKnownEntryNames())) {
+                    return static::$container->get($class);
+                }
+                $obj = static::$container->make($class, $params);
+                static::$container->set($class, $obj);
+            } else {
+                $obj = static::$container->make($class, $params);
             }
-            $obj = static::$container->make($class, $params);
-            static::$container->set($class, $obj);
-        } else {
-            $obj = static::$container->make($class, $params);
-        }
-        self::configure($obj, $params);
-        return $obj;
+            self::configure($obj, $params);
+            return $obj;
+        });
     }
 
     /**
@@ -233,7 +236,7 @@ class ObjectFactory
      * @param iterable $config
      * @throws ReflectionException
      */
-    public static function configure($object, iterable $config):void
+    public static function configure($object, iterable $config): void
     {
         static $conParams = [];
         $class = get_class($object);
