@@ -56,6 +56,8 @@ if (!function_exists('rgo')) {
                 } else {
                     fwrite(STDOUT, $throwable->getMessage());
                 }
+            } finally {
+                gc_collect_cycles();
             }
         });
     }
