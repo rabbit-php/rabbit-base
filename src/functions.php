@@ -79,7 +79,7 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('loop')) {
-    function loop(callable $function, string $name = null)
+    function loop(callable $function, int $micSleep = 1, string $name = null)
     {
         global $loopList;
         if ($name === null) {
@@ -87,7 +87,7 @@ if (!function_exists('loop')) {
         }
         $loopList[] = $name;
 
-        $func = function () use ($function, &$loopList, $name) {
+        $func = function () use ($function, &$loopList, $micSleep, $name) {
             while (in_array($name, $loopList)) {
                 try {
                     $function();
@@ -96,6 +96,10 @@ if (!function_exists('loop')) {
                         fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
                     } else {
                         fwrite(STDOUT, $throwable->getMessage());
+                    }
+                } finally {
+                    if ($micSleep > 0) {
+                        usleep($micSleep * 1000);
                     }
                 }
             }
