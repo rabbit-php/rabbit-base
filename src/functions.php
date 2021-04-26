@@ -54,7 +54,7 @@ if (!function_exists('rgo')) {
                 if (getDI('debug')) {
                     fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
                 } else {
-                    fwrite(STDOUT, $throwable->getMessage());
+                    fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
                 }
             } finally {
                 gc_collect_cycles();
@@ -95,7 +95,7 @@ if (!function_exists('loop')) {
                     if (getDI('debug')) {
                         fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
                     } else {
-                        fwrite(STDOUT, $throwable->getMessage());
+                        fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
                     }
                 } finally {
                     if ($micSleep > 0) {
