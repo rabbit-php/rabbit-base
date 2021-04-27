@@ -7,6 +7,7 @@ use DI\DependencyException;
 use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
+use Rabbit\Base\Core\LoopControl;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
 use Rabbit\Base\Exception\InvalidConfigException;
@@ -16,14 +17,6 @@ use Swoole\Coroutine\Channel as CoroutineChannel;
 use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
-
-global $loopList;
-$loopList = [];
-
-register_shutdown_function(function () {
-    loopStop();
-    Timer::clearTimers();
-});
 
 if (!function_exists('getDI')) {
     /**
@@ -81,14 +74,9 @@ if (!function_exists('env')) {
 if (!function_exists('loop')) {
     function loop(callable $function, int $micSleep = 1, string $name = null)
     {
-        global $loopList;
-        if ($name === null) {
-            $name = uniqid();
-        }
-        $loopList[] = $name;
-
-        $func = function () use ($function, &$loopList, $micSleep, $name) {
-            while (in_array($name, $loopList)) {
+        $ctrl = new LoopControl($micSleep, $name);
+        $func = function () use ($function, $ctrl, $micSleep, $name) {
+            while (true) {
                 try {
                     $function();
                 } catch (\Throwable $throwable) {
@@ -98,8 +86,8 @@ if (!function_exists('loop')) {
                         fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
                     }
                 } finally {
-                    if ($micSleep > 0) {
-                        usleep($micSleep * 1000);
+                    if ($ctrl->sleep > 0) {
+                        usleep($ctrl->sleep * 1000);
                     }
                 }
             }
@@ -110,24 +98,8 @@ if (!function_exists('loop')) {
             $co->resume();
             return $co;
         }
-        return go($func);
-    }
-}
-
-if (!function_exists('loopStop')) {
-    /**
-     * @author Albert <63851587@qq.com>
-     * @param string $name
-     * @return void
-     */
-    function loopStop(string $name = null): void
-    {
-        global $loopList;
-        if ($name === null) {
-            $loopList = [];
-            return;
-        }
-        unset($loopList[array_search($name, $loopList)]);
+        $ctrl->setCid(go($func));
+        return $ctrl;
     }
 }
 
