@@ -39,6 +39,13 @@ final class LoopControl
         }
     }
 
+    public function check(): void
+    {
+        if ($this->run === false) {
+            Coroutine::yield();
+        }
+    }
+
     public function stop(): void
     {
         $this->run = false;
