@@ -79,7 +79,7 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('loop')) {
-    function loop(callable $function, int $micSleep = 1, string $name = null)
+    function loop(callable $function, int &$micSleep = 1, string $name = null)
     {
         global $loopList;
         if ($name === null) {
