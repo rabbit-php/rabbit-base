@@ -46,16 +46,22 @@ final class LoopControl
         }
     }
 
-    public function stop(): void
+    public function stop(): bool
     {
-        $this->run = false;
+        if ($this->run === true) {
+            $this->run = false;
+            return true;
+        }
+        return false;
     }
 
-    public function start(): void
+    public function start(): bool
     {
         if ($this->run === false) {
             $this->run = true;
             Coroutine::resume($this->cid);
+            return true;
         }
+        return false;
     }
 }

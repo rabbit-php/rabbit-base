@@ -75,7 +75,7 @@ if (!function_exists('loop')) {
     function loop(callable $function, int $micSleep = 1, string $name = null)
     {
         $ctrl = new LoopControl($micSleep, $name);
-        $func = function () use ($function, $ctrl, $name) {
+        $func = function () use ($function, $ctrl) {
             while (true) {
                 $ctrl->check();
                 try {
