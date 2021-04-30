@@ -22,6 +22,11 @@ final class LoopControl
         $this->name = $name ?? uniqid();
     }
 
+    public function getRun(): bool
+    {
+        return $this->run;
+    }
+
     public function getName(): string
     {
         return $this->name;
