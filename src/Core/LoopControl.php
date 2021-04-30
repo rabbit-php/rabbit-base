@@ -8,7 +8,7 @@ use Swoole\Coroutine;
 
 final class LoopControl
 {
-    public int $sleep = 1 * 1000;
+    public int $sleep = 1;
 
     private int $cid = 0;
 
