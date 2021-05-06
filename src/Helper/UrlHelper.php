@@ -17,7 +17,8 @@ class UrlHelper
      */
     public static function unParseUrl(array $parsed_url, bool $withAuth = true, string $withSchema = null): string
     {
-        $scheme = $withSchema !== null ? "$withSchema://" : (isset($parsed_url['scheme']) ? "{$parsed_url['scheme']}://" : '');
+        $scheme = $withSchema !== null ? "$withSchema" : (isset($parsed_url['scheme']) ? "{$parsed_url['scheme']}" : '');
+        $scheme = empty($scheme) ? '' : "$scheme://";
         $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user = isset($parsed_url['user']) && $withAuth ? $parsed_url['user'] : '';
