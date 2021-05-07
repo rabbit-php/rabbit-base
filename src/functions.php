@@ -197,8 +197,8 @@ if (!function_exists('wgeach')) {
         }
         if (getCoEnv() === 1) {
             $wf = new WaitReference();
-            foreach ($data as $key => $datum) {
-                rgo(function () use ($function, $key, $datum, $wf) {
+            foreach ($data as $key => &$datum) {
+                rgo(function () use ($function, $key, &$datum, $wf) {
                     $function($key, $datum, $wf);
                 });
             }
@@ -206,8 +206,8 @@ if (!function_exists('wgeach')) {
             return true;
         } else {
             $wg = new CoroutineWaitGroup(count($data));
-            foreach ($data as $key => $datum) {
-                rgo(function () use ($function, $key, $datum, $wg) {
+            foreach ($data as $key => &$datum) {
+                rgo(function () use ($function, $key, &$datum, $wg) {
                     $function($key, $datum);
                     $wg->done();
                 });
