@@ -8,6 +8,9 @@ use Swoole\Coroutine;
 
 final class LoopControl
 {
+
+    public static $loopArr = [];
+
     public int $sleep = 1;
 
     private int $cid = 0;
@@ -16,10 +19,20 @@ final class LoopControl
 
     private bool $run = true;
 
+    public bool $loop = true;
+
     public function __construct(int $sleep, string $name = null)
     {
         $this->sleep = $sleep;
         $this->name = $name ?? uniqid();
+        self::$loopArr[] = $this;
+    }
+
+    public static function shutdown(): void
+    {
+        foreach (self::$loopArr as $loop) {
+            $loop->loop = false;
+        }
     }
 
     public function getRun(): bool

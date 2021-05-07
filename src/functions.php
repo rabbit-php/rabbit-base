@@ -49,8 +49,6 @@ if (!function_exists('rgo')) {
                 } else {
                     fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
                 }
-            } finally {
-                gc_collect_cycles();
             }
         });
     }
@@ -76,7 +74,7 @@ if (!function_exists('loop')) {
     {
         $ctrl = new LoopControl($micSleep, $name);
         $func = function () use ($function, $ctrl) {
-            while (true) {
+            while ($ctrl->loop) {
                 $ctrl->check();
                 try {
                     $function();
