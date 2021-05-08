@@ -152,9 +152,10 @@ if (!function_exists('sync')) {
         if (!isset($arr[$name])) {
             $arr[$name] = makeChannel();
         }
-        $arr[$name]->push($name);
         try {
-            $function();
+            if ($arr[$name]->push($name)) {
+                $function();
+            }
         } catch (Throwable $e) {
             throw $e;
         } finally {
