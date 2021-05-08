@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use DI\NotFoundException;
 use DI\DependencyException;
-use Rabbit\Base\Core\Timer;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
@@ -147,21 +146,19 @@ if (!function_exists('lock')) {
 }
 
 if (!function_exists('sync')) {
-    function sync(&$value, callable $function, float $timeout = 0.001): void
+    function sync(string $name, callable $function): void
     {
-        if ($value !== 0) {
-            while ($value !== 0) {
-                usleep(intval($timeout * 1000 * 1000));
-            }
-            return;
+        static $arr = [];
+        if (!isset($arr[$name])) {
+            $arr[$name] = makeChannel();
         }
-        $value++;
+        $arr[$name]->push($name);
         try {
             $function();
         } catch (Throwable $e) {
             throw $e;
         } finally {
-            $value = 0;
+            $arr[$name]->close();
         }
     }
 }

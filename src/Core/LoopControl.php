@@ -9,7 +9,7 @@ use Swoole\Coroutine;
 final class LoopControl
 {
 
-    public static $loopArr = [];
+    public static array $loopArr = [];
 
     public int $sleep = 1;
 
