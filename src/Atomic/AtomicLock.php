@@ -40,7 +40,7 @@ class AtomicLock implements LockInterface
         try {
             while ($this->atomic->get() !== 0) {
                 if ($next) {
-                    usleep($timeout * 1000);
+                    usleep((int)$timeout * 1000);
                 } else {
                     return false;
                 }

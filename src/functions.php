@@ -159,6 +159,7 @@ if (!function_exists('sync')) {
             throw $e;
         } finally {
             $arr[$name]->close();
+            unset($arr[$name]);
         }
     }
 }
