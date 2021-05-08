@@ -159,8 +159,10 @@ if (!function_exists('sync')) {
         } catch (Throwable $e) {
             throw $e;
         } finally {
-            $arr[$name]->close();
-            unset($arr[$name]);
+            if (isset($arr[$name])) {
+                $arr[$name]->close();
+                unset($arr[$name]);
+            }
         }
     }
 }
