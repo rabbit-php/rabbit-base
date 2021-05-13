@@ -28,7 +28,12 @@ final class LoopControl
         self::$loopArr[] = $this;
     }
 
-    public static function shutdown(): void
+    public function shutdown(): void
+    {
+        $this->loop = false;
+    }
+
+    public static function shutdownAll(): void
     {
         foreach (self::$loopArr as $loop) {
             $loop->loop = false;
@@ -59,14 +64,14 @@ final class LoopControl
 
     public function check(): void
     {
-        if ($this->run === false) {
+        if ($this->run === false && $this->loop) {
             Coroutine::yield();
         }
     }
 
     public function stop(): bool
     {
-        if ($this->run === true) {
+        if ($this->run === true && $this->loop) {
             $this->run = false;
             return true;
         }
@@ -75,7 +80,7 @@ final class LoopControl
 
     public function start(): bool
     {
-        if ($this->run === false) {
+        if ($this->run === false && $this->loop) {
             $this->run = true;
             Coroutine::resume($this->cid);
             return true;
