@@ -21,6 +21,8 @@ final class LoopControl
 
     public bool $loop = true;
 
+    private bool $yielded = false;
+
     public function __construct(int $sleep, string $name = null)
     {
         $this->sleep = $sleep;
@@ -64,7 +66,8 @@ final class LoopControl
 
     public function check(): void
     {
-        if ($this->run === false && $this->loop) {
+        if ($this->run === false && $this->yielded === false && $this->loop) {
+            $this->yielded = true;
             Coroutine::yield();
         }
     }
@@ -73,6 +76,10 @@ final class LoopControl
     {
         if ($this->run === true && $this->loop) {
             $this->run = false;
+            if ($this->yielded === false && Coroutine::getCid() === $this->cid) {
+                $this->yielded = true;
+                Coroutine::yield();
+            }
             return true;
         }
         return false;
@@ -80,8 +87,9 @@ final class LoopControl
 
     public function start(): bool
     {
-        if ($this->run === false && $this->loop) {
+        if ($this->run === false && $this->yielded === true && $this->loop) {
             $this->run = true;
+            $this->yielded = false;
             Coroutine::resume($this->cid);
             return true;
         }
