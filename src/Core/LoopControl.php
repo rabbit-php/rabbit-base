@@ -32,12 +32,14 @@ final class LoopControl
 
     public function shutdown(): void
     {
+        $this->start();
         $this->loop = false;
     }
 
     public static function shutdownAll(): void
     {
         foreach (self::$loopArr as $loop) {
+            $loop->start();
             $loop->loop = false;
         }
     }
@@ -66,7 +68,7 @@ final class LoopControl
 
     public function check(): void
     {
-        if ($this->run === false && $this->yielded === false && $this->loop) {
+        if ($this->run === false && $this->yielded === false) {
             $this->yielded = true;
             Coroutine::yield();
         }
@@ -74,12 +76,8 @@ final class LoopControl
 
     public function stop(): bool
     {
-        if ($this->run === true && $this->loop) {
+        if ($this->run === true) {
             $this->run = false;
-            if ($this->yielded === false && Coroutine::getCid() === $this->cid) {
-                $this->yielded = true;
-                Coroutine::yield();
-            }
             return true;
         }
         return false;
@@ -87,7 +85,7 @@ final class LoopControl
 
     public function start(): bool
     {
-        if ($this->run === false && $this->yielded === true && $this->loop) {
+        if ($this->run === false && $this->yielded === true) {
             $this->run = true;
             $this->yielded = false;
             Coroutine::resume($this->cid);
