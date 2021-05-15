@@ -32,15 +32,15 @@ final class LoopControl
 
     public function shutdown(): void
     {
-        $this->start();
         $this->loop = false;
+        $this->start();
     }
 
     public static function shutdownAll(): void
     {
         foreach (self::$loopArr as $loop) {
-            $loop->start();
             $loop->loop = false;
+            $loop->start();
         }
     }
 
