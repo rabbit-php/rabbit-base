@@ -73,7 +73,7 @@ class App
      */
     public static function getAlias(string $alias, bool $throwException = true): ?string
     {
-        if ($alias === '@root' && !isset(self::$aliases['@root'])) {
+        if (!isset(self::$aliases['@root'])) {
             self::$aliases['@root'] = dirname(__DIR__, 4);
         }
         if (strncmp($alias, '@', 1)) {
