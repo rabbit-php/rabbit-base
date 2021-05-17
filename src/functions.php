@@ -69,9 +69,9 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('loop')) {
-    function loop(callable $function, int $micSleep = 1, string $name = null)
+    function loop(callable $function, int $micSleep = 1, LoopControl $ctrl = null, string $name = null)
     {
-        $ctrl = new LoopControl($micSleep, $name);
+        $ctrl = $ctrl ?? new LoopControl($micSleep, $name);
         $func = function () use ($function, $ctrl) {
             while ($ctrl->loop) {
                 $ctrl->check();
