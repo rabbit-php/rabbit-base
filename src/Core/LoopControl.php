@@ -23,7 +23,7 @@ final class LoopControl
 
     private bool $yielded = false;
 
-    public function __construct(int $sleep, string $name = null)
+    public function __construct(int $sleep = 1, string $name = null)
     {
         $this->sleep = $sleep;
         $this->name = $name ?? uniqid();
