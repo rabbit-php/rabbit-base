@@ -21,6 +21,11 @@ class ArrayHelper
             if (is_string($value)) {
                 $json = json_decode($value, true);
                 $value = json_last_error() === JSON_ERROR_NONE ? $json : $value;
+                if (is_array($value)) {
+                    self::toArrayJson($value);
+                }
+            } elseif (is_array($value)) {
+                self::toArrayJson($value);
             }
         }
     }
