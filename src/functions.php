@@ -9,6 +9,7 @@ use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\Core\ShareResult;
 use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
@@ -334,5 +335,17 @@ if (!function_exists('schedule')) {
             \Co::enableScheduler();
         }
         return $res;
+    }
+}
+
+if (!function_exists('share')) {
+    function share(string $key, callable $func, int $timeout = 3): ShareResult
+    {
+        if (ShareResult::$shares[$key] ?? false) {
+            $share = ShareResult::$shares[$key];
+        } else {
+            $share = new ShareResult($key, $timeout);
+        }
+        return $share($func);
     }
 }

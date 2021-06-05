@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Rabbit\Base\Core;
+
+use Closure;
+use Throwable;
+use RuntimeException;
+
+class ShareResult
+{
+    private $channel;
+
+    public $result;
+
+    private int $timeout;
+
+    private string $key;
+
+    private ?Throwable $e = null;
+
+    public static array $shares = [];
+
+    private int $count = 0;
+
+    public function __construct(string $key, int $timeout = 3)
+    {
+        $this->channel = makeChannel();
+        $this->timeout = $timeout;
+        $this->key = $key;
+        if (self::$shares[$key] ?? false) {
+            throw new RuntimeException("$key is exists!");
+        }
+        self::$shares[$key] = $this;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->channel->errCode;
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function __invoke(Closure $function): self
+    {
+        $this->count++;
+        try {
+            $this->channel->push(1, $this->timeout);
+            if ($this->channel->errCode === SWOOLE_CHANNEL_CLOSED) {
+                if ($this->e !== null) {
+                    throw $this->e;
+                }
+                return $this;
+            }
+            $this->result = call_user_func($function);
+            return $this;
+        } catch (Throwable $throwable) {
+            $this->e = $throwable;
+            throw $throwable;
+        } finally {
+            unset(self::$shares[$this->key]);
+            $this->channel->close();
+        }
+    }
+}
