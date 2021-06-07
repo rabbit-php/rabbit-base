@@ -35,6 +35,14 @@ class ShareResult
         self::$shares[$key] = $this;
     }
 
+    public static function getShare(string $key, int $timeout): self
+    {
+        if (self::$shares[$key] ?? false) {
+            return ShareResult::$shares[$key];
+        }
+        return new static($key, $timeout);
+    }
+
     public function getStatus(): int
     {
         return $this->channel->errCode;

@@ -341,11 +341,6 @@ if (!function_exists('schedule')) {
 if (!function_exists('share')) {
     function share(string $key, callable $func, int $timeout = 3): ShareResult
     {
-        if (ShareResult::$shares[$key] ?? false) {
-            $share = ShareResult::$shares[$key];
-        } else {
-            $share = new ShareResult($key, $timeout);
-        }
-        return $share($func);
+        return ShareResult::getShare($key, $timeout)($func);
     }
 }
