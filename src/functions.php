@@ -7,6 +7,7 @@ use DI\DependencyException;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
+use Rabbit\Base\Core\NumLock;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\Core\ObjectFactory;
 use Rabbit\Base\Core\ShareResult;
@@ -141,6 +142,19 @@ if (!function_exists('lock')) {
     {
         if (null === $lock = LockHelper::getLock($name)) {
             throw new InvalidConfigException("lock name $name not exists!");
+        }
+        return $lock($function, $next, $key, $timeout);
+    }
+}
+
+if (!function_exists('nlock')) {
+    function nlock(callable $function, bool $next = true, string $key = '', float $timeout = 600)
+    {
+        $debug = current(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1));
+        $name = "{$debug['file']}:{$debug['line']}";
+        if (null === $lock = LockHelper::getLock($name)) {
+            $lock = new NumLock();
+            LockHelper::add($name, $lock);
         }
         return $lock($function, $next, $key, $timeout);
     }
