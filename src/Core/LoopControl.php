@@ -68,9 +68,9 @@ final class LoopControl
 
     public function check(): void
     {
-        if ($this->run === false && $this->yielded === false) {
+        if ($this->run === false && $this->yielded === false && $this->loop === true) {
             $this->yielded = true;
-            $this->loop && Coroutine::yield();
+            Coroutine::yield();
         }
     }
 
