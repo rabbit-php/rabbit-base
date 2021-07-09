@@ -70,7 +70,7 @@ final class LoopControl
     {
         if ($this->run === false && $this->yielded === false) {
             $this->yielded = true;
-            Coroutine::yield();
+            $this->loop && Coroutine::yield();
         }
     }
 
