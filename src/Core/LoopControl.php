@@ -34,6 +34,7 @@ final class LoopControl
     {
         $this->loop = false;
         $this->start();
+        Coroutine::cancel($this->cid);
     }
 
     public static function shutdownAll(): void
