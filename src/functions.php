@@ -338,7 +338,7 @@ if (!function_exists('schedule')) {
     {
         static $enable = true;
         $options = \Co::getOptions();
-        $lock = getCoEnv() === 0 && is_array($options) && isset($options['enable_preemptive_scheduler']) && $options['enable_preemptive_scheduler'] && $enable;
+        $lock = getCoEnv() === 0 & is_array($options) & ($options['enable_preemptive_scheduler'] ?? false) & $enable;
         if ($lock) {
             \Co::disableScheduler();
             $enable = false;
