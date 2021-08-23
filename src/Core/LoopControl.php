@@ -17,8 +17,6 @@ final class LoopControl
 
     private string $name;
 
-    private bool $run = true;
-
     public bool $loop = true;
 
     private bool $yielded = false;
@@ -40,14 +38,8 @@ final class LoopControl
     public static function shutdownAll(): void
     {
         foreach (self::$loopArr as $loop) {
-            $loop->loop = false;
-            $loop->start();
+            $loop->shutdown();
         }
-    }
-
-    public function getRun(): bool
-    {
-        return $this->run;
     }
 
     public function getName(): string
@@ -67,27 +59,17 @@ final class LoopControl
         }
     }
 
-    public function check(): void
+    public function stop(): void
     {
-        if ($this->run === false && $this->yielded === false && $this->loop === true) {
+        if ($this->yielded === false && $this->loop === true) {
             $this->yielded = true;
             Coroutine::yield();
         }
     }
 
-    public function stop(): bool
-    {
-        if ($this->run === true) {
-            $this->run = false;
-            return true;
-        }
-        return false;
-    }
-
     public function start(): bool
     {
-        if ($this->run === false && $this->yielded === true) {
-            $this->run = true;
+        if ($this->yielded === true) {
             $this->yielded = false;
             Coroutine::resume($this->cid);
             return true;

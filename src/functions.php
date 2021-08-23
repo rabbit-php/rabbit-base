@@ -76,10 +76,9 @@ if (!function_exists('loop')) {
         $ctrl = $ctrl ?? new LoopControl($micSleep, $name);
         $func = function () use ($function, $ctrl) {
             while ($ctrl->loop) {
-                $ctrl->check();
                 try {
                     $function();
-                } catch (\Throwable $throwable) {
+                } catch (Throwable $throwable) {
                     if (getDI('debug')) {
                         fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
                     } else {
