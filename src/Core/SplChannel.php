@@ -22,7 +22,7 @@ class SplChannel
     public function __call($name, $arguments)
     {
         if (method_exists($this->channel, $name)) {
-            return $this->channel->$name($arguments);
+            return $this->channel->$name(...$arguments);
         }
         throw new NotSupportedException("SplQueue not support method $name");
     }
