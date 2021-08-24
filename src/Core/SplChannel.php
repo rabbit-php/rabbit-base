@@ -32,7 +32,7 @@ class SplChannel
         if (!$this->channel->isEmpty()) {
             return $this->channel->dequeue();
         }
-        $this->wait->push(Coroutine::getCid());
+        $this->wait->enqueue(Coroutine::getCid());
         Coroutine::yield();
         return $this->channel->dequeue();
     }
