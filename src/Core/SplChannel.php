@@ -22,27 +22,36 @@ class SplChannel
     public function __call($name, $arguments)
     {
         if (method_exists($this->channel, $name)) {
+            switch ($name) {
+                case 'push':
+                case 'enqueue':
+                case 'unshift':
+                    return $this->add($name, ...$arguments);
+                case 'pop':
+                case 'dequeue':
+                case 'shift':
+                    return $this->del($name);
+            }
             return $this->channel->$name(...$arguments);
         }
         throw new NotSupportedException("SplQueue not support method $name");
     }
 
-    public function push($item): bool
+    private function add(string $method, $item)
     {
-        $this->channel->push($item);
+        $this->channel->$method($item);
         if ($this->wait->count() > 0) {
             Coroutine::resume($this->wait->dequeue());
         }
-        return true;
     }
 
-    public function pop()
+    private function del(string $method)
     {
         if (!$this->channel->isEmpty()) {
-            return $this->channel->dequeue();
+            return $this->channel->$method();
         }
         $this->wait->enqueue(Coroutine::getCid());
         Coroutine::yield();
-        return $this->channel->dequeue();
+        return $this->channel->$method();
     }
 }
