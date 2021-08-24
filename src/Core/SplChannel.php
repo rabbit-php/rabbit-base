@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
+use Rabbit\Base\Exception\NotSupportedException;
 use SplQueue;
 use Swoole\Coroutine;
 
@@ -16,6 +17,14 @@ class SplChannel
     {
         $this->channel = new SplQueue();
         $this->wait = new SplQueue();
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (method_exists($this->channel, $name)) {
+            return $this->channel->$name($arguments);
+        }
+        throw new NotSupportedException("SplQueue not support method $name");
     }
 
     public function push($item): bool
