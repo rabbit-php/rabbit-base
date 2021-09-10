@@ -204,7 +204,7 @@ if (!function_exists('wgo')) {
 }
 
 if (!function_exists('wgeach')) {
-    function wgeach(array &$data, callable $function, int $timeout = -1): bool
+    function wgeach(array $data, callable $function, int $timeout = -1): bool
     {
         if (count($data) === 0) {
             return false;
