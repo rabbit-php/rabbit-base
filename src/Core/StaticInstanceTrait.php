@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
@@ -13,19 +14,9 @@ use ReflectionException;
  */
 trait StaticInstanceTrait
 {
-    /**
-     * @var static[] static instances in format: `[className => object]`
-     */
     private static array $_instances = [];
 
-
-    /**
-     * @param bool $refresh
-     * @return mixed|StaticInstanceTrait
-     * @throws DependencyException
-     * @throws NotFoundException|ReflectionException
-     */
-    public static function instance($refresh = false)
+    public static function instance(bool $refresh = false)
     {
         $className = get_called_class();
         if ($refresh || !isset(self::$_instances[$className])) {

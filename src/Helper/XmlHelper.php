@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -16,19 +17,11 @@ use Traversable;
  */
 class XmlHelper
 {
-    /**
-     * @param string $xml
-     * @return array
-     */
     public static function decode(string $xml): array
     {
         return self::xmlToArray($xml);
     }
 
-    /**
-     * @param string $xml
-     * @return array
-     */
     public static function xmlToArray(string $xml): array
     {
         $res = [];
@@ -43,10 +36,6 @@ class XmlHelper
         return $res;
     }
 
-    /**
-     * @param $data
-     * @return array
-     */
     protected static function parseToArray($data): array
     {
         $res = null;
@@ -65,10 +54,6 @@ class XmlHelper
         return $res;
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
     public static function encode(array $data): string
     {
         $xml = '<xml>';
@@ -77,11 +62,7 @@ class XmlHelper
         return $xml;
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
-    public static function arrayToXml(array $data): string
+    public static function arrayToXml(array|iterable $data): string
     {
         $xml = '';
         if (!empty($data)) {
@@ -100,25 +81,11 @@ class XmlHelper
         return $xml;
     }
 
-    /**
-     * @param string $string
-     * @return string
-     */
     protected static function characterDataReplace(string $string): string
     {
         return sprintf('<![CDATA[%s]]>', $string);
     }
 
-
-    /**
-     * @param array $data
-     * @param string $rootTag
-     * @param string $itemTag
-     * @param string $version
-     * @param string $encoding
-     * @return mixed
-     * @throws DOMException
-     */
     public static function format(?array $data, string $rootTag = 'root', string $itemTag = 'item', string $version = '1.0', string $encoding = 'UTF-8'): string
     {
         $content = '';
@@ -133,15 +100,10 @@ class XmlHelper
         return $content;
     }
 
-    /**
-     * @param DOMElement $element
-     * @param mixed $data
-     * @param string $itemTag
-     * @throws DOMException
-     */
-    protected static function buildXml(DOMElement $element, $data, string $itemTag)
+    protected static function buildXml(DOMElement $element, $data, string $itemTag): void
     {
-        if (is_array($data) ||
+        if (
+            is_array($data) ||
             ($data instanceof Traversable && !$data instanceof Arrayable)
         ) {
             foreach ($data as $name => $value) {
@@ -173,13 +135,7 @@ class XmlHelper
         }
     }
 
-    /**
-     * @param $name
-     * @param string $itemTag
-     * @return string
-     * @throws DOMException
-     */
-    protected static function getValidXmlElementName($name, string $itemTag): string
+    protected static function getValidXmlElementName(int|string|bool $name, string $itemTag): string
     {
         if (empty($name) || is_int($name) || !self::isValidXmlName($name)) {
             return $itemTag;
@@ -188,12 +144,7 @@ class XmlHelper
         return $name;
     }
 
-    /**
-     * @param $name
-     * @return bool
-     * @throws DOMException
-     */
-    protected static function isValidXmlName($name): bool
+    protected static function isValidXmlName(int|string|bool $name): bool
     {
         try {
             new DOMElement($name);
@@ -203,13 +154,7 @@ class XmlHelper
         }
     }
 
-    /**
-     * Formats scalar value to use in XML text node.
-     *
-     * @param int|string|bool|float $value a scalar value.
-     * @return string string representation of the value.
-     */
-    protected static function formatScalarValue($value): string
+    protected static function formatScalarValue(int|string|bool $value): string
     {
         if ($value === true) {
             return 'true';

@@ -37,7 +37,7 @@ class SplChannel
         throw new NotSupportedException("SplQueue not support method $name");
     }
 
-    private function add(string $method, $item)
+    private function add(string $method, $item): void
     {
         $this->channel->$method($item);
         if ($this->wait->count() > 0) {

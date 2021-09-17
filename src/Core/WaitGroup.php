@@ -16,7 +16,7 @@ use Rabbit\Base\Helper\ExceptionHelper;
  */
 class WaitGroup
 {
-    protected $chan;
+    protected Channel $chan;
 
     protected int $count = 0;
 
@@ -24,16 +24,10 @@ class WaitGroup
 
     public function __construct()
     {
-        $this->chan = makeChannel(1);
+        $this->chan = new Channel(1);
     }
 
-    /**
-     * @Author Albert 63851587@qq.com
-     * @DateTime 2020-10-27
-     * @param callable $function
-     * @return void
-     */
-    public function add(callable $function)
+    public function add(callable $function): int
     {
         if ($this->waiting) {
             throw new BadMethodCallException('WaitGroup misuse: add called concurrently with wait');

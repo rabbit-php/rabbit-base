@@ -1,26 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
 
-
 use Rabbit\Base\Contract\ArrayAble;
 
-/**
- * Class JsonHelper
- * @package rabbit\helper
- */
 class JsonHelper
 {
-
-    /**
-     * @param $json
-     * @param bool $assoc
-     * @param int $depth
-     * @param int $options
-     * @return mixed
-     */
-    public static function decode($json, $assoc = false, $depth = 512, $options = 0)
+    public static function decode(string $json, ?bool $assoc = false, int $depth = 512, int $options = 0)
     {
         $data = \json_decode($json, $assoc, $depth, $options);
         if (JSON_ERROR_NONE !== json_last_error()) {
@@ -30,13 +18,7 @@ class JsonHelper
         return $data;
     }
 
-    /**
-     * @param $value
-     * @param int $options
-     * @param int $depth
-     * @return string
-     */
-    public static function encode($value, $options = 0, $depth = 512): string
+    public static function encode(Arrayable|array $value, int $options = 0, int $depth = 512): string
     {
         if ($value instanceof Arrayable) {
             $value = $value->toArray();

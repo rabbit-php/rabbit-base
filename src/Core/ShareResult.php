@@ -10,7 +10,7 @@ use RuntimeException;
 
 class ShareResult
 {
-    private $channel;
+    private Channel $channel;
 
     public $result;
 
@@ -26,7 +26,7 @@ class ShareResult
 
     public function __construct(string $key, int $timeout = 3)
     {
-        $this->channel = makeChannel();
+        $this->channel = new Channel();
         $this->timeout = $timeout;
         $this->key = $key;
         if (self::$shares[$key] ?? false) {

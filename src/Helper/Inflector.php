@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -9,13 +10,7 @@ namespace Rabbit\Base\Helper;
  */
 class Inflector
 {
-    /**
-     * @param $name
-     * @param string $separator
-     * @param bool $strict
-     * @return mixed|null|string|string[]
-     */
-    public static function camel2id($name, $separator = '-', $strict = false)
+    public static function camel2id(string|array $name, string|array $separator = '-', bool $strict = false)
     {
         $regex = $strict ? '/\p{Lu}/u' : '/(?<!\p{Lu})\p{Lu}/u';
         if ($separator === '_') {
@@ -28,12 +23,7 @@ class Inflector
         ));
     }
 
-    /**
-     * @param $name
-     * @param bool $ucwords
-     * @return string
-     */
-    public static function camel2words($name, $ucwords = true): string
+    public static function camel2words(string|array $name, bool $ucwords = true): string
     {
         $label = mb_strtolower(trim(str_replace([
             '-',

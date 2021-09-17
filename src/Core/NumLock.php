@@ -16,7 +16,7 @@ class NumLock implements LockInterface
 
     public function __construct()
     {
-        $this->channel = makeChannel();
+        $this->channel = new Channel();
     }
 
 

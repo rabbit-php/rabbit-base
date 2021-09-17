@@ -75,23 +75,13 @@ class StringHelper
         return preg_match($pattern, $string) === 1;
     }
 
-    /**
-     * @param $number
-     * @return mixed
-     */
-    public static function floatToString($number): string
+    public static function floatToString(float $number): string
     {
         // . and , are the only decimal separators known in ICU data,
         // so its safe to call str_replace here
         return str_replace(',', '.', (string)$number);
     }
 
-    /**
-     * @param string $str
-     * @param string $find
-     * @param int $n
-     * @return int
-     */
     public static function str_n_pos(string $str, string $find, int $n): int
     {
         $pos_val = 0;
@@ -103,12 +93,7 @@ class StringHelper
         return $pos_val - 1;
     }
 
-    /**
-     * @param $path
-     * @param string $suffix
-     * @return string
-     */
-    public static function basename($path, $suffix = ''): string
+    public static function basename(string $path, string $suffix = ''): string
     {
         if (($len = mb_strlen($suffix)) > 0 && mb_substr($path, -$len) === $suffix) {
             $path = mb_substr($path, 0, -$len);
@@ -121,12 +106,7 @@ class StringHelper
         return $path;
     }
 
-    /**
-     * @param $message
-     * @param array $params
-     * @return string
-     */
-    public static function substitute($message, array $params): string
+    public static function substitute(string $message, array $params): string
     {
         $placeholders = [];
         foreach ($params as $name => $value) {
@@ -136,11 +116,6 @@ class StringHelper
         return empty($placeholders) ? $message : strtr($message, $placeholders);
     }
 
-    /**
-     * @param string $string
-     * @param string|null $encoding
-     * @return string
-     */
     public static function mb_ucwords(string $string, string $encoding = null): string
     {
         $words = preg_split("/\s/u", $string, -1, PREG_SPLIT_NO_EMPTY);
@@ -152,11 +127,6 @@ class StringHelper
         return implode(' ', $titelized);
     }
 
-    /**
-     * @param string $string
-     * @param string|null $encoding
-     * @return string
-     */
     public static function mb_ucfirst(string $string, string $encoding = null): string
     {
         $firstChar = static::mb_substr($string, 0, 1, $encoding);
@@ -165,13 +135,6 @@ class StringHelper
         return static::mb_strtoupper($firstChar, $encoding) . $rest;
     }
 
-    /**
-     * @param string $string
-     * @param int $start
-     * @param int|null $length
-     * @param string|null $encoding
-     * @return string
-     */
     public static function mb_substr(string $string, int $start, int $length = null, string $encoding = null): string
     {
         return empty($encoding) ? \mb_substr($string, $start, $length) : \mb_substr(
@@ -182,46 +145,16 @@ class StringHelper
         );
     }
 
-    /**
-     * @param string $string
-     * @param string|null $encoding
-     * @return string
-     */
     public static function mb_strtolower(string $string, string $encoding = null): string
     {
         return empty($encoding) ? \mb_strtolower($string) : \mb_strtolower($string, $encoding);
     }
 
-    /**
-     * @param string $string
-     * @param string|null $encoding
-     * @return string
-     */
     public static function mb_strtoupper(string $string, string $encoding = null): string
     {
         return empty($encoding) ? \mb_strtoupper($string) : \mb_strtoupper($string, $encoding);
     }
 
-    /**
-     * @param $haystack
-     * @param $needles
-     * @return bool
-     */
-    public static function contains($haystack, $needles)
-    {
-        foreach ((array)$needles as $needle) {
-            if ($needle !== '' && mb_strpos($haystack, $needle) !== false) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    /**
-     * @author Albert <63851587@qq.com>
-     * @param [type] $value
-     * @return string
-     */
     public static function NumNormalize($value): string
     {
         if (!is_scalar($value)) {

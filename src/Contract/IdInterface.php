@@ -13,5 +13,5 @@ interface IdInterface
     /**
      * @return mixed
      */
-    public function nextId();
+    public function nextId(): string|int;
 }

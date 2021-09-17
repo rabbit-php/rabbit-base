@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DI\Definition\Helper\DefinitionHelper;
 use DI\NotFoundException;
 use DI\DependencyException;
 use Rabbit\Base\Core\Channel;
@@ -14,7 +15,6 @@ use Rabbit\Base\Core\ShareResult;
 use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
-use Swoole\Coroutine\Channel as CoroutineChannel;
 use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
@@ -34,7 +34,7 @@ if (!function_exists('getDI')) {
 }
 
 if (!function_exists('rgo')) {
-    function rgo(callable $function)
+    function rgo(callable $function): int|Coroutine
     {
         if (getCoEnv() === 1) {
             $co = new Coroutine($function);
@@ -56,12 +56,7 @@ if (!function_exists('rgo')) {
 }
 
 if (!function_exists('env')) {
-    /**
-     * @param string $key
-     * @param null $default
-     * @return array|false|string|null
-     */
-    function env(string $key, $default = null)
+    function env(string $key, $default = null): array|bool|string|null
     {
         if (($env = getenv($key)) !== false) {
             return $env;
@@ -103,15 +98,7 @@ if (!function_exists('loop')) {
 }
 
 if (!function_exists('create')) {
-    /**
-     * @param $type
-     * @param array $params
-     * @param bool $singleTon
-     * @return mixed
-     * @throws DependencyException
-     * @throws ReflectionException|NotFoundException
-     */
-    function create($type, array $params = [], bool $singleTon = true)
+    function create(string|array|callable $type, array $params = [], bool $singleTon = true): object
     {
         return schedule(ObjectFactory::class . '::createObject', $type, $params, $singleTon);
     }
@@ -123,7 +110,7 @@ if (!function_exists('configure')) {
      * @param iterable $config
      * @throws ReflectionException
      */
-    function configure($object, iterable $config)
+    function configure(object $object, iterable $config)
     {
         ObjectFactory::configure($object, $config);
     }
@@ -164,7 +151,7 @@ if (!function_exists('sync')) {
     {
         static $arr = [];
         if (!isset($arr[$name])) {
-            $arr[$name] = makeChannel();
+            $arr[$name] = new Channel();
         }
         try {
             if ($arr[$name]->push($name)) {
@@ -178,27 +165,6 @@ if (!function_exists('sync')) {
                 unset($arr[$name]);
                 $arr = array_slice($arr, 0, null, true);
             }
-        }
-    }
-}
-
-if (!function_exists('wgo')) {
-    function wgo(callable $function, int $timeout = -1): bool
-    {
-        if (getCoEnv() === 1) {
-            $wf = new WaitReference();
-            rgo(function () use ($function, $wf) {
-                $function($wf);
-            });
-            WaitReference::wait($wf, $timeout);
-            return true;
-        } else {
-            $wg = new CoroutineWaitGroup(1);
-            rgo(function () use ($function, $wg) {
-                $function();
-                $wg->done();
-            });
-            return $wg->wait($timeout);
         }
     }
 }
@@ -271,13 +237,6 @@ if (!function_exists('getCoEnv')) {
             return 0;
         }
         return 1;
-    }
-}
-
-if (!function_exists('makeChannel')) {
-    function makeChannel(int $size = 0)
-    {
-        return getCoEnv() === 1 ? new Channel($size) : new CoroutineChannel($size);
     }
 }
 
