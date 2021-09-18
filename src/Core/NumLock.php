@@ -12,7 +12,7 @@ use Rabbit\Base\Helper\ExceptionHelper;
 
 class NumLock implements LockInterface
 {
-    private $channel;
+    private Channel $channel;
 
     public function __construct()
     {
