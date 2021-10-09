@@ -35,8 +35,7 @@ class NumLock implements LockInterface
         }
         $this->channel->push(1, $timeout);
         try {
-            $result = call_user_func($function);
-            return $result;
+            return call_user_func($function);
         } catch (Throwable $throwable) {
             App::error(ExceptionHelper::dumpExceptionToString($throwable));
         } finally {

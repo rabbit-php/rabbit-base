@@ -163,7 +163,6 @@ if (!function_exists('sync')) {
             if (isset($arr[$name])) {
                 $arr[$name]->close();
                 unset($arr[$name]);
-                $arr = array_slice($arr, 0, null, true);
             }
         }
     }

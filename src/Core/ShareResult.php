@@ -71,7 +71,6 @@ class ShareResult
             throw $throwable;
         } finally {
             unset(self::$shares[$this->key]);
-            self::$shares = array_slice(self::$shares, 0, null, true);
             $this->channel->close();
         }
     }

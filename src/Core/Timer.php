@@ -111,7 +111,6 @@ class Timer
             return true;
         }
         unset(self::$timers[$name]);
-        self::$timers = array_slice(self::$timers, 0, null, true);
         return true;
     }
 
