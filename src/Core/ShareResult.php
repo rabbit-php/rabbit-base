@@ -10,19 +10,19 @@ use RuntimeException;
 
 class ShareResult
 {
-    private Channel $channel;
+    protected Channel $channel;
 
     public $result;
 
-    private int $timeout;
+    protected int $timeout;
 
-    private string $key;
+    protected string $key;
 
-    private ?Throwable $e = null;
+    protected ?Throwable $e = null;
 
     public static array $shares = [];
 
-    private int $count = 0;
+    protected int $count = 0;
 
     public function __construct(string $key, int $timeout = 3)
     {
