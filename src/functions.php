@@ -295,8 +295,7 @@ if (!function_exists('schedule')) {
     function schedule(callable $callback, ...$arg)
     {
         static $enable = true;
-        $options = \Co::getOptions();
-        $lock = getCoEnv() === 0 & is_array($options) & ($options['enable_preemptive_scheduler'] ?? false) & $enable;
+        $lock = getCoEnv() === 0 && is_array(\Co::getOptions()) && (\Co::getOptions()['enable_preemptive_scheduler'] ?? false & $enable);
         if ($lock) {
             \Co::disableScheduler();
             $enable = false;
