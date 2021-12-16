@@ -35,12 +35,12 @@ class ShareResult
         self::$shares[$key] = $this;
     }
 
-    public static function getShare(string $key, int $timeout): self
+    public static function getShare(string $key, int $timeout, string $type = 'share'): self
     {
         if (self::$shares[$key] ?? false) {
             return ShareResult::$shares[$key];
         }
-        return new static($key, $timeout);
+        return new static($key, $timeout, $type);
     }
 
     public function getStatus(): int
