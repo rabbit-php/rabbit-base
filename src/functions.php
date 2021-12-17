@@ -169,7 +169,7 @@ if (!function_exists('sync')) {
 }
 
 if (!function_exists('wgeach')) {
-    function wgeach(array &$data, callable $function, int $timeout = -1): bool
+    function wgeach(array $data, callable $function, int $timeout = -1): array
     {
         if (count($data) === 0) {
             return false;
@@ -178,21 +178,21 @@ if (!function_exists('wgeach')) {
             $wf = new WaitReference();
             foreach ($data as $key => &$datum) {
                 rgo(function () use ($function, $key, &$datum, $wf) {
-                    $function($key, $datum, $wf);
+                    $datum = $function($key, $datum, $wf);
                 });
             }
             WaitReference::wait($wf, $timeout);
-            return true;
         } else {
             $wg = new CoroutineWaitGroup(count($data));
             foreach ($data as $key => &$datum) {
                 rgo(function () use ($function, $key, &$datum, $wg) {
-                    $function($key, $datum);
+                    $datum = $function($key, $datum);
                     $wg->done();
                 });
             }
-            return $wg->wait($timeout);
+            $wg->wait($timeout);
         }
+        return $data;
     }
 }
 
