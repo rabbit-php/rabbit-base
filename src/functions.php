@@ -172,7 +172,7 @@ if (!function_exists('wgeach')) {
     function wgeach(array $data, callable $function, int $timeout = -1): array
     {
         if (count($data) === 0) {
-            return false;
+            return $data;
         }
         if (getCoEnv() === 1) {
             $wf = new WaitReference();
