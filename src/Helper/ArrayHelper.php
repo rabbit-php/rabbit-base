@@ -648,4 +648,31 @@ class ArrayHelper
     {
         return get_object_vars($object);
     }
+
+    public static function toTree(array $list, string $pk = 'id', string $pid = 'pid', string $child = 'children', int $root = 0, bool $withKey = false): array
+    {
+        $tree = [];
+        $refer = [];
+        foreach ($list as $key => $data) {
+            $refer[$data[$pk]] = &$list[$key];
+        }
+        foreach ($list as $key => $data) {
+            $parentId = $data[$pid];
+            if ($root === $parentId) {
+                if ($withKey) {
+                    $tree[$data[$pk]] = &$list[$key];
+                } else {
+                    $tree[] = &$list[$key];
+                }
+            } else {
+                if ($refer[$parentId] ?? false) {
+                    $parent = &$refer[$parentId];
+                    $parent[$child][$data[$pk]] = &$list[$key];
+
+                    $parent[$child] = array_values($parent[$child]);
+                }
+            }
+        }
+        return $tree;
+    }
 }

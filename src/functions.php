@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-use DI\Definition\Helper\DefinitionHelper;
-use DI\NotFoundException;
-use DI\DependencyException;
+use ArrayObject as GlobalArrayObject;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
@@ -15,6 +13,7 @@ use Rabbit\Base\Core\ShareResult;
 use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
+use Swoole\ArrayObject;
 use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
@@ -240,7 +239,7 @@ if (!function_exists('getCoEnv')) {
 }
 
 if (!function_exists('getContext')) {
-    function getContext(int $id = null)
+    function getContext(int $id = null): ArrayObject|GlobalArrayObject
     {
         if (getCoEnv() === 1) {
             return Coroutine::getCurrent()->getContext();
@@ -250,7 +249,7 @@ if (!function_exists('getContext')) {
 }
 
 if (!function_exists('waitGroup')) {
-    function waitGroup(int $n = 0)
+    function waitGroup(int $n = 0): WaitGroup|CoroutineWaitGroup
     {
         if (getCoEnv() === 1) {
             $wg = new WaitGroup();
