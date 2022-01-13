@@ -137,7 +137,7 @@ class ObjectFactory
             }
             $class = $type['class'];
             unset($type['class']);
-            $params = array_merge($type, $params);
+            $params = [...$type, ...$params];
             return self::make($class, $params, $singleTon);
         } elseif ($type instanceof DefinitionHelper) {
             return static::$container->get($type->getDefinition('')->getName());

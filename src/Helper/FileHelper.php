@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -242,7 +243,7 @@ class FileHelper
                 return false;
             }
         } catch (\Exception $e) {
-            if (!is_dir($path)) {// https://github.com/yiisoft/yii2/issues/9288
+            if (!is_dir($path)) { // https://github.com/yiisoft/yii2/issues/9288
                 throw new Exception("Failed to create directory \"$path\": " . $e->getMessage(), $e->getCode(), $e);
             }
         }
@@ -318,10 +319,10 @@ class FileHelper
         }
         $result['firstWildcard'] = self::firstWildcardInPattern($pattern);
         if ($pattern[0] === '*' && self::firstWildcardInPattern(StringHelper::byteSubstr(
-                $pattern,
-                1,
-                StringHelper::byteLength($pattern)
-            )) === false) {
+            $pattern,
+            1,
+            StringHelper::byteLength($pattern)
+        )) === false) {
             $result['flags'] |= self::PATTERN_ENDSWITH;
         }
         $result['pattern'] = $pattern;
@@ -367,10 +368,10 @@ class FileHelper
 
         if (!empty($options['except'])) {
             if (($except = self::lastExcludeMatchingFromList(
-                    $options['basePath'],
-                    $path,
-                    $options['except']
-                )) !== null) {
+                $options['basePath'],
+                $path,
+                $options['except']
+            )) !== null) {
                 return (bool)($except['flags'] & self::PATTERN_NEGATIVE);
             }
         }
@@ -475,8 +476,7 @@ class FileHelper
         string $pattern,
         int $firstWildcard,
         bool $flags
-    ): bool
-    {
+    ): bool {
         // match with FNM_PATHNAME; the pattern has base implicitly in front of it.
         if (isset($pattern[0]) && $pattern[0] === '/') {
             $pattern = StringHelper::byteSubstr($pattern, 1, StringHelper::byteLength($pattern));
@@ -602,7 +602,7 @@ class FileHelper
                 if (is_file($path)) {
                     $list[] = $path;
                 } elseif (is_dir($path) && (!isset($options['recursive']) || $options['recursive'])) {
-                    $list = array_merge($list, static::findFiles($path, $options));
+                    $list = [...$list, ...static::findFiles($path, $options)];
                 }
             }
         }
@@ -695,7 +695,7 @@ class FileHelper
             if (is_dir($path) && static::filterPath($path, $options)) {
                 $list[] = $path;
                 if (!isset($options['recursive']) || $options['recursive']) {
-                    $list = array_merge($list, static::findDirectories($path, $options));
+                    $list = [...$list, ...static::findDirectories($path, $options)];
                 }
             }
         }

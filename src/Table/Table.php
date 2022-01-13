@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Rabbit\Base\Table;
 
 use Swoole\Table as SwooleTable;
@@ -201,7 +203,7 @@ class Table
     public function create(): bool
     {
         foreach ($this->columns as $field => $fieldValue) {
-            $args = array_merge([$field], $fieldValue);
+            $args = [$field, ...$fieldValue];
             $args = $this->checkColumn(...$args);
             $this->createColumn(...$args);
         }
