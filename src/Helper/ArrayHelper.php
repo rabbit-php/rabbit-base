@@ -375,42 +375,12 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $array
-     * @param bool $allStrings
-     * @return bool
-     */
-    public static function isAssociative($array, $allStrings = true): bool
+    public static function isAssociative(array $array): bool
     {
-        if (!is_array($array) || empty($array)) {
-            return false;
-        }
-
-        if ($allStrings) {
-            foreach ($array as $key => $value) {
-                if (!is_string($key)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        foreach ($array as $key => $value) {
-            if (is_string($key)) {
-                return true;
-            }
-        }
-
-        return false;
+        return !array_is_list($array);
     }
 
-    /**
-     * @param $array
-     * @param bool $consecutive
-     * @return bool
-     */
-    public static function isIndexed($array, $checkType = 0): bool
+    public static function isIndexed(array $array, int $checkType = 0): bool
     {
         if (!is_array($array)) {
             return false;
@@ -422,17 +392,9 @@ class ArrayHelper
 
         if ($checkType === 0) {
             return is_int(array_key_first($array));
-        } elseif ($checkType === 1) {
-            return array_keys($array) === range(0, count($array) - 1);
         }
 
-        foreach ($array as $key => $value) {
-            if (!is_int($key)) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_is_list($array);
     }
 
     /**
