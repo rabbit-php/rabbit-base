@@ -375,22 +375,13 @@ class ArrayHelper
         return $result;
     }
 
-    public static function isAssociative(array $array): bool
+    public static function isIndexed(array $array, bool $isList = false): bool
     {
-        return !array_is_list($array);
-    }
-
-    public static function isIndexed(array $array, int $checkType = 0): bool
-    {
-        if (!is_array($array)) {
-            return false;
-        }
-
         if (empty($array)) {
             return true;
         }
 
-        if ($checkType === 0) {
+        if (!$isList) {
             return is_int(array_key_first($array));
         }
 
