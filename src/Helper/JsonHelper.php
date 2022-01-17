@@ -10,8 +10,8 @@ class JsonHelper
 {
     public static function decode(string $json, ?bool $assoc = false, int $depth = 512, int $options = 0)
     {
-        $data = \json_decode($json, $assoc, $depth, $options);
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        $data = extension_loaded('simdjson') ? \simdjson_decode($json, $assoc, $depth) : \json_decode($json, $assoc, $depth, $options);
+        if (JSON_ERROR_NONE !== json_last_error() || $data === null) {
             throw new \InvalidArgumentException('json_decode error: ' . json_last_error_msg());
         }
 
@@ -29,5 +29,14 @@ class JsonHelper
         }
 
         return $json;
+    }
+
+    public static function valid(string $json): bool
+    {
+        if (extension_loaded('simdjson')) {
+            return \simdjson_is_valid($json);
+        }
+        \json_decode($json);
+        return JSON_ERROR_NONE === json_last_error();
     }
 }
