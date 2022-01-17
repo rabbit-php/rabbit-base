@@ -11,15 +11,12 @@ use Swoole\Process;
  * Class ProcessManager
  * @package Rabbit\Base\Tests
  */
-class ProcessManager
+final class ProcessManager
 {
     public $parentFunc;
     public $childFunc;
 
     protected Atomic $atomic;
-    /**
-     * wait wakeup 1s default
-     */
     protected float $waitTimeout = 1.0;
     protected ?int $childPid = null;
     protected int $childStatus = 255;

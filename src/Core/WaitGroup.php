@@ -14,9 +14,9 @@ use Rabbit\Base\Helper\ExceptionHelper;
  * Class WaitGroup
  * @package Rabbit\Base\Core
  */
-class WaitGroup
+final class WaitGroup
 {
-    protected Channel $chan;
+    protected readonly Channel $chan;
 
     protected int $count = 0;
 

@@ -8,9 +8,9 @@ use Swoole\Coroutine\Channel as CoroutineChannel;
 use Swow\Channel as SwowChannel;
 use Throwable;
 
-class Channel
+final class Channel
 {
-    protected Channel|CoroutineChannel $channel;
+    protected readonly Channel|CoroutineChannel $channel;
 
     public function __construct(int $capacity = 0)
     {

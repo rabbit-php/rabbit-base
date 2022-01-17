@@ -10,7 +10,7 @@ use Swoole\Table as SwooleTable;
  * Class Table
  * @package Rabbit\Base\Table
  */
-class Table
+final class Table
 {
 
     /**
@@ -47,28 +47,8 @@ class Table
      * float类型
      */
     const TYPE_FLOAT = SwooleTable::TYPE_FLOAT;
-    /**
-     * @var SwooleTable $table 内存表实例
-     */
-    private ?SwooleTable $table = null;
 
-    /**
-     * @var string $name 内存表名
-     */
-    private string $name = '';
-
-    /**
-     * @var int $size table大小
-     */
-    private int $size = 0;
-
-    /**
-     * @var array $column 列数组
-     * [
-     *  'field' => ['type', length]
-     * ]
-     */
-    private array $columns = [];
+    public readonly SwooleTable $table;
 
     /**
      * Table constructor.
@@ -76,87 +56,12 @@ class Table
      * @param int $size
      * @param array $columns
      */
-    public function __construct(string $name = '', int $size = 0, array $columns = [])
+    public function __construct(public string $name = '', public int $size = 0, private array $columns = [])
     {
         if ($size % 1024 !== 0) {
             throw new \InvalidArgumentException("swoole_table::size error ：$size");
         }
-        $this->setName($name);
-        $this->setTable(new SwooleTable($size));
-        $this->setSize($size);
-        $this->setColumns($columns);
-    }
-
-    /**
-     * 获取内存表实例
-     *
-     * @return SwooleTable
-     */
-    public function getTable(): SwooleTable
-    {
-        return $this->table;
-    }
-
-    /**
-     * 设置内存表实例
-     *
-     * @param SwooleTable $table 内存表实例
-     *
-     * @return Table
-     */
-    public function setTable(SwooleTable $table): self
-    {
-        $this->table = $table;
-
-        return $this;
-    }
-
-    /**
-     * 返回内存表名
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * 设置内存表名
-     *
-     * @param string $name 内存表名
-     *
-     * @return Table
-     */
-    public function setName(string $name): Table
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * 获取内存表大小
-     *
-     * @return mixed
-     */
-    public function getSize(): int
-    {
-        return $this->size;
-    }
-
-    /**
-     * 设置内存表大小
-     *
-     * @param int $size 内存表大小
-     *
-     * @return Table
-     */
-    public function setSize(int $size): Table
-    {
-        $this->size = $size;
-
-        return $this;
+        $this->table = new SwooleTable($size);
     }
 
     /**

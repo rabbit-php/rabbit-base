@@ -10,13 +10,9 @@ use RuntimeException;
 
 class ShareResult
 {
-    protected Channel $channel;
+    protected readonly Channel $channel;
 
     public $result;
-
-    protected int $timeout;
-
-    protected string $key;
 
     protected ?Throwable $e = null;
 
@@ -24,11 +20,9 @@ class ShareResult
 
     protected int $count = 0;
 
-    public function __construct(string $key, int $timeout = 3)
+    public function __construct(protected string $key, protected int $timeout = 3)
     {
         $this->channel = new Channel();
-        $this->timeout = $timeout;
-        $this->key = $key;
         if (self::$shares[$key] ?? false) {
             throw new RuntimeException("$key is exists!");
         }

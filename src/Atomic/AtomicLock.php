@@ -15,10 +15,9 @@ use Rabbit\Base\Helper\ExceptionHelper;
  * Class AtomicLock
  * @package Rabbit\Base\atomic
  */
-class AtomicLock implements LockInterface
+final class AtomicLock implements LockInterface
 {
-    /** @var Atomic */
-    protected Atomic $atomic;
+    protected readonly Atomic $atomic;
 
     /**
      * AtomicLock constructor.

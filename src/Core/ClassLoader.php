@@ -6,15 +6,12 @@ namespace Rabbit\Base\Core;
 
 use Composer\Autoload\ClassLoader as AutoloadClassLoader;
 
-class ClassLoader
+final class ClassLoader
 {
-    private AutoloadClassLoader $loader;
-
     private static $isInit = false;
 
-    public function __construct(AutoloadClassLoader $loader)
+    public function __construct(private AutoloadClassLoader $loader)
     {
-        $this->loader = $loader;
     }
 
     public function loadClass($class)

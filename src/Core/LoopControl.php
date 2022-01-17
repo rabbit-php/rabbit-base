@@ -8,10 +8,7 @@ use Swoole\Coroutine;
 
 final class LoopControl
 {
-
     public static array $loopArr = [];
-
-    public int $sleep = 1;
 
     private int $cid = 0;
 
@@ -21,9 +18,8 @@ final class LoopControl
 
     private bool $yielded = false;
 
-    public function __construct(int $sleep = 1, string $name = null)
+    public function __construct(public readonly int $sleep = 1, string $name = null)
     {
-        $this->sleep = $sleep;
         $this->name = $name ?? uniqid();
         self::$loopArr[] = $this;
     }

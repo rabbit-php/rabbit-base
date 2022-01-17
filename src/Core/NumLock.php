@@ -10,7 +10,7 @@ use Rabbit\Base\App;
 use Rabbit\Base\Contract\LockInterface;
 use Rabbit\Base\Helper\ExceptionHelper;
 
-class NumLock implements LockInterface
+final class NumLock implements LockInterface
 {
     private Channel $channel;
 

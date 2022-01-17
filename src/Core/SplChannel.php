@@ -8,7 +8,7 @@ use Rabbit\Base\Exception\NotSupportedException;
 use SplQueue;
 use Swoole\Coroutine;
 
-class SplChannel
+final class SplChannel
 {
     protected SplQueue $channel;
     protected SplQueue $wait;
