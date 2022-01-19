@@ -19,6 +19,16 @@ use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
 
 if (!function_exists('getDI')) {
+    function env(string $name, $default = null)
+    {
+        if (!isset($_ENV[$name])) {
+            return $default;
+        }
+        return getenv($name);
+    }
+}
+
+if (!function_exists('getDI')) {
     /**
      * @param string $name
      * @param bool $throwException
