@@ -19,9 +19,9 @@ use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
 
 if (!function_exists('env')) {
-    function env(string $name, $default = null): array|bool|string|null
+    function env(string $name, $default = null): array|bool|string|int|null
     {
-        if (!isset($_ENV[$name])) {
+        if (!isset($_ENV[$name]) && !isset($_SERVER[$name])) {
             return $default;
         }
         return getenv($name);
