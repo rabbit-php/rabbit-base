@@ -18,8 +18,8 @@ use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
 
-if (!function_exists('getDI')) {
-    function env(string $name, $default = null)
+if (!function_exists('env')) {
+    function env(string $name, $default = null): array|bool|string|null
     {
         if (!isset($_ENV[$name])) {
             return $default;
@@ -61,16 +61,6 @@ if (!function_exists('rgo')) {
                 }
             }
         });
-    }
-}
-
-if (!function_exists('env')) {
-    function env(string $key, $default = null): array|bool|string|null
-    {
-        if (($env = getenv($key)) !== false) {
-            return $env;
-        }
-        return $default;
     }
 }
 
