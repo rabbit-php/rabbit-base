@@ -239,7 +239,7 @@ if (!function_exists('getCoEnv')) {
 }
 
 if (!function_exists('getContext')) {
-    function getContext(int $id = null): ArrayObject|GlobalArrayObject
+    function getContext(int $id = null): null|ArrayObject|GlobalArrayObject
     {
         if (getCoEnv() === 1) {
             return Coroutine::getCurrent()->getContext();
@@ -249,7 +249,7 @@ if (!function_exists('getContext')) {
 }
 
 if (!function_exists('waitGroup')) {
-    function waitGroup(int $n = 0): WaitGroup|CoroutineWaitGroup
+    function waitGroup(int $n = 0): null|WaitGroup|CoroutineWaitGroup
     {
         if (getCoEnv() === 1) {
             $wg = new WaitGroup();
