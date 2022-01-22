@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Rabbit\Base\Helper;
 
 use Rabbit\Base\Contract\ArrayAble;
+use Rabbit\HttpServer\Exceptions\BadRequestHttpException;
 
 class JsonHelper
 {
     public static function decode(string $json, ?bool $assoc = false, int $depth = 512, int $options = 0)
     {
-        $data = extension_loaded('simdjson') ? \simdjson_decode($json, $assoc, $depth) : \json_decode($json, $assoc, $depth, $options);
-        if (JSON_ERROR_NONE !== json_last_error() || $data === null) {
-            throw new \InvalidArgumentException('json_decode error: ' . json_last_error_msg());
+        if (extension_loaded('simdjson') && null === $data = \simdjson_decode($json, $assoc, $depth)) {
+            throw new BadRequestHttpException('json error');
+        } else {
+            $data =  \json_decode($json, $assoc, $depth, $options | JSON_THROW_ON_ERROR);
         }
-
         return $data;
     }
 
@@ -23,11 +24,7 @@ class JsonHelper
         if ($value instanceof Arrayable) {
             $value = $value->toArray();
         }
-        $json = \json_encode($value, $options, $depth);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new \InvalidArgumentException('json_encode error: ' . json_last_error_msg());
-        }
-
+        $json = \json_encode($value, $options | JSON_THROW_ON_ERROR, $depth);
         return $json;
     }
 
