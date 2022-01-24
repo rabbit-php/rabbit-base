@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use ArrayObject as GlobalArrayObject;
+use Rabbit\Base\App;
 use Rabbit\Base\Core\Channel;
 use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
@@ -55,9 +56,9 @@ if (!function_exists('rgo')) {
                 $function();
             } catch (\Throwable $throwable) {
                 if (getDI('debug')) {
-                    fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
+                    App::error(ExceptionHelper::dumpExceptionToString($throwable));
                 } else {
-                    fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
+                    App::error($throwable->getMessage() . PHP_EOL);
                 }
             }
         });
@@ -74,9 +75,9 @@ if (!function_exists('loop')) {
                     $function();
                 } catch (Throwable $throwable) {
                     if (getDI('debug')) {
-                        fwrite(STDOUT, ExceptionHelper::dumpExceptionToString($throwable));
+                        App::error(ExceptionHelper::dumpExceptionToString($throwable));
                     } else {
-                        fwrite(STDOUT, $throwable->getMessage() . PHP_EOL);
+                        App::error($throwable->getMessage() . PHP_EOL);
                     }
                 } finally {
                     if ($ctrl->sleep > 0) {
