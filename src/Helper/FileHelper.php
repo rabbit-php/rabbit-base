@@ -337,7 +337,7 @@ class FileHelper
     private static function firstWildcardInPattern(string $pattern): bool
     {
         $wildcards = ['*', '?', '[', '\\'];
-        $wildcardSearch = function ($r, $c) use ($pattern) {
+        $wildcardSearch = function ($r, $c) use ($pattern): int {
             $p = strpos($pattern, $c);
 
             return $r === false ? $p : ($p === false ? $r : min($r, $p));

@@ -69,7 +69,7 @@ if (!function_exists('loop')) {
     function loop(callable $function, int $micSleep = 1, LoopControl $ctrl = null, string $name = null): LoopControl
     {
         $ctrl = $ctrl ?? new LoopControl($micSleep, $name);
-        $func = function () use ($function, $ctrl) {
+        $func = function () use ($function, $ctrl): void {
             while ($ctrl->loop) {
                 try {
                     $function();
@@ -177,7 +177,7 @@ if (!function_exists('wgeach')) {
         if (getCoEnv() === 1) {
             $wf = new WaitReference();
             foreach ($data as $key => &$datum) {
-                rgo(function () use ($function, $key, &$datum, $wf) {
+                rgo(function () use ($function, $key, &$datum, $wf): void {
                     $datum = $function($key, $datum, $wf);
                 });
             }
@@ -185,7 +185,7 @@ if (!function_exists('wgeach')) {
         } else {
             $wg = new CoroutineWaitGroup(count($data));
             foreach ($data as $key => &$datum) {
-                rgo(function () use ($function, $key, &$datum, $wg) {
+                rgo(function () use ($function, $key, &$datum, $wg): void {
                     $datum = $function($key, $datum);
                     $wg->done();
                 });

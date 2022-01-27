@@ -120,7 +120,7 @@ class StringHelper
     {
         $words = preg_split("/\s/u", $string, -1, PREG_SPLIT_NO_EMPTY);
 
-        $titelized = array_map(function ($word) use ($encoding) {
+        $titelized = array_map(function (string $word) use ($encoding): string {
             return static::mb_ucfirst($word, $encoding);
         }, $words);
 

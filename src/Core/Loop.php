@@ -41,7 +41,7 @@ class Loop
             throw new InvalidArgumentException("swoole event the 2th param must be null or callable");
         }
         $id = uniqid();
-        !empty($params[1]) && $params[1] = function () use ($params, $id) {
+        !empty($params[1]) && $params[1] = function () use ($params, $id): void {
             rgo(function () use ($params, $id) {
                 call_user_func($params[1], $id);
             });
@@ -52,7 +52,7 @@ class Loop
         if ($params[2] && !is_callable($params[2])) {
             throw new InvalidArgumentException("swoole event the 3th param must be null or callable");
         }
-        !empty($params[2]) && $params[2] = function () use ($params, $id) {
+        !empty($params[2]) && $params[2] = function () use ($params, $id): void {
             rgo(function () use ($params, $id) {
                 call_user_func($params[2], $id);
             });

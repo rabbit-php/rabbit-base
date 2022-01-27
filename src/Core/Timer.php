@@ -56,11 +56,11 @@ class Timer
             return;
         }
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_AFTER, 'count' => 0];
-        return rgo(function () use ($name, $time, $callback, $params) {
+        return rgo(function () use ($name, $time, $callback, $params): void {
             usleep($time * 1000);
             if (isset(self::$timers[$name])) {
                 self::clearTimerByName($name);
-                rgo(function () use ($callback, $params) {
+                rgo(function () use ($callback, $params): void {
                     call_user_func($callback, ...$params);
                 });
             }
@@ -84,12 +84,12 @@ class Timer
             return;
         }
         self::$timers[$name] = ['name' => $name, 'type' => self::TYPE_TICKET, 'count' => 0];
-        return rgo(function () use ($name, $callback, $time, $params) {
+        return rgo(function () use ($name, $callback, $time, $params): void {
             while (isset(self::$timers[$name])) {
                 usleep($time * 1000);
                 if (isset(self::$timers[$name])) {
                     try {
-                        rgo(function () use ($name, $callback, $params) {
+                        rgo(function () use ($name, $callback, $params): void {
                             self::$timers[$name]['count']++;
                             call_user_func($callback, ...$params);
                         });

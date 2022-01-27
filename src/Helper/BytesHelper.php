@@ -25,10 +25,10 @@ class BytesHelper
      */
     public static function bytes2string(SplFixedArray $bytes, int $type = self::DEC): string
     {
-        $decFun = function () use ($bytes) {
+        $decFun = function () use ($bytes): string {
             $str = '';
             foreach ($bytes as $byte) {
-                $str .= chr($byte);
+                $str .= chr((int)$byte);
             }
             return $str;
         };
