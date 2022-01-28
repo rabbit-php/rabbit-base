@@ -9,26 +9,14 @@ use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Throwable;
 
-/**
- * Class App
- * @package Rabbit\Base
- */
 class App
 {
     public static ?int $id = null;
-    /**
-     * @var array
-     */
-    private static array $aliases = [];
-    /**
-     * @var LoggerInterface
-     */
-    private static ?LoggerInterface $_logger = null;
 
-    /**
-     * @param string $alias
-     * @param string $path
-     */
+    private static array $aliases = [];
+
+    private static ?LoggerInterface $logger = null;
+
     public static function setAlias(string $alias, ?string $path): void
     {
         if (strncmp($alias, '@', 1)) {
@@ -66,11 +54,6 @@ class App
         }
     }
 
-    /**
-     * @param string $alias
-     * @param bool $throwException
-     * @return string|null
-     */
     public static function getAlias(string $alias, bool $throwException = true): ?string
     {
         if (!isset(self::$aliases['@root'])) {
@@ -103,30 +86,23 @@ class App
         return null;
     }
 
-    /**
-     * @return LoggerInterface
-     * @throws Throwable
-     */
     public static function getLogger(): LoggerInterface
     {
-        if (self::$_logger instanceof LoggerInterface) {
-            return self::$_logger;
+        if (self::$logger instanceof LoggerInterface) {
+            return self::$logger;
         }
         try {
-            self::$_logger = getDI('logger');
+            self::$logger = getDI('logger');
         } catch (\Throwable $exception) {
             print_r($exception->getMessage());
-            self::$_logger = getDI(NullLogger::class);
+            self::$logger = getDI(NullLogger::class);
         }
-        return self::$_logger;
+        return self::$logger;
     }
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public static function setLogger(LoggerInterface $logger): void
     {
-        self::$_logger = $logger;
+        self::$logger = $logger;
     }
 
     private static function buildContext(string|array|null $module): array
