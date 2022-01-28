@@ -129,83 +129,54 @@ class App
         self::$_logger = $logger;
     }
 
-    /**
-     * @param string $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function debug(string $message, string $module = null): void
+    private static function buildContext(string|array|null $module): array
     {
-        static::getLogger()->log(LogLevel::DEBUG, $message, ['module' => $module ?? 'system']);
+        if ($module === null) {
+            return ['module' => 'system'];
+        } elseif (is_array($module)) {
+            $module['module'] = $module['module'] ?? 'system';
+            return $module;
+        }
+        return ['module' => $module];
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function emergency($message, string $module = null): void
+    public static function debug(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::EMERGENCY, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::DEBUG, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function alert($message, string $module = null): void
+    public static function emergency(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::ALERT, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::EMERGENCY, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function critical($message, string $module = null): void
+    public static function alert(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::CRITICAL, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::ALERT, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function error($message, string $module = null): void
+    public static function critical(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::ERROR, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::CRITICAL, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function warning($message, string $module = null): void
+    public static function error(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::WARNING, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::ERROR, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function notice($message, string $module = null): void
+    public static function warning(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::NOTICE, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::WARNING, $message, self::buildContext($module));
     }
 
-    /**
-     * @param $message
-     * @param string|null $module
-     * @throws Throwable
-     */
-    public static function info($message, string $module = null): void
+    public static function notice(string $message, string|array $module = null): void
     {
-        static::getLogger()->log(LogLevel::INFO, $message, ['module' => $module ?? 'system']);
+        static::getLogger()->log(LogLevel::NOTICE, $message, self::buildContext($module));
+    }
+
+    public static function info(string $message, string|array $module = null): void
+    {
+        static::getLogger()->log(LogLevel::INFO, $message, self::buildContext($module));
     }
 }
