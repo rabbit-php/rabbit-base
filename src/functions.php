@@ -9,8 +9,9 @@ use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
 use Rabbit\Base\Core\NumLock;
 use Rabbit\Base\Helper\LockHelper;
-use Rabbit\Base\Core\ObjectFactory;
+use Rabbit\Base\DI\ObjectFactory;
 use Rabbit\Base\Core\ShareResult;
+use Rabbit\Base\DI\Definition;
 use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
@@ -29,17 +30,24 @@ if (!function_exists('env')) {
     }
 }
 
-if (!function_exists('getDI')) {
-    /**
-     * @param string $name
-     * @param bool $throwException
-     * @param null $default
-     * @return mixed|null
-     * @throws Throwable
-     */
-    function getDI(string $name, bool $throwException = true, $default = null)
+if (!function_exists('config')) {
+    function config(string $name, mixed $default = null)
     {
-        return ObjectFactory::get($name, $throwException, $default);
+        return App::$di->config[$name] ?? $default;
+    }
+}
+
+if (!function_exists('service')) {
+    function service(string $name, bool $throwException = true, $default = null)
+    {
+        return App::$di->get($name, $throwException, $default);
+    }
+}
+
+if (!function_exists('definition')) {
+    function definition(string $name)
+    {
+        return new Definition($name);
     }
 }
 
@@ -55,7 +63,7 @@ if (!function_exists('rgo')) {
             try {
                 $function();
             } catch (\Throwable $throwable) {
-                if (getDI('debug')) {
+                if (config('debug')) {
                     App::error(ExceptionHelper::dumpExceptionToString($throwable));
                 } else {
                     App::error($throwable->getMessage() . PHP_EOL);
@@ -74,7 +82,7 @@ if (!function_exists('loop')) {
                 try {
                     $function();
                 } catch (Throwable $throwable) {
-                    if (getDI('debug')) {
+                    if (config('debug')) {
                         App::error(ExceptionHelper::dumpExceptionToString($throwable));
                     } else {
                         App::error($throwable->getMessage() . PHP_EOL);
@@ -100,7 +108,7 @@ if (!function_exists('loop')) {
 if (!function_exists('create')) {
     function create(string|array|callable $type, array $params = [], bool $singleTon = true): object
     {
-        return schedule(ObjectFactory::class . '::createObject', $type, $params, $singleTon);
+        return schedule([App::$di, 'createObject'], $type, $params, $singleTon);
     }
 }
 
@@ -112,7 +120,7 @@ if (!function_exists('configure')) {
      */
     function configure(object $object, iterable $config)
     {
-        ObjectFactory::configure($object, $config);
+        App::$di->configure($object, $config);
     }
 }
 
@@ -267,27 +275,6 @@ if (!function_exists('waitReference')) {
         $wf = new WaitReference();
         $func($wf);
         WaitReference::wait($wf, $timeout);
-    }
-}
-
-if (!function_exists('str_starts_with')) {
-    function str_ends_with(string $haystack, string $needle): bool
-    {
-        return strncmp($haystack, $needle, strlen($needle)) === 0;
-    }
-}
-
-if (!function_exists('str_ends_with')) {
-    function str_ends_with(string $haystack, string $needle): bool
-    {
-        return $needle === '' || substr_compare($haystack, $needle, -strlen($needle)) === 0;
-    }
-}
-
-if (!function_exists('str_contains')) {
-    function str_contains(string $haystack, string $needle): bool
-    {
-        return strpos($haystack, $needle) !== false;
     }
 }
 

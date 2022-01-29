@@ -7,7 +7,7 @@ namespace Rabbit\Base;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use Throwable;
+use Rabbit\Base\DI\ObjectFactory;
 
 class App
 {
@@ -16,6 +16,8 @@ class App
     private static array $aliases = [];
 
     private static ?LoggerInterface $logger = null;
+
+    public static ?ObjectFactory $di = null;
 
     public static function setAlias(string $alias, ?string $path): void
     {
@@ -92,10 +94,10 @@ class App
             return self::$logger;
         }
         try {
-            self::$logger = getDI('logger');
+            self::$logger = service('logger');
         } catch (\Throwable $exception) {
             print_r($exception->getMessage());
-            self::$logger = getDI(NullLogger::class);
+            self::$logger = service(NullLogger::class);
         }
         return self::$logger;
     }

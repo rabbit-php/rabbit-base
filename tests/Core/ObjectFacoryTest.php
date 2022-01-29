@@ -46,13 +46,13 @@ class ObjectFacoryTest extends TestCase
     public function testCreateWithNoSingleTon()
     {
         $obj = ObjectFactory::createObject([
-            'class' => BaseObject::class,
+            '{}' => BaseObject::class,
             'name' => 'test'
         ], [], false);
         $this->assertInstanceOf(BaseObject::class, $obj);
         $this->assertEquals('test', $obj->name);
-        $obj = ObjectFactory::createObject([
-            'class' => BaseObject::class,
+        $obj = create([
+            '{}' => BaseObject::class,
             'name' => 'test1'
         ], [], false);
         $this->assertEquals('test1', $obj->name);
@@ -60,8 +60,8 @@ class ObjectFacoryTest extends TestCase
 
     public function testCreateWithClass()
     {
-        $obj = ObjectFactory::createObject([
-            'class' => BaseObject::class,
+        $obj = create([
+            '{}' => BaseObject::class,
             'name' => 'test'
         ], [], false);
         $this->assertInstanceOf(BaseObject::class, $obj);
@@ -70,20 +70,20 @@ class ObjectFacoryTest extends TestCase
 
     public function testCreateWithArray()
     {
-        $obj = ObjectFactory::createObject(BaseObject::class, ['name' => 'test'], false);
+        $obj = create(BaseObject::class, ['name' => 'test'], false);
         $this->assertInstanceOf(BaseObject::class, $obj);
         $this->assertEquals('test', $obj->name);
     }
 
     public function testCreateWithSingleTon()
     {
-        $obj = ObjectFactory::createObject([
-            'class' => BaseObject::class,
+        $obj = create([
+            '{}' => BaseObject::class,
             'name' => 'test'
         ]);
         $this->assertEquals('test', $obj->name);
-        $obj = ObjectFactory::createObject([
-            'class' => BaseObject::class,
+        $obj = create([
+            '{}' => BaseObject::class,
             'name' => 'test1'
         ]);
         $this->assertEquals('test', $obj->name);

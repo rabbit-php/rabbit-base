@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Helper;
@@ -21,7 +22,7 @@ class ExceptionHelper
     {
         $trace = explode("\n", $exception->getTraceAsString());
         $count = count($trace);
-        $depth = getDI('debug_depth', false, 3);
+        $depth = config('debug_depth', 3);
         $count < $depth && $depth = $count;
         $array = [
             'name' => $exception instanceof Exception ? $exception->getName() : 'Exception',
