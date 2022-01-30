@@ -20,7 +20,7 @@ class Container implements ContainerInterface
         throw new InvalidConfigException("{$id} not found in container");
     }
 
-    public function has(string $id)
+    public function has(string $id): bool
     {
         return isset($this->map[$id]);
     }
