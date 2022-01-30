@@ -11,6 +11,7 @@ use Rabbit\Base\Core\NumLock;
 use Rabbit\Base\Helper\LockHelper;
 use Rabbit\Base\DI\ObjectFactory;
 use Rabbit\Base\Core\ShareResult;
+use Rabbit\Base\DI\ArrayDefinition;
 use Rabbit\Base\DI\Definition;
 use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
@@ -41,6 +42,13 @@ if (!function_exists('service')) {
     function service(string $name, bool $throwException = true, $default = null)
     {
         return App::$di->get($name, $throwException, $default);
+    }
+}
+
+if (!function_exists('arrdef')) {
+    function arrdef(array $items)
+    {
+        return new ArrayDefinition($items);
     }
 }
 
