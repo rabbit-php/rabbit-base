@@ -21,6 +21,8 @@ class ObjectFactory
 
     private array $args = [];
 
+    private array $props = [];
+
     private array $lazy = [];
 
     public function __construct(
@@ -88,6 +90,18 @@ class ObjectFactory
             $this->args[$type] = $args;
         }
         return $args;
+    }
+
+    private function getProps(string $type, ReflectionClass $class): array
+    {
+        if ($this->propertys[$type] ?? false) {
+            return $this->propertys[$type];
+        }
+        $this->props[$type] = [];
+        foreach ($class->getProperties() as $prop) {
+            $this->props[$type][$prop->getName()] = $prop;
+        }
+        return $this->props[$type];
     }
 
     private function makeObject(string $type, array $params, bool $deep = false): object
@@ -191,11 +205,13 @@ class ObjectFactory
         $type = get_class($obj);
         $class = $this->getClass($type);
         $args = $this->getArgs($type, $class);
+        $props = $this->getProps($type, $class);
         foreach ($params as $action => $arguments) {
             if (substr($action, -2) === $this->funcKey && $action !== $this->funcKey && $action !== 'init()') {
                 call_user_func_array([$obj, substr($action, 0, -2)], (array)$arguments);
-            } else {
-                !in_array($action, $args) && $obj->$action = $this->makeValue($arguments);
+            } elseif (($attribute = $props[$action] ?? false) && !$attribute->isReadOnly()) {
+                $val = $this->makeValue($arguments);
+                !in_array($action, $args) && $obj->$action = $val;
             }
         }
         if ($obj instanceof InitInterface) {
@@ -209,16 +225,15 @@ class ObjectFactory
 
     private function initProperty(object $obj, ReflectionClass $class, array $args, iterable $params): void
     {
+        $props = $this->getProps(get_class($obj), $class);
         foreach ($params as $property => $v) {
             if (substr($property, -2) === $this->funcKey && $property !== $this->funcKey && $property !== 'init()') {
                 call_user_func_array([$obj, substr($property, 0, -2)], $v);
             }
-            if (!$class->hasProperty($property) || in_array($property, $args)) {
-                continue;
+            if (($attribute = $props[$property] ?? false) && !$attribute->isReadOnly() && !in_array($property, $args)) {
+                $attribute->setAccessible(true);
+                $attribute->setValue($obj, $this->makeValue($v));
             }
-            $attribute = $class->getProperty($property);
-            $attribute->setAccessible(true);
-            $attribute->setValue($obj, $this->makeValue($v));
         }
 
         if ($obj instanceof InitInterface) {
