@@ -155,6 +155,9 @@ class ObjectFactory
     public function createObject(string|array $type, array $params = [], bool $singleTon = true): object
     {
         if (is_string($type)) {
+            if (!class_exists($type)) {
+                return $this->get($type);
+            }
             return $this->make($type, $params, $singleTon);
         }
         if (!isset($type[$this->classKey])) {

@@ -97,7 +97,7 @@ class App
             self::$logger = service('logger');
         } catch (\Throwable $exception) {
             print_r($exception->getMessage());
-            self::$logger = service(NullLogger::class);
+            self::$logger = create(NullLogger::class);
         }
         return self::$logger;
     }
