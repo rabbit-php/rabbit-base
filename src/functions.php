@@ -9,7 +9,6 @@ use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
 use Rabbit\Base\Core\NumLock;
 use Rabbit\Base\Helper\LockHelper;
-use Rabbit\Base\DI\ObjectFactory;
 use Rabbit\Base\Core\ShareResult;
 use Rabbit\Base\DI\ArrayDefinition;
 use Rabbit\Base\DI\Definition;
@@ -22,7 +21,7 @@ use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
 
 if (!function_exists('env')) {
-    function env(string $name, $default = null): array|bool|string|int|null
+    function env(string $name, mixed $default = null): array|bool|string|int|null
     {
         if (!isset($_ENV[$name]) && !isset($_SERVER[$name])) {
             return $default;
@@ -32,28 +31,28 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('config')) {
-    function config(string $name, mixed $default = null)
+    function config(string $name, mixed $default = null): mixed
     {
         return App::$di->config[$name] ?? $default;
     }
 }
 
 if (!function_exists('service')) {
-    function service(string $name, bool $throwException = true, $default = null)
+    function service(string $name, bool $throwException = true, mixed $default = null): object
     {
         return App::$di->get($name, $throwException, $default);
     }
 }
 
 if (!function_exists('arrdef')) {
-    function arrdef(array $items)
+    function arrdef(array $items): ArrayDefinition
     {
         return new ArrayDefinition($items);
     }
 }
 
 if (!function_exists('definition')) {
-    function definition(string $name)
+    function definition(string $name): Definition
     {
         return new Definition($name);
     }
@@ -121,26 +120,14 @@ if (!function_exists('create')) {
 }
 
 if (!function_exists('configure')) {
-    /**
-     * @param $object
-     * @param iterable $config
-     * @throws ReflectionException
-     */
-    function configure(object $object, iterable $config)
+    function configure(object $object, iterable $config): void
     {
         App::$di->configure($object, $config);
     }
 }
 
 if (!function_exists('lock')) {
-    /**
-     * @param string $name
-     * @param callable $function
-     * @param string $key
-     * @param float|int $timeout
-     * @return mixed
-     */
-    function lock(string $name, callable $function, bool $next = true, string $key = '', float $timeout = 600)
+    function lock(string $name, callable $function, bool $next = true, string $key = '', float $timeout = 600): mixed
     {
         if (null === $lock = LockHelper::getLock($name)) {
             throw new InvalidConfigException("lock name $name not exists!");
@@ -150,7 +137,7 @@ if (!function_exists('lock')) {
 }
 
 if (!function_exists('nlock')) {
-    function nlock(callable $function, bool $next = true, string $key = '', float $timeout = 600)
+    function nlock(callable $function, bool $next = true, string $key = '', float $timeout = 600): mixed
     {
         $debug = current(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1));
         $name = "{$debug['file']}:{$debug['line']}";
@@ -287,7 +274,7 @@ if (!function_exists('waitReference')) {
 }
 
 if (!function_exists('schedule')) {
-    function schedule(callable $callback, ...$arg)
+    function schedule(callable $callback, ...$arg): mixed
     {
         static $enable = true;
         $lock = getCoEnv() === 0 && is_array(\Co::getOptions()) && (\Co::getOptions()['enable_preemptive_scheduler'] ?? false & $enable);
