@@ -4,14 +4,6 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
-use DI\DependencyException;
-use DI\NotFoundException;
-use ReflectionException;
-
-/**
- * Trait StaticInstanceTrait
- * @package Rabbit\Base\Core
- */
 trait StaticInstanceTrait
 {
     private static array $_instances = [];

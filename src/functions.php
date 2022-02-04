@@ -38,7 +38,7 @@ if (!function_exists('config')) {
 }
 
 if (!function_exists('service')) {
-    function service(string $name, bool $throwException = true, mixed $default = null): object
+    function service(string $name, bool $throwException = true, mixed $default = null): ?object
     {
         return App::$di->get($name, $throwException, $default);
     }
