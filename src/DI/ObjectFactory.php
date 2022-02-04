@@ -190,7 +190,7 @@ class ObjectFactory
             $val = $this->makeObject($type, $val, true);
         } elseif ($val instanceof ArrayDefinition) {
             foreach ($val->items as &$item) {
-                if ($type = ArrayHelper::remove($item, $this->classKey)) {
+                if (is_array($item) && ($type = ArrayHelper::remove($item, $this->classKey))) {
                     $item = $this->makeObject($type, $item, true);
                 } elseif ($item instanceof Definition) {
                     $item = $this->get($item->item);

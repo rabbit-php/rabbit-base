@@ -2,19 +2,12 @@
 
 namespace Rabbit\Base\Helper;
 
+use Closure;
 use Rabbit\Base\Contract\ArrayAble;
+use Traversable;
 
-/**
- * Class ArrayHelper
- * @package Rabbit\Base\Helper
- */
 class ArrayHelper
 {
-    /**
-     * @author Albert <63851587@qq.com>
-     * @param array $array
-     * @return void
-     */
     public static function toArrayJson(array &$array): void
     {
         foreach ($array as &$value) {
@@ -30,13 +23,7 @@ class ArrayHelper
         }
     }
 
-    /**
-     * @param $object
-     * @param array $properties
-     * @param bool $recursive
-     * @return array
-     */
-    public static function toArray($object, array $properties = [], bool $recursive = true): array
+    public static function toArray(mixed $object, array $properties = [], bool $recursive = true): array
     {
         if (is_array($object)) {
             if ($recursive) {
@@ -79,15 +66,9 @@ class ArrayHelper
         return [$object];
     }
 
-    /**
-     * @param $array
-     * @param $key
-     * @param null $default
-     * @return mixed|null
-     */
-    public static function getValue($array, $key, $default = null)
+    public static function getValue(array|object $array, array|Closure|string $key, mixed $default = null): mixed
     {
-        if ($key instanceof \Closure) {
+        if ($key instanceof Closure) {
             return $key($array, $default);
         }
 
@@ -119,13 +100,7 @@ class ArrayHelper
         return $default;
     }
 
-    /**
-     * @param array $array
-     * @param array $keys
-     * @param null $defualt
-     * @return mixed|null
-     */
-    public static function getOneValue(array &$array, array $keys, $defualt = null, bool $remove = false)
+    public static function getOneValue(array &$array, array $keys, mixed $defualt = null, bool $remove = false): mixed
     {
         $result = $defualt;
         foreach ($keys as $key) {
@@ -141,12 +116,7 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $a
-     * @param $b
-     * @return array
-     */
-    public static function merge($a, $b): array
+    public static function merge(mixed $a, mixed $b): array
     {
         $args = func_get_args();
         $res = array_shift($args);
@@ -169,12 +139,7 @@ class ArrayHelper
         return $res;
     }
 
-    /**
-     * @param $array
-     * @param $path
-     * @param $value
-     */
-    public static function setValue(&$array, $path, $value): void
+    public static function setValue(array &$array, null|array|int|string $path, mixed $value): void
     {
         if ($path === null) {
             $array = $value;
@@ -197,13 +162,7 @@ class ArrayHelper
         $array[array_shift($keys)] = $value;
     }
 
-    /**
-     * @param $array
-     * @param $key
-     * @param null $default
-     * @return mixed|null
-     */
-    public static function remove(&$array, $key, $default = null)
+    public static function remove(array &$array, string $key, mixed $default = null): mixed
     {
         if (is_array($array) && (isset($array[$key]) || array_key_exists($key, $array))) {
             $value = $array[$key];
@@ -215,25 +174,15 @@ class ArrayHelper
         return $default;
     }
 
-    /**
-     * @param array $array
-     * @param array $keys
-     * @param null $default
-     */
-    public static function removeKeys(array &$array, array $keys, $default = null): void
+    public static function removeKeys(array &$array, array $keys, mixed $default = null): void
     {
         $result = [];
         foreach ($keys as $index => $key) {
-            $result[$key] = self::remove($array, $keys, is_array($default) ? $default[$index] : $default);
+            $result[$key] = self::remove($array, $key, is_array($default) ? $default[$index] : $default);
         }
     }
 
-    /**
-     * @param $array
-     * @param $value
-     * @return array
-     */
-    public static function removeValue(&$array, $value): array
+    public static function removeValue(array &$array, mixed $value): array
     {
         $result = [];
         if (is_array($array)) {
@@ -248,16 +197,9 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $array
-     * @param $key
-     * @param array $groups
-     * @return array
-     */
-    public static function index(array $array, ?string $key, $groups = []): array
+    public static function index(array $array, ?string $key, array $groups = []): array
     {
         $result = [];
-        $groups = (array)$groups;
 
         foreach ($array as $element) {
             $lastArray = &$result;
@@ -289,14 +231,7 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $array
-     * @param $from
-     * @param $to
-     * @param null $group
-     * @return array
-     */
-    public static function map($array, $from, $to, $group = null): array
+    public static function map(array $array, string $from, string $to, null|array|Closure|string $group = null): array
     {
         $result = [];
         foreach ($array as $element) {
@@ -312,13 +247,7 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $array
-     * @param $key
-     * @param int $direction
-     * @param int $sortFlag
-     */
-    public static function multisort(&$array, $key, $direction = SORT_ASC, $sortFlag = SORT_REGULAR): void
+    public static function multisort(array &$array, array|int|string $key, int $direction = SORT_ASC, int $sortFlag = SORT_REGULAR): void
     {
         $keys = is_array($key) ? $key : [$key];
         if (empty($keys) || empty($array)) {
@@ -353,13 +282,7 @@ class ArrayHelper
         call_user_func_array('array_multisort', $args);
     }
 
-    /**
-     * @param $array
-     * @param $name
-     * @param bool $keepKeys
-     * @return array
-     */
-    public static function getColumn($array, $name, $keepKeys = true): array
+    public static function getColumn(iterable $array, string|int|Closure $name, bool $keepKeys = true): array
     {
         $result = [];
         if ($keepKeys) {
@@ -388,45 +311,25 @@ class ArrayHelper
         return array_is_list($array);
     }
 
-    /**
-     * @param $var
-     * @return bool
-     */
-    public static function isTraversable($var): bool
+    public static function isTraversable(mixed $var): bool
     {
-        return is_array($var) || $var instanceof \Traversable;
+        return is_array($var) || $var instanceof Traversable;
     }
 
-    /**
-     * @param $needles
-     * @param $haystack
-     * @param bool $strict
-     * @return bool
-     */
-    public static function isSubset($needles, $haystack, $strict = false): bool
+    public static function isSubset(array|Traversable $needles, array|Traversable $haystack, bool $strict = false): bool
     {
-        if (is_array($needles) || $needles instanceof \Traversable) {
-            foreach ($needles as $needle) {
-                if (!static::isIn($needle, $haystack, $strict)) {
-                    return false;
-                }
+        foreach ($needles as $needle) {
+            if (!static::isIn($needle, $haystack, $strict)) {
+                return false;
             }
-
-            return true;
         }
 
-        throw new \InvalidArgumentException('Argument $needles must be an array or implement Traversable');
+        return true;
     }
 
-    /**
-     * @param $needle
-     * @param $haystack
-     * @param bool $strict
-     * @return bool
-     */
-    public static function isIn($needle, $haystack, $strict = false): bool
+    public static function isIn(mixed $needle, array|Traversable $haystack, bool $strict = false): bool
     {
-        if ($haystack instanceof \Traversable) {
+        if ($haystack instanceof Traversable) {
             foreach ($haystack as $value) {
                 if ($needle == $value && (!$strict || $needle === $value)) {
                     return true;
@@ -434,19 +337,12 @@ class ArrayHelper
             }
         } elseif (is_array($haystack)) {
             return in_array($needle, $haystack, $strict);
-        } else {
-            throw new \InvalidArgumentException('Argument $haystack must be an array or implement Traversable');
         }
 
         return false;
     }
 
-    /**
-     * @param $array
-     * @param $filters
-     * @return array
-     */
-    public static function filter($array, $filters): array
+    public static function filter(array $array, array $filters): array
     {
         $result = [];
         $forbiddenVars = [];
@@ -490,13 +386,6 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param array $array
-     * @param array $keys
-     * @param array|null $newKeys
-     * @param null $default
-     * @return array|null
-     */
     public static function getValueByArray(
         array $array,
         array $keys,
@@ -526,12 +415,6 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param array $array
-     * @param array $keys
-     * @param null $default
-     * @return array|null
-     */
     public static function getValueByList(
         array $array,
         array $keys,
@@ -548,13 +431,7 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $key
-     * @param $array
-     * @param bool $caseSensitive
-     * @return bool
-     */
-    public static function keyExists($key, $array, $caseSensitive = true): bool
+    public static function keyExists(string|int $key, array $array, bool $caseSensitive = true): bool
     {
         if ($caseSensitive) {
             // Function `isset` checks key faster but skips `null`, `array_key_exists` handles this case
@@ -571,13 +448,7 @@ class ArrayHelper
         return false;
     }
 
-    /**
-     * @param array $array
-     * @param $key
-     * @param $group
-     * @return array|null
-     */
-    public static function sum(array $array, $key, $group): ?array
+    public static function sum(array $array, string|int $key, string|int $group): ?array
     {
         if (!is_array($array) || !$key || !$group) {
             return null;
@@ -593,11 +464,7 @@ class ArrayHelper
         return $result;
     }
 
-    /**
-     * @param $object
-     * @return array|null
-     */
-    public static function getObjectVars($object): ?array
+    public static function getObjectVars(object $object): ?array
     {
         return get_object_vars($object);
     }
