@@ -26,7 +26,15 @@ if (!function_exists('env')) {
         if (!isset($_ENV[$name]) && !isset($_SERVER[$name])) {
             return $default;
         }
-        return getenv($name);
+        $env = $_ENV[$name] ?? $_SERVER[$name];
+        if (is_numeric($env)) {
+            return (int)$env;
+        }
+        return match ($env) {
+            'true' => true,
+            'false' => false,
+            'null' => Null
+        };
     }
 }
 
