@@ -27,13 +27,17 @@ if (!function_exists('env')) {
             return $default;
         }
         $env = $_ENV[$name] ?? $_SERVER[$name];
-        if (is_numeric($env)) {
-            return (int)$env;
-        }
-        return match ($env) {
-            'true' => true,
-            'false' => false,
-            'null' => Null
+        switch ($env) {
+            case 'true':
+                return true;
+            case 'false':
+                return false;
+            case 'null':
+                return null;
+            case is_numeric($env):
+                return (int)$env;
+            default:
+                return $env;
         };
     }
 }
