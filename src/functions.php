@@ -193,7 +193,7 @@ if (!function_exists('wgeach')) {
             $wf = new WaitReference();
             foreach ($data as $key => &$datum) {
                 rgo(function () use ($function, $key, &$datum, $wf): void {
-                    $datum = $function($key, $datum, $wf);
+                    $function($key, $datum, $wf);
                 });
             }
             WaitReference::wait($wf, $timeout);
@@ -201,7 +201,7 @@ if (!function_exists('wgeach')) {
             $wg = new CoroutineWaitGroup(count($data));
             foreach ($data as $key => &$datum) {
                 rgo(function () use ($function, $key, &$datum, $wg): void {
-                    $datum = $function($key, $datum);
+                    $function($key, $datum);
                     $wg->done();
                 });
             }
