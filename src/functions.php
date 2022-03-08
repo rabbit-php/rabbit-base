@@ -184,10 +184,10 @@ if (!function_exists('sync')) {
 }
 
 if (!function_exists('wgeach')) {
-    function wgeach(array $data, callable $function, int $timeout = -1): array
+    function wgeach(array &$data, callable $function, int $timeout = -1): void
     {
         if (count($data) === 0) {
-            return $data;
+            return;
         }
         if (getCoEnv() === 1) {
             $wf = new WaitReference();
@@ -207,7 +207,6 @@ if (!function_exists('wgeach')) {
             }
             $wg->wait($timeout);
         }
-        return $data;
     }
 }
 
