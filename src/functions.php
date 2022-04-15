@@ -16,6 +16,7 @@ use Rabbit\Base\Exception\InvalidConfigException;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
 use Swoole\ArrayObject;
+use Swoole\Coroutine as SwooleCoroutine;
 use Swoole\Coroutine\WaitGroup as CoroutineWaitGroup;
 use Swow\Sync\WaitGroup;
 use Swow\Sync\WaitReference;
@@ -306,5 +307,38 @@ if (!function_exists('share')) {
     function share(string $key, callable $func, int $timeout = 3): ShareResult
     {
         return ShareResult::getShare($key, $timeout)($func);
+    }
+}
+
+if (!function_exists('ryield')) {
+    function ryield(mixed $data = null): mixed
+    {
+        if (getCoEnv() === 1) {
+            return Coroutine::getCurrent()->yield($data);
+        } else {
+            SwooleCoroutine::yield();
+        }
+    }
+}
+
+if (!function_exists('resume')) {
+    function resume(array|int $data): mixed
+    {
+        if (getCoEnv() === 1) {
+            return Coroutine::getCurrent()->resume($data);
+        } else {
+            SwooleCoroutine::resume($data);
+        }
+    }
+}
+
+if (!function_exists('cancel')) {
+    function cancel(int $cid = null): mixed
+    {
+        if (getCoEnv() === 1) {
+            return Coroutine::getCurrent()->kill();
+        } else {
+            SwooleCoroutine::cancel($cid);
+        }
     }
 }

@@ -6,7 +6,6 @@ namespace Rabbit\Base\Core;
 
 use Rabbit\Base\Exception\NotSupportedException;
 use SplQueue;
-use Swoole\Coroutine;
 
 final class SplChannel
 {
@@ -41,7 +40,7 @@ final class SplChannel
     {
         $this->channel->$method($item);
         if ($this->wait->count() > 0) {
-            Coroutine::resume($this->wait->dequeue());
+            resume((int)$this->wait->dequeue());
         }
     }
 
@@ -50,8 +49,8 @@ final class SplChannel
         if (!$this->channel->isEmpty()) {
             return $this->channel->$method();
         }
-        $this->wait->enqueue(Coroutine::getCid());
-        Coroutine::yield();
+        $this->wait->enqueue(getCid());
+        ryield();
         return $this->channel->$method();
     }
 }

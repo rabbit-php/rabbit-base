@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Rabbit\Base\Core;
 
-use Swoole\Coroutine;
-
 final class LoopControl
 {
     public static array $loopArr = [];
@@ -28,7 +26,7 @@ final class LoopControl
     {
         $this->loop = false;
         $this->start();
-        Coroutine::cancel($this->cid);
+        cancel($this->cid);
     }
 
     public static function shutdownAll(): void
@@ -59,7 +57,7 @@ final class LoopControl
     {
         if ($this->yielded === false && $this->loop === true) {
             $this->yielded = true;
-            Coroutine::yield();
+            ryield();
         }
     }
 
@@ -67,7 +65,7 @@ final class LoopControl
     {
         if ($this->yielded === true) {
             $this->yielded = false;
-            Coroutine::resume($this->cid);
+            resume($this->cid);
             return true;
         }
         return false;
