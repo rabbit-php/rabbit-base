@@ -316,7 +316,7 @@ if (!function_exists('ryield')) {
         if (getCoEnv() === 1) {
             return Coroutine::getCurrent()->yield($data);
         } else {
-            SwooleCoroutine::yield();
+            return SwooleCoroutine::yield();
         }
     }
 }
@@ -327,16 +327,16 @@ if (!function_exists('resume')) {
         if (getCoEnv() === 1) {
             return Coroutine::getCurrent()->resume($data);
         } else {
-            SwooleCoroutine::resume($data);
+            return SwooleCoroutine::resume($data);
         }
     }
 }
 
 if (!function_exists('cancel')) {
-    function cancel(int $cid = null): mixed
+    function cancel(int $cid = null): void
     {
         if (getCoEnv() === 1) {
-            return Coroutine::getCurrent()->kill();
+            Coroutine::getCurrent()->kill();
         } else {
             SwooleCoroutine::cancel($cid);
         }
