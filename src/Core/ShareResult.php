@@ -12,7 +12,7 @@ class ShareResult
 {
     protected readonly Channel $channel;
 
-    public $result;
+    public mixed $result;
 
     protected ?Throwable $e = null;
 
