@@ -139,29 +139,6 @@ if (!function_exists('configure')) {
     }
 }
 
-if (!function_exists('lock')) {
-    function lock(string $name, callable $function, bool $next = true, string $key = '', float $timeout = 600): mixed
-    {
-        if (null === $lock = LockHelper::getLock($name)) {
-            throw new InvalidConfigException("lock name $name not exists!");
-        }
-        return $lock($function, $next, $key, $timeout);
-    }
-}
-
-if (!function_exists('nlock')) {
-    function nlock(callable $function, bool $next = true, string $key = '', float $timeout = 600): mixed
-    {
-        $debug = current(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1));
-        $name = "{$debug['file']}:{$debug['line']}";
-        if (null === $lock = LockHelper::getLock($name)) {
-            $lock = new NumLock();
-            LockHelper::add($name, $lock);
-        }
-        return $lock($function, $next, $key, $timeout);
-    }
-}
-
 if (!function_exists('sync')) {
     function sync(string $name, callable $function): void
     {

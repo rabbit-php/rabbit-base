@@ -1,21 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rabbit\Base\Contract;
 
 use Closure;
 
-/**
- * Interface LockInterface
- * @package Rabbit\Base\Contract
- */
 interface LockInterface
 {
-    /**
-     * @param Closure $function
-     * @param string $name
-     * @param float $timeout
-     * @return mixed
-     */
-    public function __invoke(Closure $function, bool $next = true, string $name = '', float $timeout = 600);
+    public function __invoke(string $name, Closure $function,  bool $next = true, float $timeout = 600): void;
 }
