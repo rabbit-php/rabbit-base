@@ -10,11 +10,6 @@ namespace Rabbit\Base\Core;
  */
 class Context
 {
-    /**
-     * @param string $name
-     * @param $value
-     * @param string|null $key
-     */
     public static function set(string $name, $value, string $key = null): void
     {
         $context = getContext();
@@ -25,12 +20,7 @@ class Context
         }
     }
 
-    /**
-     * @param string $name
-     * @param string|null $key
-     * @return mixed
-     */
-    public static function get(string $name, string $key = null)
+    public static function get(string $name, string $key = null): mixed
     {
         $context = getContext();
         if ($key !== null) {
@@ -43,11 +33,6 @@ class Context
         return isset($context[$name]) ? $context[$name] : null;
     }
 
-    /**
-     * @param string $name
-     * @param string|null $key
-     * @return bool
-     */
     public static function has(string $name, string $key = null): bool
     {
         $context = getContext();
@@ -57,17 +42,17 @@ class Context
         return isset($context[$name]);
     }
 
-    /**
-     * @param string $name
-     * @param string|null $key
-     */
-    public static function delete(string $name, string $key = null): void
+    public static function delete(string $name, string $key = null): mixed
     {
+        $ret = null;
         $context = getContext();
         if ($key !== null && isset($context[$key]) && isset($context[$key][$name])) {
+            $ret = $context[$key][$name];
             unset($context[$key][$name]);
-        } elseif (isset( $context[$name])) {
+        } elseif (isset($context[$name])) {
+            $ret = $context[$name];
             unset($context[$name]);
         }
+        return $ret;
     }
 }
