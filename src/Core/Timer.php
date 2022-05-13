@@ -119,9 +119,7 @@ class Timer
      */
     public static function clearTimers(): bool
     {
-        foreach (self::$timers as $name => $timerData) {
-            self::clearTimerByName($name);
-        }
+        self::$timers = [];
         return true;
     }
 }
