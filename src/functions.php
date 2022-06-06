@@ -137,22 +137,27 @@ if (!function_exists('configure')) {
 }
 
 if (!function_exists('sync')) {
-    function sync(string $name, callable $function): void
+    function sync(string $name, callable $function, bool $once = false): void
     {
-        static $arr = [];
-        if (!isset($arr[$name])) {
-            $arr[$name] = new Channel();
+        static $sync = [];
+        if (!isset($sync[$name])) {
+            $channel = new Channel();
+            $sync[$name] = $channel;
+        } else {
+            $channel = $sync[$name];
         }
         try {
-            if ($arr[$name]->push($name)) {
+            if ($channel->push($name)) {
                 $function();
             }
         } catch (Throwable $e) {
             throw $e;
         } finally {
-            if (isset($arr[$name])) {
-                $arr[$name]->close();
-                unset($arr[$name]);
+            if ($channel->isEmpty() || $once) {
+                $channel->close();
+                unset($sync[$name]);
+            } else {
+                $channel->pop();
             }
         }
     }

@@ -135,20 +135,25 @@ class ObjectFactory
                 }
             }
             $obj = $this->container->get($name);
-            if (!in_array($name, $this->initList)) {
-                $key = get_class($obj);
-                $class = $this->getClass($key);
-                $args = $this->getArgs($key, $class);
-                $this->initProperty($obj, $class, $args, $this->lazy[$name] ?? []);
-                $this->initList[] = $key;
-                $this->initList[] = $name;
-            }
+            sync("di.init.{$name}", fn () => $this->checkInit($name, $obj), true);
             return $obj;
         } catch (Throwable $e) {
             if ($throwException && $default === null) {
                 throw $e;
             }
             return $default;
+        }
+    }
+
+    private function checkInit(string $name, Object $obj): void
+    {
+        if (!in_array($name, $this->initList)) {
+            $key = get_class($obj);
+            $class = $this->getClass($key);
+            $args = $this->getArgs($key, $class);
+            $this->initProperty($obj, $class, $args, $this->lazy[$name] ?? []);
+            $this->initList[] = $key;
+            $this->initList[] = $name;
         }
     }
 
@@ -179,7 +184,7 @@ class ObjectFactory
         } else {
             $obj = $this->makeObject($class, $params);
         }
-        $this->configure($obj, $params);
+        $this->configure($obj, $params, $singleTon);
         return $obj;
     }
 
@@ -203,7 +208,7 @@ class ObjectFactory
         return $val;
     }
 
-    public function configure(object $obj, iterable $params): void
+    public function configure(object $obj, iterable $params, bool $singleTon = true): void
     {
         $type = get_class($obj);
         $class = $this->getClass($type);
@@ -218,7 +223,12 @@ class ObjectFactory
             }
         }
         if ($obj instanceof InitInterface) {
-            $obj->init();
+            if ($singleTon) {
+                $name = get_class($obj);
+                sync("di.build.{$name}", fn () => $obj->init(), true);
+            } else {
+                $obj->init();
+            }
         }
     }
 
