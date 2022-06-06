@@ -218,11 +218,7 @@ class ObjectFactory
             }
         }
         if ($obj instanceof InitInterface) {
-            if (getCid() === -1) {
-                $obj->init();
-            } else {
-                share("di.init.{$type}", fn () => $obj->init());
-            }
+            $obj->init();
         }
     }
 
@@ -240,12 +236,7 @@ class ObjectFactory
         }
 
         if ($obj instanceof InitInterface) {
-            if (getCid() === -1) {
-                $obj->init();
-            } else {
-                $name = get_class($obj);
-                share("di.init.{$name}", fn () => $obj->init());
-            }
+            $obj->init();
         }
     }
 }
