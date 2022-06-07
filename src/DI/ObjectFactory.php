@@ -135,7 +135,11 @@ class ObjectFactory
                 }
             }
             $obj = $this->container->get($name);
-            sync("di.init.{$name}", fn () => $this->checkInit($name, $obj), true);
+            if (getCoEnv() === 0) {
+                sync("di.init.{$name}", fn () => $this->checkInit($name, $obj), true);
+            } else {
+                $this->checkInit($name, $obj);
+            }
             return $obj;
         } catch (Throwable $e) {
             if ($throwException && $default === null) {
@@ -223,7 +227,7 @@ class ObjectFactory
             }
         }
         if ($obj instanceof InitInterface) {
-            if ($singleTon) {
+            if ($singleTon && getCoEnv() === 0) {
                 $name = get_class($obj);
                 sync("di.build.{$name}", fn () => $obj->init(), true);
             } else {
