@@ -13,7 +13,7 @@ use Throwable;
 
 class ObjectFactory
 {
-    private Container $container;
+    readonly public Container $container;
 
     private Container $definition;
 
@@ -47,7 +47,7 @@ class ObjectFactory
     public function lazy(array $lazy): self
     {
         foreach ($lazy as $name => $val) {
-            if ((is_array($val) && ($val[$this->classKey] ?? false)) || $val instanceof ArrayDefinition || $val instanceof Definition || is_object($val)) {
+            if ((is_array($val) && ($val[$this->classKey] ?? false)) || $val instanceof ArrayDefinition || $val instanceof Definition || is_object($val) || class_exists($name)) {
                 $this->lazy[$name] = $val;
             } else {
                 $this->config[$name] = $val;
@@ -62,11 +62,16 @@ class ObjectFactory
             if (is_array($value)) {
                 $class = $value[$this->classKey] ?? $name;
                 unset($value[$this->classKey]);
-                $obj = $this->makeObject($class, $value);
+                $value = $this->makeObject($class, $value);
+                if ($refresh) {
+                    $this->container->set($name, $value);
+                }
+            } elseif (is_callable($value)) {
+                $value = $value($this->container);
+            } elseif ($value instanceof Definition || $value instanceof ArrayDefinition) {
+                $value = $this->makeValue($value);
             }
-            if ($refresh) {
-                $this->container->set($name, $obj);
-            }
+            !$this->container->has($name) && $this->container->set($name, $value);
         }
     }
 
@@ -155,7 +160,7 @@ class ObjectFactory
             $key = get_class($obj);
             $class = $this->getClass($key);
             $args = $this->getArgs($key, $class);
-            $this->initProperty($obj, $class, $args, $this->lazy[$name] ?? []);
+            is_array($this->lazy[$name] ?? []) && $this->initProperty($obj, $class, $args, $this->lazy[$name] ?? []);
             $this->initList[] = $key;
             $this->initList[] = $name;
         }
@@ -203,11 +208,15 @@ class ObjectFactory
                     $item = $this->makeObject($type, $item, true);
                 } elseif ($item instanceof Definition) {
                     $item = $this->get($item->item);
+                } elseif ($item instanceof ConfDefinition) {
+                    $item = $this->config[$item->item] ?? null;
                 }
             }
             return $val->items;
         } elseif ($val instanceof Definition) {
             return $this->get($val->item);
+        } elseif ($val instanceof ConfDefinition) {
+            return $this->config[$val->item] ?? null;
         }
         return $val;
     }

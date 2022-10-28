@@ -9,6 +9,7 @@ use Rabbit\Base\Core\Coroutine;
 use Rabbit\Base\Core\LoopControl;
 use Rabbit\Base\Core\ShareResult;
 use Rabbit\Base\DI\ArrayDefinition;
+use Rabbit\Base\DI\ConfDefinition;
 use Rabbit\Base\DI\Definition;
 use Swow\Coroutine as SwowCoroutine;
 use Rabbit\Base\Helper\ExceptionHelper;
@@ -65,6 +66,13 @@ if (!function_exists('definition')) {
     function definition(string $name): Definition
     {
         return new Definition($name);
+    }
+}
+
+if (!function_exists('confdef')) {
+    function confdef(string $name): ConfDefinition
+    {
+        return new ConfDefinition($name);
     }
 }
 
