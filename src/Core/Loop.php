@@ -103,7 +103,7 @@ class Loop
         if ($id === null) {
             foreach (self::$loopList[$group]['event'] as $id => $event) {
                 if (isset(self::$running[$group]['event'][$id])) {
-                    App::warning("Event group <$group> $id already running!", 'Loop');
+                    App::warning("Event group <$group> $id already running!");
                     continue;
                 }
                 [$event, $autoRun] = $event;
@@ -129,7 +129,7 @@ class Loop
         if ($name === null) {
             foreach (self::$loopList[$group]['timer'] as $name => $timer) {
                 if (isset(self::$running[$group]['timer'][$name])) {
-                    App::warning("Timer group <$group> $name already running!", 'Loop');
+                    App::warning("Timer group <$group> $name already running!");
                     continue;
                 }
                 [$timer, $autoRun] = $timer;
