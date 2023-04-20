@@ -495,4 +495,19 @@ class ArrayHelper
         }
         return $tree;
     }
+
+    public static function flattenTree(array $tree, array &$return = [], string $option = 'children'): array
+    {
+        foreach ($tree as $item) {
+            if ($item[$option]) {
+                self::flattenTree($item[$option], $return);
+                unset($item[$option]);
+                $return[] = $item;
+            } else {
+                unset($item[$option]);
+                $return[] = $item;
+            }
+        }
+        return $return;
+    }
 }
